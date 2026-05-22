@@ -24,7 +24,7 @@ class AdminSeeder extends Seeder
                 'email' => 'gilbert@grpl.com'
             ],
             [
-                'name' => 'System Admin',
+                'name' => 'Admin Gilbert',
 
                 'password' => Hash::make('Seadragon555'),
 
