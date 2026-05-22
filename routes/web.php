@@ -17,7 +17,6 @@ Route::view('/register', 'pages.auth.register');
 | differentiated by conditional role checking.
 */
 Route::view('/dashboard', 'pages.dashboard')
-    ->middleware('auth')
     ->name('dashboard');
 
 /*
