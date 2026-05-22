@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 /*
+|--------------------------------------------------------------------------
 | Public Pages
+|--------------------------------------------------------------------------
 */
 Route::view('/', 'pages.home');
 
@@ -13,37 +15,103 @@ Route::view('/login', 'pages.auth.login')
 Route::view('/register', 'pages.auth.register');
 
 /*
-| Dashboard Only one endpoint but the views are
-| differentiated by conditional role checking.
+|--------------------------------------------------------------------------
+| Protected Pages
+|--------------------------------------------------------------------------
 */
-Route::view('/dashboard', 'pages.dashboard')
-    ->name('dashboard');
+Route::middleware('auth')->group(function () {
 
-/*
-| Applicant Pages
-*/
-Route::view('/applications', 'pages.applicant.applications');
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    */
+    Route::view('/dashboard', 'pages.dashboard')
+        ->name('dashboard');
 
-Route::view('/applications/create', 'pages.applicant.create');
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Pages
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:applicant')
+        ->prefix('applications')
+        ->group(function () {
 
-/*
-| Assessor Pages
-*/
-Route::view('/assessments', 'pages.assessor.assessments');
+            Route::view('/', 'pages.applicant.applications');
 
-/*
-| Committee Pages
-*/
-Route::view('/approvals', 'pages.committee.approvals');
+            Route::view('/create', 'pages.applicant.create');
+        });
 
-/*
-| Staff Pages
-*/
-Route::view('/submissions', 'pages.staff.submissions');
+    /*
+    |--------------------------------------------------------------------------
+    | Assessor Pages
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:assessor')
+        ->prefix('assessments')
+        ->group(function () {
 
-/*
-| Admin Pages
-*/
-Route::view('/users', 'pages.admin.users');
+            Route::view('/', 'pages.assessor.assessments');
+        });
 
-Route::view('/master-data', 'pages.admin.master-data');
+    /*
+    |--------------------------------------------------------------------------
+    | Committee Pages
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:committee')
+        ->prefix('approvals')
+        ->group(function () {
+
+            Route::view('/', 'pages.committee.approvals');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Staff Pages
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:staff')
+        ->prefix('submissions')
+        ->group(function () {
+
+            Route::view('/', 'pages.staff.submissions');
+        });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Pages
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:system_admin')
+        ->prefix('admin')
+        ->group(function () {
+
+            Route::view('/users', 'pages.admin.users');
+
+            Route::view(
+                '/master-data',
+                'pages.admin.master-data'
+            );
+
+            /*
+            | Study Programs
+            */
+
+            Route::view(
+                '/study-programs',
+                'pages.admin.study-programs.index'
+            );
+
+            Route::view(
+                '/study-programs/create',
+                'pages.admin.study-programs.create'
+            );
+
+            Route::view(
+                '/study-programs/{id}/edit',
+                'pages.admin.study-programs.edit'
+            );
+        });
+});
