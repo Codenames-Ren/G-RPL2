@@ -7,7 +7,16 @@ use Illuminate\Support\Facades\Route;
 | Public Pages
 |--------------------------------------------------------------------------
 */
+
 Route::view('/', 'pages.home');
+
+Route::view('/tentang-rpl', 'pages.about');
+
+Route::view('/persyaratan', 'pages.requirements');
+
+Route::view('/faq', 'pages.faq');
+
+Route::view('/pengumuman', 'pages.announcements');
 
 Route::view('/login', 'pages.auth.login')
     ->name('login');
@@ -19,6 +28,7 @@ Route::view('/register', 'pages.auth.register');
 | Protected Pages
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('auth')->group(function () {
 
     /*
@@ -26,6 +36,7 @@ Route::middleware('auth')->group(function () {
     | Dashboard
     |--------------------------------------------------------------------------
     */
+
     Route::view('/dashboard', 'pages.dashboard')
         ->name('dashboard');
 
@@ -34,6 +45,7 @@ Route::middleware('auth')->group(function () {
     | Applicant Pages
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:applicant')
         ->prefix('applications')
         ->group(function () {
@@ -48,6 +60,7 @@ Route::middleware('auth')->group(function () {
     | Assessor Pages
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:assessor')
         ->prefix('assessments')
         ->group(function () {
@@ -60,6 +73,7 @@ Route::middleware('auth')->group(function () {
     | Committee Pages
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:committee')
         ->prefix('approvals')
         ->group(function () {
@@ -72,6 +86,7 @@ Route::middleware('auth')->group(function () {
     | Staff Pages
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:staff')
         ->prefix('submissions')
         ->group(function () {
@@ -84,6 +99,7 @@ Route::middleware('auth')->group(function () {
     | Admin Pages
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:system_admin')
         ->prefix('admin')
         ->group(function () {
