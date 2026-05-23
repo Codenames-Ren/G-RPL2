@@ -113,8 +113,11 @@ function authPayload(mode, form) {
     }
 
     return {
+        nik: payload.nik,
         name: payload.name,
         email: payload.email,
+        phone: payload.phone,
+        address: payload.address,
         password: payload.password,
         password_confirmation: payload.password_confirmation,
     };
