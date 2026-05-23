@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Route;
 | Public Pages
 |--------------------------------------------------------------------------
 */
-
 Route::view('/', 'pages.home');
 
 Route::view('/tentang-rpl', 'pages.about');
@@ -28,7 +27,6 @@ Route::view('/register', 'pages.auth.register');
 | Protected Pages
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
 
     /*
@@ -36,7 +34,6 @@ Route::middleware('auth')->group(function () {
     | Dashboard
     |--------------------------------------------------------------------------
     */
-
     Route::view('/dashboard', 'pages.dashboard')
         ->name('dashboard');
 
@@ -45,14 +42,19 @@ Route::middleware('auth')->group(function () {
     | Applicant Pages
     |--------------------------------------------------------------------------
     */
-
     Route::middleware('role:applicant')
         ->prefix('applications')
         ->group(function () {
 
-            Route::view('/', 'pages.applicant.applications');
+            Route::view(
+                '/',
+                'pages.applicant.applications'
+            );
 
-            Route::view('/create', 'pages.applicant.create');
+            Route::view(
+                '/create',
+                'pages.applicant.create'
+            );
         });
 
     /*
@@ -60,12 +62,14 @@ Route::middleware('auth')->group(function () {
     | Assessor Pages
     |--------------------------------------------------------------------------
     */
-
     Route::middleware('role:assessor')
         ->prefix('assessments')
         ->group(function () {
 
-            Route::view('/', 'pages.assessor.assessments');
+            Route::view(
+                '/',
+                'pages.assessor.assessments'
+            );
         });
 
     /*
@@ -73,12 +77,14 @@ Route::middleware('auth')->group(function () {
     | Committee Pages
     |--------------------------------------------------------------------------
     */
-
     Route::middleware('role:committee')
         ->prefix('approvals')
         ->group(function () {
 
-            Route::view('/', 'pages.committee.approvals');
+            Route::view(
+                '/',
+                'pages.committee.approvals'
+            );
         });
 
     /*
@@ -86,12 +92,14 @@ Route::middleware('auth')->group(function () {
     | Staff Pages
     |--------------------------------------------------------------------------
     */
-
     Route::middleware('role:staff')
         ->prefix('submissions')
         ->group(function () {
 
-            Route::view('/', 'pages.staff.submissions');
+            Route::view(
+                '/',
+                'pages.staff.submissions'
+            );
         });
 
     /*
@@ -99,22 +107,45 @@ Route::middleware('auth')->group(function () {
     | Admin Pages
     |--------------------------------------------------------------------------
     */
-
     Route::middleware('role:system_admin')
         ->prefix('admin')
         ->group(function () {
 
-            Route::view('/users', 'pages.admin.users');
-
+            /*
+            |--------------------------------------------------------------------------
+            | Master Data
+            |--------------------------------------------------------------------------
+            */
             Route::view(
                 '/master-data',
                 'pages.admin.master-data'
             );
 
             /*
-            | Study Programs
+            |--------------------------------------------------------------------------
+            | User Management
+            |--------------------------------------------------------------------------
             */
+            Route::view(
+                '/users',
+                'pages.admin.users.index'
+            );
 
+            Route::view(
+                '/users/create',
+                'pages.admin.users.create'
+            );
+
+            Route::view(
+                '/users/{id}/edit',
+                'pages.admin.users.edit'
+            );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Study Programs
+            |--------------------------------------------------------------------------
+            */
             Route::view(
                 '/study-programs',
                 'pages.admin.study-programs.index'
