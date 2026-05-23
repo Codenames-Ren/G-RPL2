@@ -104,6 +104,22 @@ function validationMessage(error) {
         .join(' ');
 }
 
+function authPayload(mode, form) {
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+
+    if (mode !== 'register') {
+        return payload;
+    }
+
+    return {
+        name: payload.name,
+        email: payload.email,
+        password: payload.password,
+        password_confirmation: payload.password_confirmation,
+    };
+}
+
 function syncNavigation(user = state.user) {
     const hasSession = Boolean(state.token && user);
     const currentPath = window.location.pathname;
@@ -184,8 +200,7 @@ function bindAuthForms() {
 
             const mode = form.dataset.authForm;
             const button = form.querySelector('[data-submit-button]');
-            const formData = new FormData(form);
-            const payload = Object.fromEntries(formData.entries());
+            const payload = authPayload(mode, form);
 
             button.disabled = true;
             setMessage(form, 'Memproses...', 'info');
