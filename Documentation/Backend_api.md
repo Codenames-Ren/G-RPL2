@@ -35,8 +35,11 @@ POST /api/auth/register
 
 ```json
 {
+  "nik": "327xxxxxxxxx",
   "name": "Ren",
   "email": "ren@example.com",
+  "phone": "08123456789",
+  "address": "Jakarta",
   "password": "password123",
   "password_confirmation": "password123"
 }
@@ -45,7 +48,7 @@ POST /api/auth/register
 ### Notes
 
 - Applicant role assigned automatically
-- Email verification required before login
+- Email verification required
 
 ---
 
@@ -61,15 +64,6 @@ POST /api/auth/login
 {
   "email": "ren@example.com",
   "password": "password123"
-}
-```
-
-### Success Response
-
-```json
-{
-  "success": true,
-  "token": "sanctum_token"
 }
 ```
 
@@ -89,24 +83,12 @@ GET /api/auth/email/verify/{id}/{hash}
 GET /api/auth/me
 ```
 
-### Middleware
-
-```txt
-auth:sanctum
-```
-
 ---
 
 ## Logout
 
 ```http
 POST /api/auth/logout
-```
-
-### Middleware
-
-```txt
-auth:sanctum
 ```
 
 ---
@@ -201,15 +183,6 @@ role:system_admin
 GET /api/admin/users
 ```
 
-### Query Params (Optional)
-
-```txt
-search
-role
-is_active
-per_page
-```
-
 ---
 
 ## Get User Detail
@@ -226,14 +199,6 @@ GET /api/admin/users/{user}
 POST /api/admin/users
 ```
 
-### Allowed Roles
-
-```txt
-assessor
-staff_rpl
-committee
-```
-
 ### Request Body
 
 ```json
@@ -247,12 +212,6 @@ committee
   "role": "committee"
 }
 ```
-
-### Notes
-
-- Internal account auto verified
-- Master data created automatically
-- System admin cannot be created
 
 ---
 
@@ -275,11 +234,6 @@ PUT /api/admin/users/{user}
 }
 ```
 
-### Notes
-
-- Password optional (only for update)
-- Empty password keeps old password
-
 ---
 
 ## Toggle User Status
@@ -296,11 +250,90 @@ PATCH /api/admin/users/{user}/status
 }
 ```
 
-### Notes
+---
 
-- Status synchronized automatically
-- System admin cannot be modified
-- Admin cannot deactivate own account
+# Admin - Course Management
+
+### Middleware
+
+```txt
+auth:sanctum
+role:system_admin
+```
+
+---
+
+## Get All Courses
+
+```http
+GET /api/admin/courses
+```
+
+---
+
+## Get Detail Course
+
+```http
+GET /api/admin/courses/{course}
+```
+
+---
+
+## Create Course
+
+```http
+POST /api/admin/courses
+```
+
+### Request Body
+
+```json
+{
+  "study_program_ids": [1, 2],
+  "code": "MKU101",
+  "name": "Pengantar Teknologi Informasi",
+  "semester": 1,
+  "sks": 2,
+  "rpl_type": "hybrid"
+}
+```
+
+---
+
+## Update Course
+
+```http
+PUT /api/admin/courses/{course}
+```
+
+### Request Body
+
+```json
+{
+  "study_program_ids": [1],
+  "code": "MKU101",
+  "name": "Pengantar Teknologi Informasi Updated",
+  "semester": 2,
+  "sks": 3,
+  "rpl_type": "a1"
+}
+```
+
+---
+
+## Toggle Course Status
+
+```http
+PATCH /api/admin/courses/{course}/status
+```
+
+### Request Body
+
+```json
+{
+  "is_active": false
+}
+```
 
 ---
 
