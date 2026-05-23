@@ -137,6 +137,16 @@ system_admin
 
 ---
 
+## Course Management
+
+| Route | Description |
+|---|---|
+| /admin/courses | Course list |
+| /admin/courses/create | Create course |
+| /admin/courses/{id}/edit | Edit course |
+
+---
+
 # Current Roles
 
 | Role |
@@ -207,6 +217,7 @@ Frontend should:
 - Role Restriction
 - Study Program Management
 - User Management
+- Course Management
 - Frontend Static Routing
 
 ---
