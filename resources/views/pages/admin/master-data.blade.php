@@ -3,9 +3,10 @@
 @section('title', 'Master Data - G-RPL2')
 @section('page', 'master-data')
 @section('authRequired', 'true')
+@section('roleRequired', 'system_admin')
 
 @section('content')
-    <section class="app-shell" data-protected-shell>
+    <section class="app-shell" data-protected-shell hidden>
         <aside class="sidebar">
             <p class="eyebrow">Admin</p>
             <h1>Master Data</h1>

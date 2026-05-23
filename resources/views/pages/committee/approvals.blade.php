@@ -3,9 +3,10 @@
 @section('title', 'Approvals - G-RPL2')
 @section('page', 'approvals')
 @section('authRequired', 'true')
+@section('roleRequired', 'committee')
 
 @section('content')
-    <section class="app-shell" data-protected-shell>
+    <section class="app-shell" data-protected-shell hidden>
         <aside class="sidebar">
             <p class="eyebrow">Committee</p>
             <h1>Approvals</h1>
