@@ -25,6 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'status',
+        'email_verified_at',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -32,11 +34,16 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    protected $appends = [
+        'status',
+    ];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -45,5 +52,27 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(
             new VerifyEmailNotification
         );
+    }
+
+    public function assessor()
+    {
+        return $this->hasOne(Assessor::class);
+    }
+
+    public function staffRpl()
+    {
+        return $this->hasOne(StaffRpl::class);
+    }
+
+    public function committee()
+    {
+        return $this->hasOne(Committee::class);
+    }
+
+    public function getStatusAttribute(): string
+    {
+        return $this->is_active
+            ? 'active'
+            : 'inactive';
     }
 }
