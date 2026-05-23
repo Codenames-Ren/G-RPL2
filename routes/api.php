@@ -5,7 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\StudyProgramController;
-
+use App\Http\Controllers\Admin\UserManagementController;
 /*
 | Authentication Routes
 */
@@ -153,6 +153,60 @@ Route::middleware([
         Route::put('/{studyProgram}', [
             StudyProgramController::class,
             'update'
+        ]);
+    });
+
+    /*
+    | User Management
+    */
+
+    Route::middleware([
+        'throttle:30,1'
+    ])->prefix('users')->group(function () {
+
+        /*
+        | Get All Users
+        */
+
+        Route::get('/', [
+            UserManagementController::class,
+            'index'
+        ]);
+
+        /*
+        | Get User Detail
+        */
+
+        Route::get('/{user}', [
+            UserManagementController::class,
+            'show'
+        ]);
+
+        /*
+        | Create User
+        */
+
+        Route::post('/', [
+            UserManagementController::class,
+            'store'
+        ]);
+
+        /*
+        | Update User
+        */
+
+        Route::put('/{user}', [
+            UserManagementController::class,
+            'update'
+        ]);
+
+        /*
+        | Toggle User Status
+        */
+
+        Route::patch('/{user}/status', [
+            UserManagementController::class,
+            'toggleStatus'
         ]);
     });
 });
