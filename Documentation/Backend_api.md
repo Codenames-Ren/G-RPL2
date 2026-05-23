@@ -23,29 +23,15 @@ Authorization: Bearer TOKEN
 
 ---
 
-# Authentication Flow
+# Authentication
 
-```txt
-Register
-→ Verification Email
-→ Verify Email
-→ Login
-→ Get Sanctum Token
-→ Access Protected API
-→ Logout
-```
-
----
-
-# 1. Register Applicant
-
-## Endpoint
+## Register Applicant
 
 ```http
 POST /api/auth/register
 ```
 
-## Request Body
+### Request Body
 
 ```json
 {
@@ -56,38 +42,20 @@ POST /api/auth/register
 }
 ```
 
-## Success Response
+### Notes
 
-```json
-{
-  "success": true,
-  "message": "Verification email sent successfully",
-  "user": {
-    "id": 1,
-    "name": "Ren",
-    "email": "ren@example.com",
-    "status": "active"
-  }
-}
-```
-
-## Notes
-
-* Applicant role assigned automatically
-* Verification email required before login
-* No token returned on register
+- Applicant role assigned automatically
+- Email verification required before login
 
 ---
 
-# 2. Login
-
-## Endpoint
+## Login
 
 ```http
 POST /api/auth/login
 ```
 
-## Request Body
+### Request Body
 
 ```json
 {
@@ -96,235 +64,87 @@ POST /api/auth/login
 }
 ```
 
-## Success Response
+### Success Response
 
 ```json
 {
   "success": true,
-  "message": "Login success",
-  "token": "1|sanctum_token_here",
-  "user": {
-    "id": 1,
-    "name": "Ren",
-    "email": "ren@example.com"
-  }
-}
-```
-
-## Email Not Verified
-
-```json
-{
-  "success": false,
-  "message": "Email not verified"
+  "token": "sanctum_token"
 }
 ```
 
 ---
 
-# 3. Email Verification
-
-## Endpoint
+## Verify Email
 
 ```http
 GET /api/auth/email/verify/{id}/{hash}
 ```
 
-## Success Response
-
-```json
-{
-  "success": true,
-  "message": "Email verified successfully"
-}
-```
-
 ---
 
-# 4. Current User
-
-## Endpoint
+## Current User
 
 ```http
 GET /api/auth/me
 ```
 
-## Middleware
+### Middleware
 
 ```txt
 auth:sanctum
 ```
 
-## Success Response
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "name": "Ren",
-    "email": "ren@example.com"
-  }
-}
-```
-
 ---
 
-# 5. Logout
-
-## Endpoint
+## Logout
 
 ```http
 POST /api/auth/logout
 ```
 
-## Middleware
+### Middleware
 
 ```txt
 auth:sanctum
 ```
 
-## Success Response
+---
 
-```json
-{
-  "success": true,
-  "message": "Logout success"
-}
+# Admin - Study Programs
+
+### Middleware
+
+```txt
+auth:sanctum
+role:system_admin
 ```
 
 ---
 
-# Rate Limit
-
-| Endpoint    | Limit     |
-| ----------- | --------- |
-| Login       | 5/minute  |
-| Register    | 3/minute  |
-| General API | 60/minute |
-
----
-
-# Queue Worker
-
-```bash
-php artisan queue:work
-```
-
----
-
-# 6. Get All Study Programs
-
-## Endpoint
+## Get All Study Programs
 
 ```http
 GET /api/admin/study-programs
 ```
 
-## Middleware
-
-```txt
-auth:sanctum
-role:system_admin
-```
-
-## Headers
-
-```http
-Authorization: Bearer TOKEN
-```
-
-## Success Response
-
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "code": "TI",
-      "name": "Teknik Informatika",
-      "total_sks": 144,
-      "max_convertible_sks": 100,
-      "supports_a1": true,
-      "supports_a2": true,
-      "is_hybrid_allowed": true,
-      "status": "active",
-      "created_at": "2026-05-22T10:00:00.000000Z",
-      "updated_at": "2026-05-22T10:00:00.000000Z"
-    }
-  ]
-}
-```
-
 ---
 
-# 7. Get Detail Study Program
-
-## Endpoint
+## Get Detail Study Program
 
 ```http
 GET /api/admin/study-programs/{studyProgram}
 ```
 
-## Middleware
-
-```txt
-auth:sanctum
-role:system_admin
-```
-
-## Headers
-
-```http
-Authorization: Bearer TOKEN
-```
-
-## Success Response
-
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "code": "TI",
-    "name": "Teknik Informatika",
-    "total_sks": 144,
-    "max_convertible_sks": 100,
-    "supports_a1": true,
-    "supports_a2": true,
-    "is_hybrid_allowed": true,
-    "status": "active",
-    "created_at": "2026-05-22T10:00:00.000000Z",
-    "updated_at": "2026-05-22T10:00:00.000000Z"
-  }
-}
-```
-
 ---
 
-# 8. Create Study Program
-
-## Endpoint
+## Create Study Program
 
 ```http
 POST /api/admin/study-programs
 ```
 
-## Middleware
-
-```txt
-auth:sanctum
-role:system_admin
-```
-
-## Headers
-
-```http
-Authorization: Bearer TOKEN
-```
-
-## Request Body
+### Request Body
 
 ```json
 {
@@ -339,57 +159,15 @@ Authorization: Bearer TOKEN
 }
 ```
 
-## Success Response
-
-```json
-{
-  "success": true,
-  "message": "Study program created successfully",
-  "data": {
-    "id": 1,
-    "code": "TI",
-    "name": "Teknik Informatika",
-    "total_sks": 144,
-    "max_convertible_sks": 100,
-    "supports_a1": true,
-    "supports_a2": true,
-    "is_hybrid_allowed": true,
-    "status": "active",
-    "created_at": "2026-05-22T10:00:00.000000Z",
-    "updated_at": "2026-05-22T10:00:00.000000Z"
-  }
-}
-```
-
-## Validation Notes
-
-- `code` must be unique
-- `max_convertible_sks` cannot exceed `total_sks`
-
 ---
 
-# 9. Update Study Program
-
-## Endpoint
+## Update Study Program
 
 ```http
 PUT /api/admin/study-programs/{studyProgram}
 ```
 
-## Middleware
-
-```txt
-auth:sanctum
-role:system_admin
-```
-
-## Headers
-
-```http
-Authorization: Bearer TOKEN
-```
-
-## Request Body
+### Request Body
 
 ```json
 {
@@ -404,31 +182,129 @@ Authorization: Bearer TOKEN
 }
 ```
 
-## Success Response
+---
 
-```json
-{
-  "success": true,
-  "message": "Study program updated successfully",
-  "data": {
-    "id": 1,
-    "code": "TI",
-    "name": "Teknik Informatika Updated",
-    "total_sks": 144,
-    "max_convertible_sks": 100,
-    "supports_a1": true,
-    "supports_a2": true,
-    "is_hybrid_allowed": false,
-    "status": "inactive",
-    "created_at": "2026-05-22T10:00:00.000000Z",
-    "updated_at": "2026-05-22T11:00:00.000000Z"
-  }
-}
+# Admin - User Management
+
+### Middleware
+
+```txt
+auth:sanctum
+role:system_admin
 ```
 
 ---
 
-# 10. Unauthorized Response
+## Get All Users
+
+```http
+GET /api/admin/users
+```
+
+### Query Params (Optional)
+
+```txt
+search
+role
+is_active
+per_page
+```
+
+---
+
+## Get User Detail
+
+```http
+GET /api/admin/users/{user}
+```
+
+---
+
+## Create User
+
+```http
+POST /api/admin/users
+```
+
+### Allowed Roles
+
+```txt
+assessor
+staff_rpl
+committee
+```
+
+### Request Body
+
+```json
+{
+  "name": "Sirius",
+  "email": "sirius@grpl.com",
+  "password": "Seadragon555",
+  "password_confirmation": "Seadragon555",
+  "nip": "198812347",
+  "phone": "08222222222",
+  "role": "committee"
+}
+```
+
+### Notes
+
+- Internal account auto verified
+- Master data created automatically
+- System admin cannot be created
+
+---
+
+## Update User
+
+```http
+PUT /api/admin/users/{user}
+```
+
+### Request Body
+
+```json
+{
+  "name": "Updated User",
+  "email": "updated@grpl.com",
+  "password": "NewPassword123",
+  "password_confirmation": "NewPassword123",
+  "nip": "198812347",
+  "phone": "08123456789"
+}
+```
+
+### Notes
+
+- Password optional (only for update)
+- Empty password keeps old password
+
+---
+
+## Toggle User Status
+
+```http
+PATCH /api/admin/users/{user}/status
+```
+
+### Request Body
+
+```json
+{
+  "is_active": false
+}
+```
+
+### Notes
+
+- Status synchronized automatically
+- System admin cannot be modified
+- Admin cannot deactivate own account
+
+---
+
+# General Error Response
 
 ## 401 Unauthenticated
 
@@ -441,8 +317,6 @@ Authorization: Bearer TOKEN
 
 ---
 
-# 11. Forbidden Response
-
 ## 403 Forbidden
 
 ```json
@@ -454,40 +328,11 @@ Authorization: Bearer TOKEN
 
 ---
 
-# 12. Validation Error Response
-
 ## 422 Validation Error
 
 ```json
 {
   "message": "The given data was invalid.",
-  "errors": {
-    "code": [
-      "The code field is required."
-    ]
-  }
+  "errors": {}
 }
 ```
-
----
-
-# Admin Study Program Flow
-
-```txt
-System Admin
-→ Create Study Program
-→ Configure RPL Support
-→ Configure SKS Conversion Limit
-→ Activate / Deactivate Study Program
-```
-
----
-
-# Study Program Business Rules
-
-- Study program code must be unique
-- Study program cannot be hard deleted
-- Deactivation is done using status field
-- Maximum convertible SKS cannot exceed total SKS
-- RPL support can be configured per study program
-- Hybrid submission availability depends on study program configuration
