@@ -134,7 +134,7 @@ function syncNavigation(user = state.user) {
     });
 
     document.querySelectorAll('[data-role-link]').forEach((element) => {
-        element.hidden = !hasSession || (userRole && element.dataset.roleLink !== userRole);
+        element.hidden = !hasSession || !userRole || element.dataset.roleLink !== userRole;
     });
 
     document.querySelectorAll('[data-nav-link]').forEach((element) => {
@@ -159,13 +159,29 @@ function renderUser(user) {
     });
 
     document.querySelectorAll('[data-role-card]').forEach((element) => {
-        element.hidden = Boolean(currentRole) && element.dataset.roleCard !== currentRole;
+        element.hidden = !currentRole || element.dataset.roleCard !== currentRole;
     });
 }
 
 function redirectToLogin() {
     const target = encodeURIComponent(window.location.pathname);
     window.location.assign(`/login?redirect=${target}`);
+}
+
+function requiredRole() {
+    return document.body.dataset.roleRequired || '';
+}
+
+function isAuthorizedForPage(user) {
+    const role = requiredRole();
+
+    return !role || roleOf(user) === role;
+}
+
+function revealProtectedShell() {
+    document.querySelectorAll('[data-protected-shell]').forEach((element) => {
+        element.hidden = false;
+    });
 }
 
 async function hydrateAuthenticatedPage() {
@@ -187,6 +203,13 @@ async function hydrateAuthenticatedPage() {
 
         syncNavigation(user);
         renderUser(user);
+
+        if (!isAuthorizedForPage(user)) {
+            window.location.replace('/dashboard');
+            return;
+        }
+
+        revealProtectedShell();
     } catch (error) {
         clearSession();
         redirectToLogin();

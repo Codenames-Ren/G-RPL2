@@ -19,8 +19,9 @@
     class="bg-[#F5F6FA] text-[#1A1A2E] antialiased"
     data-page="{{ $page }}"
     data-auth-required="@yield('authRequired', 'false')"
+    data-role-required="@yield('roleRequired', '')"
 >
-    @unless(in_array($page, ['home', 'login', 'register'], true))
+    @unless(in_array($page, ['home', 'login', 'register', 'about', 'requirements', 'faq', 'announcements'], true))
     <header class="topbar">
         <a class="brand" href="/" aria-label="G-RPL2 home">
             <span class="brand-mark">GR</span>
@@ -37,8 +38,9 @@
             <a href="/assessments" data-role-link="assessor" data-nav-link hidden>Assessments</a>
             <a href="/approvals" data-role-link="committee" data-nav-link hidden>Approvals</a>
             <a href="/submissions" data-role-link="staff" data-nav-link hidden>Submissions</a>
-            <a href="/users" data-role-link="admin" data-nav-link hidden>Users</a>
-            <a href="/master-data" data-role-link="admin" data-nav-link hidden>Master Data</a>
+            <a href="/admin/users" data-role-link="system_admin" data-nav-link hidden>Users</a>
+            <a href="/admin/master-data" data-role-link="system_admin" data-nav-link hidden>Master Data</a>
+            <a href="/admin/study-programs" data-role-link="system_admin" data-nav-link hidden>Study Programs</a>
             <a href="/login" data-public-nav data-nav-link>Login</a>
             <a class="button button-small" href="/register" data-public-nav>Register</a>
             <button class="button button-small button-muted" type="button" data-logout hidden>Logout</button>

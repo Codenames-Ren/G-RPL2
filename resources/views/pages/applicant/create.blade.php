@@ -3,9 +3,10 @@
 @section('title', 'Create Application - G-RPL2')
 @section('page', 'applications-create')
 @section('authRequired', 'true')
+@section('roleRequired', 'applicant')
 
 @section('content')
-    <section class="app-shell" data-protected-shell>
+    <section class="app-shell" data-protected-shell hidden>
         <aside class="sidebar">
             <p class="eyebrow">Applicant</p>
             <h1>Create Application</h1>
