@@ -5,7 +5,7 @@
 @section('authRequired', 'true')
 
 @section('content')
-    <section class="app-shell" data-protected-shell>
+    <section class="app-shell" data-protected-shell hidden>
         <aside class="sidebar">
             <p class="eyebrow">Signed in</p>
             <h1 data-user-name>Memuat user...</h1>
@@ -38,13 +38,17 @@
                     <strong>Submissions</strong>
                     <span>Review administrasi dan kelengkapan.</span>
                 </a>
-                <a class="module-card" href="/users" data-role-card="admin" hidden>
+                <a class="module-card" href="/admin/users" data-role-card="system_admin" hidden>
                     <strong>User Management</strong>
                     <span>Pengelolaan akun dan status user.</span>
                 </a>
-                <a class="module-card" href="/master-data" data-role-card="admin" hidden>
+                <a class="module-card" href="/admin/master-data" data-role-card="system_admin" hidden>
                     <strong>Master Data</strong>
                     <span>Data referensi program dan mata kuliah.</span>
+                </a>
+                <a class="module-card" href="/admin/study-programs" data-role-card="system_admin" hidden>
+                    <strong>Study Programs</strong>
+                    <span>Pengelolaan program studi dan konfigurasi RPL.</span>
                 </a>
             </div>
         </div>

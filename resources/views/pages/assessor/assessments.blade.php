@@ -3,9 +3,10 @@
 @section('title', 'Assessments - G-RPL2')
 @section('page', 'assessments')
 @section('authRequired', 'true')
+@section('roleRequired', 'assessor')
 
 @section('content')
-    <section class="app-shell" data-protected-shell>
+    <section class="app-shell" data-protected-shell hidden>
         <aside class="sidebar">
             <p class="eyebrow">Assessor</p>
             <h1>Assessments</h1>
