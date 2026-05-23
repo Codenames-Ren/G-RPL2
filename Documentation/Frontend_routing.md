@@ -13,8 +13,12 @@ http://your_ip_network:8000
 | Route | Description |
 |---|---|
 | / | Home page |
+| /tentang-rpl | About RPL page |
+| /persyaratan | Requirements page |
+| /faq | FAQ page |
+| /pengumuman | Announcement page |
 | /login | Login page |
-| /register | Register page |
+| /register | Applicant registration page |
 
 ---
 
@@ -28,22 +32,17 @@ All protected pages require authenticated session/token.
 
 | Route | Description |
 |---|---|
-| /dashboard | Single dashboard endpoint |
+| /dashboard | Main dashboard |
 
 ## Notes
 
-- Frontend handles role-based UI rendering
-- Backend remains responsible for authorization
-- Sidebar/menu/content rendered conditionally based on user role
+- Frontend handles role-based rendering
+- Backend remains source of authorization
+- Sidebar/menu rendered based on authenticated role
 
 ---
 
 # Applicant Pages
-
-| Route | Description |
-|---|---|
-| /applications | Application list |
-| /applications/create | Create application |
 
 ## Access Role
 
@@ -51,13 +50,14 @@ All protected pages require authenticated session/token.
 applicant
 ```
 
+| Route | Description |
+|---|---|
+| /applications | Application list |
+| /applications/create | Create application |
+
 ---
 
 # Assessor Pages
-
-| Route | Description |
-|---|---|
-| /assessments | Assessment page |
 
 ## Access Role
 
@@ -65,13 +65,13 @@ applicant
 assessor
 ```
 
+| Route | Description |
+|---|---|
+| /assessments | Assessment page |
+
 ---
 
 # Committee Pages
-
-| Route | Description |
-|---|---|
-| /approvals | Approval page |
 
 ## Access Role
 
@@ -79,13 +79,13 @@ assessor
 committee
 ```
 
+| Route | Description |
+|---|---|
+| /approvals | Approval page |
+
 ---
 
 # Staff Pages
-
-| Route | Description |
-|---|---|
-| /submissions | Submission review |
 
 ## Access Role
 
@@ -93,23 +93,47 @@ committee
 staff
 ```
 
+| Route | Description |
+|---|---|
+| /submissions | Submission review page |
+
 ---
 
 # Admin Pages
-
-| Route | Description |
-|---|---|
-| /admin/users | User management |
-| /admin/master-data | Master data management |
-| /admin/study-programs | Study program list |
-| /admin/study-programs/create | Create study program |
-| /admin/study-programs/{id}/edit | Edit study program |
 
 ## Access Role
 
 ```txt
 system_admin
 ```
+
+---
+
+## Master Data
+
+| Route | Description |
+|---|---|
+| /admin/master-data | Master data management |
+
+---
+
+## User Management
+
+| Route | Description |
+|---|---|
+| /admin/users | User list |
+| /admin/users/create | Create user |
+| /admin/users/{id}/edit | Edit user |
+
+---
+
+## Study Programs
+
+| Route | Description |
+|---|---|
+| /admin/study-programs | Study program list |
+| /admin/study-programs/create | Create study program |
+| /admin/study-programs/{id}/edit | Edit study program |
 
 ---
 
@@ -131,9 +155,9 @@ system_admin
 - Render UI
 - Store Sanctum token
 - Send Authorization header
-- Handle conditional UI rendering
 - Handle redirect after login
 - Handle 401 and 403 responses
+- Render menu/sidebar based on role
 
 ---
 
@@ -144,13 +168,13 @@ Login
 → Save Sanctum Token
 → Fetch /api/auth/me
 → Detect User Role
-→ Redirect To Role Dashboard
+→ Redirect To Dashboard
 → Render Sidebar/Menu Based On Role
 ```
 
 ---
 
-# Recommended Frontend Role Redirect
+# Recommended Redirect
 
 | Role | Redirect |
 |---|---|
@@ -164,47 +188,33 @@ Login
 
 # Frontend Route Protection
 
-Frontend should prevent unauthorized page access by:
+Frontend should:
 
-- Checking authenticated user role
-- Redirecting unauthorized users
-- Handling expired tokens
-- Handling forbidden access
+- Check authenticated role
+- Redirect unauthorized access
+- Handle expired token
+- Handle forbidden access
 
 ---
 
-# Current Admin Module Coverage
+# Current Module Coverage
 
 ## Completed
 
 - Authentication
 - Email Verification
-- Sanctum Token Authentication
+- Sanctum Authentication
 - Role Restriction
 - Study Program Management
+- User Management
 - Frontend Static Routing
-
----
-
-# Current Study Program Features
-
-- Create study program
-- Update study program
-- Get all study programs
-- Get detail study program
-- Activate / deactivate study program
-- Configure RPL support
-- Configure hybrid support
-- Configure maximum SKS conversion
 
 ---
 
 # Notes For Frontend Team
 
+- Do not create custom workflow outside backend API
 - Do not implement business logic on frontend
-- Do not validate role permissions manually
-- Always rely on backend authorization
-- Use backend API as source of truth
-- Frontend only responsible for rendering and user interaction
-
-```
+- Always follow backend authorization
+- Backend API is source of truth
+- Frontend only handles rendering and interaction
