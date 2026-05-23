@@ -52,7 +52,7 @@
             <label class="block text-xs font-bold text-[#1A1A2E] mb-1.5">
                 Nomor HP Aktif
             </label>
-            <input type="text" name="no_hp" placeholder="Contoh: 08123456789"
+            <input type="text" name="phone" placeholder="Contoh: 08123456789"
                    class="w-full border border-[#1565C0]/15 rounded-2xl px-4 py-3 text-sm text-[#1A1A2E] focus:border-[#1565C0] focus:ring-4 focus:ring-[#1565C0]/10 outline-none transition-all mb-1">
             <div class="mb-3"></div>
 
@@ -60,7 +60,7 @@
             <label class="block text-xs font-bold text-[#1A1A2E] mb-1.5">
                 Alamat Lengkap
             </label>
-            <textarea name="alamat" rows="2" placeholder="Masukkan alamat lengkap Anda"
+            <textarea name="address" rows="2" placeholder="Masukkan alamat lengkap Anda"
                       class="w-full border border-[#1565C0]/15 rounded-2xl px-4 py-3 text-sm text-[#1A1A2E] focus:border-[#1565C0] focus:ring-4 focus:ring-[#1565C0]/10 outline-none transition-all mb-1 resize-none"></textarea>
             <div class="mb-3"></div>
 
