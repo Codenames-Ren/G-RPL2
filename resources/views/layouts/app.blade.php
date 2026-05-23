@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'G-RPL2')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body
+    data-page="@yield('page', 'home')"
+    data-auth-required="@yield('authRequired', 'false')"
+>
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="G-RPL2 home">
+            <span class="brand-mark">GR</span>
+            <span>
+                <strong>G-RPL2</strong>
+                <small>Recognition Platform</small>
+            </span>
+        </a>
+
+        <nav class="nav-links" aria-label="Primary navigation">
+            <a href="/" data-nav-link>Home</a>
+            <a href="/dashboard" data-private-nav data-nav-link hidden>Dashboard</a>
+            <a href="/applications" data-role-link="applicant" data-nav-link hidden>Applications</a>
+            <a href="/assessments" data-role-link="assessor" data-nav-link hidden>Assessments</a>
+            <a href="/approvals" data-role-link="committee" data-nav-link hidden>Approvals</a>
+            <a href="/submissions" data-role-link="staff" data-nav-link hidden>Submissions</a>
+            <a href="/users" data-role-link="admin" data-nav-link hidden>Users</a>
+            <a href="/master-data" data-role-link="admin" data-nav-link hidden>Master Data</a>
+            <a href="/login" data-public-nav data-nav-link>Login</a>
+            <a class="button button-small" href="/register" data-public-nav>Register</a>
+            <button class="button button-small button-muted" type="button" data-logout hidden>Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        @yield('content')
+    </main>
+</body>
+</html>
