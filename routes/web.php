@@ -160,5 +160,26 @@ Route::middleware('auth')->group(function () {
                 '/study-programs/{id}/edit',
                 'pages.admin.study-programs.edit'
             );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Course Management
+            |--------------------------------------------------------------------------
+            */
+
+            Route::view(
+                '/courses',
+                'pages.admin.courses.index'
+            );
+
+            Route::view(
+                '/courses/create',
+                'pages.admin.courses.create'
+            );
+
+            Route::view(
+                '/courses/{id}/edit',
+                'pages.admin.courses.edit'
+            );
         });
 });
