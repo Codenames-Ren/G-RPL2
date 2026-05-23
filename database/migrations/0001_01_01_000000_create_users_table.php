@@ -27,8 +27,7 @@ return new class extends Migration
 
             $table->enum('status', [
                 'active',
-                'inactive',
-                'suspended'
+                'inactive'
             ])->default('active');
 
             $table->rememberToken();
