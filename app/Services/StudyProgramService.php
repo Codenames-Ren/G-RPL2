@@ -17,6 +17,31 @@ class StudyProgramService
     }
 
     /*
+    | Get Active Study Programs
+    */
+
+    public function getActive()
+    {
+        return StudyProgram::query()
+
+            ->where(
+                'status',
+                'active'
+            )
+
+            ->latest()
+
+            ->get([
+                'id',
+                'code',
+                'name',
+                'supports_a1',
+                'supports_a2',
+                'is_hybrid_allowed',
+            ]);
+    }
+
+    /*
     | Get Study Program Detail
     */
 
