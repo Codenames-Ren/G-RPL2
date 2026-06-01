@@ -12,6 +12,16 @@ use App\Http\Controllers\Applicant\ApplicationA1CourseController;
 use App\Http\Controllers\Applicant\ApplicationA2LearningExperienceController;
 use App\Http\Controllers\Applicant\ApplicationHybridController;
 use App\Http\Controllers\Applicant\ApplicationDocumentController;
+use App\Http\Controllers\Applicant\ApplicantProfileController;
+
+// -------------------------
+// Universal Route for all role
+// -------------------------
+
+Route::middleware(['auth:sanctum'])->group(function () {
+
+    Route::get('/study-programs', [StudyProgramController::class, 'publicIndex']);
+});
 
 // -------------------------
 // Auth Routes
@@ -80,7 +90,11 @@ Route::middleware(['auth:sanctum', 'role:system_admin'])->prefix('admin')->group
 
 Route::middleware(['auth:sanctum', 'role:applicant'])->prefix('applicant')->group(function () {
 
-    Route::get('/study-programs', [StudyProgramController::class, 'index']);
+    Route::prefix('profile')->group(function () {
+
+        Route::get('/', [ApplicantProfileController::class, 'show',]);
+        Route::put('/', [ApplicantProfileController::class, 'update',]);
+    });
 
     Route::middleware(['throttle:30,1'])->prefix('applications')->group(function () {
 
