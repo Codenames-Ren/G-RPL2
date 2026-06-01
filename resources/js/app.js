@@ -236,7 +236,7 @@ async function loadStudyProgramsForApplication() {
     }
 
     try {
-        const response = await apiRequest('/applicant/study-programs');
+        const response = await apiRequest('/study-programs');
         const programs = collection(response);
         const selectedValue = select.value;
 
@@ -272,17 +272,17 @@ function bindCreateApplication() {
         setMessage(form, 'Membuat aplikasi...', 'info');
 
         try {
-            const path = rplType === 'hybrid' 
-                ? '/applicant/applications/hybrid' 
+            const path = rplType === 'hybrid'
+                ? '/applicant/applications/hybrid'
                 : '/applicant/applications';
-            
+
             const response = await apiRequest(path, {
                 method: 'POST',
                 body: JSON.stringify({ study_program_id: Number(studyProgramId), rpl_type: rplType })
             });
 
             setMessage(form, response.message || 'Aplikasi berhasil dibuat', 'success');
-            
+
             setTimeout(() => {
                 window.location.assign(`/applications/${response.data.id}`);
             }, 1000);
@@ -537,7 +537,7 @@ async function submitApplication(applicationId) {
         });
 
         pageMessage(response.message || 'Aplikasi berhasil disubmit', 'success');
-        
+
         setTimeout(() => {
             window.location.assign('/applications');
         }, 1500);
@@ -684,15 +684,15 @@ function bindA1CourseModal() {
                     ? `/applicant/applications/${applicationId}/a1-courses/${courseId}`
                     : `/applicant/applications/${applicationId}/a1-courses`,
                 {
-                method: courseId ? 'PUT' : 'POST',
-                body: JSON.stringify(payload)
+                    method: courseId ? 'PUT' : 'POST',
+                    body: JSON.stringify(payload)
                 }
             );
 
             setMessage(form, response.message || 'A1 course berhasil disimpan', 'success');
             form.reset();
             delete form.dataset.courseId;
-            
+
             setTimeout(() => {
                 modal.hidden = true;
                 loadA1Courses(applicationId);
@@ -756,7 +756,7 @@ function bindA2ExperienceModal() {
 
             setMessage(form, response.message || 'Learning experience berhasil ditambahkan', 'success');
             form.reset();
-            
+
             setTimeout(() => {
                 modal.hidden = true;
                 loadA2LearningExperiences(applicationId);
@@ -847,6 +847,7 @@ function navigationItemsForRole(role) {
 
     const roleItems = {
         applicant: [
+            { href: '/profile', label: 'Profile' },
             { href: '/applications', label: 'Applications' },
             { href: '/applications/create', label: 'Create Application' },
         ],

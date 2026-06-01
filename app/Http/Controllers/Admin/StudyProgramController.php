@@ -33,6 +33,20 @@ class StudyProgramController extends Controller
     }
 
     /*
+    | Get Active Study Programs
+    */
+
+    public function publicIndex()
+    {
+        return response()->json([
+            'success' => true,
+
+            'data' => $this->studyProgramService
+                ->getActive()
+        ]);
+    }
+
+    /*
     | Get Detail Study Program
     */
 
