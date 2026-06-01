@@ -21,6 +21,10 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
+            /*
+            | Basic Information
+            */
+
             $table->string('nik')
                 ->unique();
 
@@ -28,6 +32,49 @@ return new class extends Migration
                 ->nullable();
 
             $table->text('address')
+                ->nullable();
+
+            /*
+            | Personal Information
+            */
+
+            $table->string('birth_place')
+                ->nullable();
+
+            $table->date('birth_date')
+                ->nullable();
+
+            $table->enum('gender', [
+                'male',
+                'female',
+            ])->nullable();
+
+            $table->enum('marital_status', [
+                'single',
+                'married',
+                'divorced',
+            ])->nullable();
+
+            $table->string('nationality')
+                ->default('Indonesia');
+
+            $table->string('postal_code')
+                ->nullable();
+
+            /*
+            | Education Information
+            */
+
+            $table->string('last_education')
+                ->nullable();
+
+            $table->string('institution_name')
+                ->nullable();
+
+            $table->string('study_program')
+                ->nullable();
+
+            $table->year('graduation_year')
                 ->nullable();
 
             $table->timestamps();
