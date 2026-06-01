@@ -32,8 +32,13 @@ Route::view('/register', 'pages.auth.register');
 Route::view('/dashboard', 'pages.dashboard')
     ->name('dashboard');
 
+Route::view('/profile', 'pages.applicant.profile');
+Route::view('/profile/edit', 'pages.applicant.profile-edit');
+
 Route::view('/applications', 'pages.applicant.applications');
 Route::view('/applications/create', 'pages.applicant.create');
+Route::view('/applications/{id}', 'pages.applicant.application-detail');
+Route::view('/applications/{id}/edit', 'pages.applicant.application-edit');
 
 Route::view('/assessments', 'pages.assessor.assessments');
 
