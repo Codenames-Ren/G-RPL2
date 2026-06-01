@@ -80,6 +80,8 @@ Route::middleware(['auth:sanctum', 'role:system_admin'])->prefix('admin')->group
 
 Route::middleware(['auth:sanctum', 'role:applicant'])->prefix('applicant')->group(function () {
 
+    Route::get('/study-programs', [StudyProgramController::class, 'index']);
+
     Route::middleware(['throttle:30,1'])->prefix('applications')->group(function () {
 
         Route::get('/', [ApplicationController::class, 'index']);

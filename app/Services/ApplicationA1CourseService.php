@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ApplicationStatus;
+use App\Enums\RplType;
 
 use App\Models\Application;
 use App\Models\ApplicationA1Course;
@@ -179,7 +180,7 @@ class ApplicationA1CourseService
         Applicant $applicant
     ): Application {
 
-        return Application::query()
+        $application = Application::query()
 
             ->where(
                 'applicant_id',
@@ -189,5 +190,24 @@ class ApplicationA1CourseService
             ->findOrFail(
                 $applicationId
             );
+
+        if (
+            !in_array(
+                $application->rpl_type,
+                [
+                    RplType::A1,
+                    RplType::HYBRID,
+                ],
+                true
+            )
+        ) {
+
+            abort(
+                422,
+                'A1 courses are only available for A1 or Hybrid applications.'
+            );
+        }
+
+        return $application;
     }
 }

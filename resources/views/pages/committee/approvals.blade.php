@@ -19,9 +19,19 @@
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <div class="empty-state">
-                <strong>Daftar approval belum tersedia.</strong>
-                <span>Halaman ini sudah diproteksi role committee melalui data user dari backend.</span>
+            <div class="dashboard-grid">
+                <div class="module-card">
+                    <strong>Approval Board</strong>
+                    <span>Daftar pengajuan siap keputusan akan tampil di area ini.</span>
+                </div>
+                <div class="module-card">
+                    <strong>Final Review</strong>
+                    <span>Lihat hasil assessment dan catatan administrasi sebelum approval.</span>
+                </div>
+                <div class="module-card">
+                    <strong>Decision Log</strong>
+                    <span>Riwayat keputusan komite mengikuti data persetujuan dari backend.</span>
+                </div>
             </div>
         </div>
     </section>

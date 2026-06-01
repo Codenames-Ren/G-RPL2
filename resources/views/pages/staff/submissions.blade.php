@@ -19,9 +19,19 @@
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <div class="empty-state">
-                <strong>Daftar submission belum tersedia.</strong>
-                <span>Halaman ini sudah diproteksi role staff melalui data user dari backend.</span>
+            <div class="dashboard-grid">
+                <div class="module-card">
+                    <strong>Submission Intake</strong>
+                    <span>Pengajuan masuk akan tampil di sini untuk pemeriksaan administrasi.</span>
+                </div>
+                <div class="module-card">
+                    <strong>Document Check</strong>
+                    <span>Validasi kelengkapan dokumen sebelum diteruskan ke assessor.</span>
+                </div>
+                <div class="module-card">
+                    <strong>Assessor Assignment</strong>
+                    <span>Penugasan assessor mengikuti data submission yang sudah siap diproses.</span>
+                </div>
             </div>
         </div>
     </section>

@@ -19,9 +19,19 @@
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <div class="empty-state">
-                <strong>Antrian assessment belum tersedia.</strong>
-                <span>Halaman ini sudah diproteksi role assessor melalui data user dari backend.</span>
+            <div class="dashboard-grid">
+                <div class="module-card">
+                    <strong>Assessment Queue</strong>
+                    <span>Antrian assessment akan tampil di sini saat endpoint penilaian sudah tersedia.</span>
+                </div>
+                <div class="module-card">
+                    <strong>Evidence Review</strong>
+                    <span>Periksa course, learning experience, dan dokumen pendukung applicant.</span>
+                </div>
+                <div class="module-card">
+                    <strong>Assessment Status</strong>
+                    <span>Status penilaian akan mengikuti data resmi dari backend.</span>
+                </div>
             </div>
         </div>
     </section>

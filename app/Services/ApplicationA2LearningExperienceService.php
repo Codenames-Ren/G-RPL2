@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ApplicationStatus;
+use App\Enums\RplType;
 
 use App\Models\Application;
 use App\Models\Applicant;
@@ -191,7 +192,7 @@ class ApplicationA2LearningExperienceService
         Applicant $applicant
     ): Application {
 
-        return Application::query()
+        $application = Application::query()
 
             ->where(
                 'applicant_id',
@@ -201,5 +202,24 @@ class ApplicationA2LearningExperienceService
             ->findOrFail(
                 $applicationId
             );
+
+        if (
+            !in_array(
+                $application->rpl_type,
+                [
+                    RplType::A2,
+                    RplType::HYBRID,
+                ],
+                true
+            )
+        ) {
+
+            abort(
+                422,
+                'Learning experiences are only available for A2 or Hybrid applications.'
+            );
+        }
+
+        return $application;
     }
 }

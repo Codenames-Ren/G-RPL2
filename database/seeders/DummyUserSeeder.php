@@ -20,7 +20,7 @@ class DummyUserSeeder extends Seeder
             [
                 'name' => 'Dummy Staff',
                 'email' => 'dummy.staff@grpl.test',
-                'role' => 'staff',
+                'role' => 'staff_rpl',
             ],
             [
                 'name' => 'Dummy Assessor',
@@ -41,8 +41,9 @@ class DummyUserSeeder extends Seeder
                 ['email' => $dummyUser['email']],
                 [
                     'name' => $dummyUser['name'],
-                    'password' => Hash::make('11223344'),
+                    'password' => Hash::make('Seadragon555'),
                     'status' => 'active',
+                    'is_active' => true,
                     'email_verified_at' => now(),
                 ]
             );

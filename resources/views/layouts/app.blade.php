@@ -31,20 +31,9 @@
             </span>
         </a>
 
-        <nav class="nav-links" aria-label="Primary navigation">
-            <a href="/" data-nav-link>Home</a>
-            <a href="/dashboard" data-private-nav data-nav-link hidden>Dashboard</a>
-            <a href="/applications" data-role-link="applicant" data-nav-link hidden>Applications</a>
-            <a href="/assessments" data-role-link="assessor" data-nav-link hidden>Assessments</a>
-            <a href="/approvals" data-role-link="committee" data-nav-link hidden>Approvals</a>
-            <a href="/submissions" data-role-link="staff_rpl" data-nav-link hidden>Submissions</a>
-            <a href="/admin/users" data-role-link="system_admin" data-nav-link hidden>Users</a>
-            <a href="/admin/master-data" data-role-link="system_admin" data-nav-link hidden>Master Data</a>
-            <a href="/admin/study-programs" data-role-link="system_admin" data-nav-link hidden>Study Programs</a>
-            <a href="/admin/courses" data-role-link="system_admin" data-nav-link hidden>Courses</a>
+        <nav class="nav-links nav-links-compact" aria-label="Primary navigation">
             <a href="/login" data-public-nav data-nav-link>Login</a>
             <a class="button button-small" href="/register" data-public-nav>Register</a>
-            <button class="button button-small button-muted" type="button" data-logout hidden>Logout</button>
         </nav>
     </header>
     @endunless

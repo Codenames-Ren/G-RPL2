@@ -15,22 +15,37 @@
         <div class="workspace">
             <div class="workspace-header">
                 <div>
-                    <p class="eyebrow">Draft</p>
-                    <h2>Form pengajuan</h2>
+                    <p class="eyebrow">New Application</p>
+                    <h2>Pilih tipe rekognisi</h2>
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <form class="form-grid">
+            <div data-page-message></div>
+
+            <div class="form-grid">
                 <label>
                     Program Studi
-                    <input type="text" placeholder="Pilih program studi" disabled>
+                    <select name="study_program_id" data-study-program-select required>
+                        <option value="">Pilih program studi</option>
+                    </select>
                 </label>
+
                 <label>
                     Tipe Rekognisi
-                    <input type="text" placeholder="Menunggu endpoint master data" disabled>
+                    <select name="rpl_type" required>
+                        <option value="">Pilih tipe</option>
+                        <option value="a1">A1 - Pengakuan Terhadap Pencapaian Pembelajaran Formal</option>
+                        <option value="a2">A2 - Pengakuan Terhadap Pencapaian Pembelajaran Informal dan Nonformal</option>
+                        <option value="hybrid">Hybrid - Kombinasi A1 dan A2</option>
+                    </select>
                 </label>
-                <button class="button" type="button" disabled>Submit</button>
-            </form>
+
+                <div data-form-message></div>
+
+                <button class="button" type="button" data-create-application>
+                    Lanjutkan
+                </button>
+            </div>
         </div>
     </section>
 @endsection

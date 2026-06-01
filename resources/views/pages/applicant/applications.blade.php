@@ -20,9 +20,24 @@
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <div class="empty-state">
-                <strong>Belum ada data aplikasi dari API modul applicant.</strong>
-                <span>Autentikasi sudah memakai token backend dan siap untuk endpoint aplikasi berikutnya.</span>
+            <div data-page-message></div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nomor Aplikasi</th>
+                            <th>Program Studi</th>
+                            <th>Tipe</th>
+                            <th>Status</th>
+                            <th>Dibuat</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody data-applications-body>
+                        <tr><td colspan="6">Memuat data...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
