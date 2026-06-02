@@ -601,6 +601,149 @@ function bindSubmitApplication() {
     });
 }
 
+const profileLabels = {
+    gender: {
+        male: 'Laki-laki',
+        female: 'Perempuan',
+    },
+    marital_status: {
+        single: 'Belum Kawin',
+        married: 'Kawin',
+        divorced: 'Cerai',
+    },
+};
+
+const requiredProfileFields = [
+    'birth_place',
+    'birth_date',
+    'gender',
+    'marital_status',
+    'nationality',
+    'last_education',
+    'institution_name',
+    'graduation_year',
+];
+
+function formatProfileValue(key, value) {
+    if (value === null || value === undefined || value === '') {
+        return '-';
+    }
+
+    return profileLabels[key]?.[value] || value;
+}
+
+function isProfileComplete(profile) {
+    return requiredProfileFields.every((field) => Boolean(profile?.[field]));
+}
+
+async function loadApplicantProfile() {
+    const profileCard = document.querySelector('[data-profile-card]');
+    const form = document.querySelector('[data-profile-form]');
+
+    if (!profileCard && !form) {
+        return;
+    }
+
+    try {
+        const response = await apiRequest('/applicant/profile');
+        const profile = response.data || {};
+
+        if (profileCard) {
+            Object.entries({
+                nik: profile.nik,
+                phone: profile.phone,
+                address: profile.address,
+                'birth-place': profile.birth_place,
+                'birth-date': profile.birth_date,
+                gender: formatProfileValue('gender', profile.gender),
+                'marital-status': formatProfileValue('marital_status', profile.marital_status),
+                nationality: profile.nationality,
+                'postal-code': profile.postal_code,
+                'last-education': profile.last_education,
+                'institution-name': profile.institution_name,
+                'study-program': profile.study_program,
+                'graduation-year': profile.graduation_year,
+            }).forEach(([key, value]) => {
+                profileCard.querySelectorAll(`[data-profile-${key}]`).forEach((target) => {
+                    target.textContent = formatProfileValue(key, value);
+                });
+            });
+
+            const complete = isProfileComplete(profile);
+            const badge = profileCard.querySelector('[data-profile-completeness-badge]');
+            const note = profileCard.querySelector('[data-profile-completeness-note]');
+
+            if (badge) {
+                badge.textContent = complete ? 'Lengkap' : 'Belum lengkap';
+                badge.dataset.status = complete ? 'active' : 'draft';
+            }
+
+            if (note) {
+                note.textContent = complete
+                    ? 'Profil sudah siap untuk membuat pengajuan RPL.'
+                    : 'Lengkapi field wajib sebelum membuat pengajuan RPL.';
+            }
+        }
+
+        if (form) {
+            Object.entries({
+                phone: profile.phone,
+                address: profile.address,
+                birth_place: profile.birth_place,
+                birth_date: profile.birth_date,
+                gender: profile.gender,
+                marital_status: profile.marital_status,
+                nationality: profile.nationality || 'Indonesia',
+                postal_code: profile.postal_code,
+                last_education: profile.last_education,
+                institution_name: profile.institution_name,
+                study_program: profile.study_program,
+                graduation_year: profile.graduation_year,
+            }).forEach(([key, value]) => {
+                if (form.elements[key]) {
+                    form.elements[key].value = value || '';
+                }
+            });
+        }
+    } catch (error) {
+        pageMessage(validationMessage(error));
+    }
+}
+
+function bindApplicantProfileForm() {
+    const form = document.querySelector('[data-profile-form]');
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const button = form.querySelector('[data-save-profile]');
+        const payload = formPayload(form);
+
+        button.disabled = true;
+        setMessage(form, 'Menyimpan...', 'info');
+
+        try {
+            const response = await apiRequest('/applicant/profile', {
+                method: 'PUT',
+                body: JSON.stringify(payload),
+            });
+
+            setMessage(form, response.message || 'Profil berhasil disimpan.', 'success');
+
+            setTimeout(() => {
+                window.location.assign('/profile');
+            }, 1000);
+        } catch (error) {
+            setMessage(form, validationMessage(error), 'error');
+        } finally {
+            button.disabled = false;
+        }
+    });
+}
+
 function bindModalHandlers() {
     document.addEventListener('click', (event) => {
         const closeBtn = event.target.closest('[data-close-modal]');
@@ -1522,6 +1665,11 @@ function bootApplicantPages() {
     const page = document.body.dataset.page;
 
     bindModalHandlers();
+    bindApplicantProfileForm();
+
+    if (page === 'profile' || page === 'profile-edit') {
+        loadApplicantProfile();
+    }
 
     if (page === 'applications') {
         loadApplications();

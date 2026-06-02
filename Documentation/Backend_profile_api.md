@@ -92,6 +92,8 @@ Content-Type: application/json
 
 ```json
 {
+    "phone": "081234567890",
+    "address": "Tangerang",
     "birth_place": "Jakarta",
     "birth_date": "2000-01-01",
     "gender": "male",
@@ -107,18 +109,20 @@ Content-Type: application/json
 
 ## Validation Rules
 
-| Field            | Required | Type    |
-| ---------------- | -------- | ------- |
-| birth_place      | nullable | string  |
-| birth_date       | required | date    |
-| gender           | required | string  |
-| marital_status   | nullable | string  |
-| nationality      | nullable | string  |
-| postal_code      | nullable | string  |
-| last_education   | required | string  |
-| institution_name | nullable | string  |
-| study_program    | nullable | string  |
-| graduation_year  | required | integer |
+| Field            | Required | Type    | Rule tambahan |
+| ---------------- | -------- | ------- | ------------- |
+| phone            | nullable | string  | max:20 |
+| address          | nullable | string  | - |
+| birth_place      | required | string  | max:255 |
+| birth_date       | required | date    | - |
+| gender           | required | string  | `male`, `female` |
+| marital_status   | required | string  | `single`, `married`, `divorced` |
+| nationality      | required | string  | max:100 |
+| postal_code      | nullable | string  | max:20 |
+| last_education   | required | string  | max:255 |
+| institution_name | required | string  | max:255 |
+| study_program    | nullable | string  | max:255 |
+| graduation_year  | required | integer | min:1950, max:tahun berjalan |
 
 ## Success Response
 

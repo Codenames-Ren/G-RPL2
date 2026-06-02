@@ -38,6 +38,14 @@ class ApplicantProfileService
             'birth_place'
                 => $data['birth_place'],
 
+            'phone'
+                => $data['phone']
+                    ?? null,
+
+            'address'
+                => $data['address']
+                    ?? null,
+
             'birth_date'
                 => $data['birth_date'],
 

@@ -24,10 +24,12 @@
     @unless(in_array($page, ['home', 'login', 'register', 'about', 'requirements', 'faq', 'announcements'], true))
     <header class="topbar">
         <a class="brand" href="/" aria-label="G-RPL2 home">
-            <span class="brand-mark">GR</span>
+            <span class="brand-mark">
+                <img src="{{ asset('images/logo.png') }}" alt="" aria-hidden="true">
+            </span>
             <span>
-                <strong>G-RPL2</strong>
-                <small>Recognition Platform</small>
+                <strong>G-RPL</strong>
+                <small>Portal Resmi</small>
             </span>
         </a>
 

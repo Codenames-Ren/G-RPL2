@@ -60,6 +60,17 @@ class UpdateApplicantProfileRequest extends FormRequest
                 'max:20',
             ],
 
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+
+            'address' => [
+                'nullable',
+                'string',
+            ],
+
             /*
             | Education Information
             */
