@@ -16,7 +16,7 @@
             <div class="workspace-header">
                 <div>
                     <p class="eyebrow">User Management</p>
-                    <h2>Pengelolaan user</h2>
+                    <h2>Manajemen Data Pengguna Internal</h2>
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
