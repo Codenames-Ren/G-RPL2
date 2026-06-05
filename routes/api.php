@@ -13,6 +13,7 @@ use App\Http\Controllers\Applicant\ApplicationA2LearningExperienceController;
 use App\Http\Controllers\Applicant\ApplicationHybridController;
 use App\Http\Controllers\Applicant\ApplicationDocumentController;
 use App\Http\Controllers\Applicant\ApplicantProfileController;
+use App\Http\Controllers\Staff\SubmissionController;
 
 // -------------------------
 // Universal Route for all role
@@ -133,5 +134,24 @@ Route::middleware(['auth:sanctum', 'role:applicant'])->prefix('applicant')->grou
             Route::post('/', [ApplicationDocumentController::class, 'store']);
             Route::put('/{document}', [ApplicationDocumentController::class, 'update']);
         });
+    });
+});
+
+// -------------------------
+// Staff Routes (role: staff_rpl)
+// -------------------------
+
+Route::middleware([
+    'auth:sanctum',
+    'role:staff_rpl'
+])->prefix('staff')->group(function () {
+
+    Route::prefix('submissions')->group(function () {
+
+        Route::get('/', [SubmissionController::class,'index',]);
+        Route::get('/{application}', [SubmissionController::class,'show',]);
+        Route::patch('/{application}/review', [SubmissionController::class,'review',]);
+        Route::patch('/{application}/return', [SubmissionController::class,'return',]);
+        Route::patch('/{application}/assign-assessor',[SubmissionController::class,'assignAssessor',]);
     });
 });
