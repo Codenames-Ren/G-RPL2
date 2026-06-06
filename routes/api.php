@@ -154,4 +154,6 @@ Route::middleware([
         Route::patch('/{application}/return', [SubmissionController::class,'return',]);
         Route::patch('/{application}/assign-assessor',[SubmissionController::class,'assignAssessor',]);
     });
+
+    Route::get('/assessors', [SubmissionController::class,'assessors',]);
 });

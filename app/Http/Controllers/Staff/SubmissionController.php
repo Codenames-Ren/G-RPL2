@@ -8,12 +8,30 @@ use App\Http\Requests\Staff\Submission\ReturnSubmissionRequest;
 use App\Http\Requests\Staff\Submission\AssignAssessorRequest;
 
 use App\Services\StaffSubmissionService;
+use App\Models\User;
 
 class SubmissionController extends Controller
 {
     public function __construct(
         protected StaffSubmissionService $staffSubmissionService
     ) {}
+
+    /*
+    | Get All Assessors
+    */
+
+    public function assessors()
+    {
+        $assessors = User::query()
+            ->whereHas('roles', fn($q) => $q->where('name', 'assessor'))
+            ->with('assessor')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $assessors,
+        ]);
+    }
 
     /*
     | Get All Submissions
