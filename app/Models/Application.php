@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\User;
 
 class Application extends Model
@@ -94,6 +95,17 @@ class Application extends Model
         return $this->belongsTo(
             User::class,
             'assigned_assessor_id'
+        );
+    }
+
+    /*
+    | Assessment
+    */
+
+    public function assessment(): HasOne
+    {
+        return $this->hasOne(
+            Assessment::class
         );
     }
 }
