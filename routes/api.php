@@ -14,6 +14,7 @@ use App\Http\Controllers\Applicant\ApplicationHybridController;
 use App\Http\Controllers\Applicant\ApplicationDocumentController;
 use App\Http\Controllers\Applicant\ApplicantProfileController;
 use App\Http\Controllers\Staff\SubmissionController;
+use App\Http\Controllers\Assessor\AssessmentController;
 
 // -------------------------
 // Universal Route for all role
@@ -155,5 +156,35 @@ Route::middleware([
         Route::patch('/{application}/return', [SubmissionController::class,'return',]);
         Route::patch('/{application}/assign-assessor',[SubmissionController::class,'assignAssessor',]);
         Route::get('/{application}/documents/{document}/download',[SubmissionController::class,'downloadDocument']);
+    });
+});
+
+// -------------------------
+// Assessor Routes (role: assessor)
+// -------------------------
+
+Route::middleware([
+    'auth:sanctum',
+    'role:assessor'
+])->prefix('assessor')->group(function () {
+
+    Route::prefix('assessments')->group(function () {
+
+        /*
+        | Assigned Applications
+        */
+
+        Route::get('/', [AssessmentController::class, 'index']);
+        Route::get('/{application}', [AssessmentController::class, 'show']);
+        Route::post('/{application}', [AssessmentController::class, 'store']);
+
+        /*
+        | Assessment
+        */
+
+        Route::post('/{assessment}/submit', [AssessmentController::class, 'submit']);
+        Route::get('/{assessment}/mappings', [AssessmentController::class, 'mappings']);
+        Route::post('/{assessment}/mappings', [AssessmentController::class, 'storeCourseMapping']);
+        Route::put('/mappings/{mapping}',[AssessmentController::class, 'updateCourseMapping']);
     });
 });
