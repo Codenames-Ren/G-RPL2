@@ -41,6 +41,7 @@ Route::view('/applications/{id}', 'pages.applicant.application-detail');
 Route::view('/applications/{id}/edit', 'pages.applicant.application-edit');
 
 Route::view('/assessments', 'pages.assessor.assessments');
+Route::view('/assessments/{id}', 'pages.assessor.assessment-detail');
 
 Route::view('/approvals', 'pages.committee.approvals');
 
