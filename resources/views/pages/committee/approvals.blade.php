@@ -15,23 +15,29 @@
             <div class="workspace-header">
                 <div>
                     <p class="eyebrow">Approval Board</p>
-                    <h2>Persetujuan komite</h2>
+                    <h2>Pengajuan perlu persetujuan</h2>
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <div class="dashboard-grid">
-                <div class="module-card">
-                    <strong>Approval Board</strong>
-                    <span>Daftar pengajuan siap keputusan akan tampil di area ini.</span>
-                </div>
-                <div class="module-card">
-                    <strong>Final Review</strong>
-                    <span>Lihat hasil assessment dan catatan administrasi sebelum approval.</span>
-                </div>
-                <div class="module-card">
-                    <strong>Decision Log</strong>
-                    <span>Riwayat keputusan komite mengikuti data persetujuan dari backend.</span>
-                </div>
+            <div data-page-message></div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nomor Aplikasi</th>
+                            <th>Pemohon</th>
+                            <th>Program Studi</th>
+                            <th>Total SKS</th>
+                            <th>Dinilai Oleh</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody data-approvals-body>
+                        <tr><td colspan="7">Memuat data...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
