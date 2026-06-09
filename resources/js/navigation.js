@@ -118,6 +118,70 @@ function syncActiveLinks() {
     });
 }
 
+function navigationItemsForRole(role) {
+    const roleItems = {
+        applicant: [
+            { href: '/profile', label: 'Profile' },
+            { href: '/applications', label: 'Applications' },
+            { href: '/applications/create', label: 'Create Application' },
+        ],
+        assessor: [
+            { href: '/assessments', label: 'Assessments' },
+        ],
+        committee: [
+            { href: '/approvals', label: 'Approvals' },
+        ],
+        staff_rpl: [
+            { href: '/submissions', label: 'Submissions' },
+        ],
+        system_admin: [
+            { href: '/dashboard', label: 'Dashboard' },
+            { href: '/admin/users', label: 'Users' },
+            { href: '/admin/master-data', label: 'Master Data' },
+            { href: '/admin/study-programs', label: 'Study Programs' },
+            { href: '/admin/courses', label: 'Courses' },
+        ],
+    };
+
+    return roleItems[role] || [];
+}
+
+function renderSidebarNavigation(user) {
+    const role = roleOf(user);
+    const currentPath = window.location.pathname;
+    const items = navigationItemsForRole(role);
+    const activeItem = items
+        .filter((item) => isActiveLink(item.href, currentPath))
+        .sort((a, b) => b.href.length - a.href.length)[0];
+
+    document.querySelectorAll('.sidebar').forEach((sidebar) => {
+        sidebar.querySelector('[data-sidebar-nav]')?.remove();
+
+        if (!state.token || !user || !items.length) {
+            return;
+        }
+
+        const nav = document.createElement('nav');
+        nav.className = 'sidebar-nav';
+        nav.dataset.sidebarNav = '';
+        nav.setAttribute('aria-label', 'Role navigation');
+
+        nav.innerHTML = `
+            <span class="sidebar-nav-label">Menu</span>
+            ${items.map((item) => `
+                <a href="${item.href}" class="${activeItem?.href === item.href ? 'active' : ''}" data-nav-link>
+                    ${item.label}
+                </a>
+            `).join('')}
+            <button type="button" data-logout>Logout</button>
+        `;
+
+        sidebar.appendChild(nav);
+    });
+
+    bindLogout();
+}
+
 export function syncNavigation(user = state.user) {
     const hasSession = Boolean(state.token && user);
     const currentRole = roleOf(user);
@@ -125,6 +189,7 @@ export function syncNavigation(user = state.user) {
     syncPublicPrivateNavigation(hasSession, currentRole);
     syncActiveLinks();
     bindLogout();
+    renderSidebarNavigation(user);
 }
 
 export function renderUser(user) {
@@ -146,6 +211,10 @@ export function renderUser(user) {
 
     document.querySelectorAll('[data-role-card]').forEach((element) => {
         element.hidden = !currentRole || element.dataset.roleCard !== currentRole;
+    });
+
+    document.querySelectorAll('[data-sidebar-for]').forEach((element) => {
+        element.hidden = element.dataset.sidebarFor !== currentRole;
     });
 
     syncNavigation(user);
