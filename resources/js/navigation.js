@@ -1,5 +1,6 @@
 import { roleOf } from './utils.js';
 import { state, apiRequest, clearSession } from './api.js';
+import Swal from 'sweetalert2';
 
 export function userRole(user) {
     return formatRole(roleOf(user));
@@ -58,6 +59,19 @@ export function bindLogout() {
         button.dataset.logoutBound = 'true';
 
         button.addEventListener('click', async () => {
+            const confirm = await Swal.fire({
+                icon: 'question',
+                title: 'Keluar',
+                text: 'Kamu yakin ingin keluar dari aplikasi?',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal',
+            });
+
+            if (!confirm.isConfirmed) {
+                return;
+            }
+
             button.disabled = true;
 
             try {

@@ -1,6 +1,7 @@
 import { state, storeSession, clearSession, apiRequest } from './api.js';
 import { roleOf, setMessage, validationMessage } from './utils.js';
 import { syncNavigation, renderUser } from './navigation.js';
+import Swal from 'sweetalert2';
 
 export function mergeUserProfile(profile) {
     return {
@@ -109,7 +110,12 @@ export function bindAuthForms() {
                     });
 
                     if (!response.success || !response.token) {
-                        setMessage(form, response.message || 'Login gagal', 'error');
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Login Gagal',
+                            text: 'Email atau password salah. Silakan periksa kembali dan coba lagi.',
+                            confirmButtonText: 'Tutup',
+                        });
                         return;
                     }
 
@@ -136,17 +142,28 @@ export function bindAuthForms() {
 
                 if (response.success) {
                     form.reset();
-                    setMessage(
-                        form,
-                        `${response.message}. Silakan cek email verifikasi sebelum login.`,
-                        'success'
-                    );
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Registrasi Berhasil',
+                        text: 'Link verifikasi telah dikirim ke email kamu. Silakan cek inbox atau folder spam sebelum login.',
+                        confirmButtonText: 'Oke',
+                    });
                     return;
                 }
 
-                setMessage(form, response.message || 'Register gagal', 'error');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Registrasi Gagal',
+                    text: 'Terjadi kesalahan saat mendaftar. Periksa kembali data kamu dan coba lagi.',
+                    confirmButtonText: 'Tutup',
+                });
             } catch (error) {
-                setMessage(form, validationMessage(error), 'error');
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Koneksi bermasalah atau server tidak merespons. Coba beberapa saat lagi.',
+                    confirmButtonText: 'Tutup',
+                });
             } finally {
                 button.disabled = false;
             }
