@@ -13,41 +13,33 @@
 @endphp
 
 <nav id="grpl-navbar" class="fixed top-0 left-0 right-0 z-[998] bg-white/95 backdrop-blur-xl border-b border-[#1565C0]/10 transition-all duration-300">
-    {{-- Accent line --}}
     <div class="h-[3px] w-full bg-gradient-to-r from-[#1565C0] via-[#F9A825] to-[#E53935]"></div>
 
     <div class="w-full px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12">
         <div class="h-[68px] flex items-center justify-between gap-5">
 
-            {{-- ===== BRAND ===== --}}
+            {{-- BRAND --}}
             <a href="/" class="grpl-brand group flex items-center gap-3 shrink-0">
                 <div class="grpl-logo-wrap">
                     <div class="grpl-logo-glow"></div>
 
-                    {{-- 3D Animated Logo Scene --}}
                     <div class="logo-scene">
                         <div class="logo-stage" id="logoStage">
-
-                            {{-- Potongan BIRU --}}
                             <div class="logo-piece piece-blue">
                                 <img src="{{ asset('images/logo.png') }}" alt="" aria-hidden="true">
                             </div>
 
-                            {{-- Potongan MERAH --}}
                             <div class="logo-piece piece-red">
                                 <img src="{{ asset('images/logo.png') }}" alt="" aria-hidden="true">
                             </div>
 
-                            {{-- Potongan ORANGE --}}
                             <div class="logo-piece piece-orange">
                                 <img src="{{ asset('images/logo.png') }}" alt="" aria-hidden="true">
                             </div>
 
-                            {{-- Logo penuh tampil setelah animasi selesai --}}
                             <div class="logo-piece piece-full">
                                 <img src="{{ asset('images/logo.png') }}" alt="Logo G-RPL">
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -64,7 +56,7 @@
                 </div>
             </a>
 
-            {{-- ===== DESKTOP NAV ===== --}}
+            {{-- DESKTOP NAV --}}
             <div class="hidden xl:flex items-center justify-center flex-1">
                 <div class="flex items-center gap-7">
                     @foreach($navItems as $item)
@@ -78,27 +70,22 @@
                 </div>
             </div>
 
-            {{-- ===== ACTION DESKTOP ===== --}}
+            {{-- ACTION DESKTOP --}}
             <div class="hidden xl:flex items-center gap-3 shrink-0">
-                <a
-                    href="{{ route('login') }}"
-                    class="px-4 py-2.5 text-sm font-bold text-[#1565C0] rounded-xl hover:bg-[#EAF3FF] transition-all"
-                >
+                <a href="/login" class="grpl-login-btn">
                     Masuk
                 </a>
 
-                <a
-                    href="/register"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-[#1565C0] rounded-xl hover:bg-[#0D47A1] transition-all shadow-lg shadow-blue-500/20"
-                >
-                    Daftar
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="/register" class="grpl-register-btn">
+                    <span>Daftar</span>
+
+                    <svg class="w-4 h-4 grpl-register-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
                 </a>
             </div>
 
-            {{-- ===== MOBILE / TABLET BUTTON ===== --}}
+            {{-- MOBILE BUTTON --}}
             <button
                 type="button"
                 id="grpl-menu-button"
@@ -117,7 +104,7 @@
         </div>
     </div>
 
-    {{-- ===== MOBILE / TABLET MENU ===== --}}
+    {{-- MOBILE MENU --}}
     <div id="grpl-mobile-menu" class="xl:hidden hidden border-t border-[#1565C0]/10 bg-white/98 backdrop-blur-xl shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
         <div class="px-4 sm:px-6 py-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -132,17 +119,11 @@
             </div>
 
             <div class="mt-5 pt-5 border-t border-[#1565C0]/10 grid grid-cols-2 gap-3">
-                <a
-                    href="{{ route('login') }}"
-                    class="px-4 py-3 text-center text-sm font-bold text-[#1565C0] bg-white border border-[#1565C0]/20 rounded-2xl hover:bg-[#EAF3FF] transition-all"
-                >
+                <a href="/login" class="grpl-login-mobile-btn">
                     Masuk
                 </a>
 
-                <a
-                    href="/register"
-                    class="px-4 py-3 text-center text-sm font-bold text-white bg-[#1565C0] rounded-2xl hover:bg-[#0D47A1] transition-all shadow-lg shadow-blue-500/20"
-                >
+                <a href="/register" class="grpl-register-mobile-btn">
                     Daftar
                 </a>
             </div>
@@ -150,7 +131,6 @@
     </div>
 </nav>
 
-{{-- Spacer karena navbar fixed --}}
 <div class="h-[71px]"></div>
 
 <style>
@@ -167,6 +147,7 @@
         opacity: 0;
         transform: translateX(-22px);
         transition: opacity 0.65s ease, transform 0.65s ease;
+        text-decoration: none;
     }
 
     .grpl-navbar-ready .grpl-brand {
@@ -191,26 +172,6 @@
             inset 0 1px 0 rgba(255, 255, 255, 0.85),
             0 10px 26px rgba(15, 23, 42, 0.08);
         overflow: hidden;
-    }
-
-    .grpl-logo-wrap::after {
-        content: "";
-        position: absolute;
-        left: 9px;
-        right: 9px;
-        bottom: 7px;
-        height: 2px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #1565C0, #F9A825, #E53935);
-        opacity: 0;
-        transform: scaleX(0.3);
-        transform-origin: left;
-        transition: opacity 0.45s ease 1.25s, transform 0.45s ease 1.25s;
-    }
-
-    .grpl-navbar-ready .grpl-logo-wrap::after {
-        opacity: 0.75;
-        transform: scaleX(1);
     }
 
     .grpl-logo-glow {
@@ -263,15 +224,139 @@
     }
 
     .grpl-nav-link.active {
-        color: #1565C0;
+        color: #1565C0 !important;
     }
 
     .grpl-mobile-link.active {
-        color: #1565C0;
+        color: #1565C0 !important;
         background: #EAF3FF;
     }
 
-    /* ===== LOGO ANIMATION — JALAN SETELAH PRELOADER SELESAI ===== */
+    .grpl-login-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 17px;
+        border-radius: 14px;
+        color: #172033 !important;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+
+    .grpl-login-btn:hover {
+        color: #1565C0 !important;
+        background: #EAF3FF;
+    }
+
+    .grpl-register-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 42px;
+        padding: 0 22px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #176BD8 0%, #0D55B8 100%) !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1;
+        text-decoration: none !important;
+        box-shadow: 0 14px 28px rgba(21, 101, 192, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .grpl-register-btn span,
+    .grpl-register-btn svg,
+    .grpl-register-btn path {
+        color: #FFFFFF !important;
+        stroke: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
+
+    .grpl-register-btn:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, #0D55B8 0%, #0A3F8F 100%) !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        box-shadow: 0 18px 34px rgba(21, 101, 192, 0.32);
+    }
+
+    .grpl-register-btn:visited,
+    .grpl-register-btn:active,
+    .grpl-register-btn:focus {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
+
+    .grpl-login-mobile-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        color: #1565C0 !important;
+        background: #FFFFFF;
+        border: 1px solid rgba(21, 101, 192, 0.2);
+        font-size: 14px;
+        font-weight: 800;
+        text-align: center;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+
+    .grpl-login-mobile-btn:hover {
+        background: #EAF3FF;
+    }
+
+    .grpl-register-mobile-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #176BD8 0%, #0D55B8 100%) !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-size: 14px;
+        font-weight: 800;
+        text-align: center;
+        text-decoration: none !important;
+        box-shadow: 0 14px 28px rgba(21, 101, 192, 0.25);
+        transition: all 0.2s ease;
+    }
+
+    .grpl-register-mobile-btn:hover,
+    .grpl-register-mobile-btn:visited,
+    .grpl-register-mobile-btn:active,
+    .grpl-register-mobile-btn:focus {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        background: linear-gradient(135deg, #0D55B8 0%, #0A3F8F 100%) !important;
+    }
+
+    #grpl-navbar a[href="/register"],
+    #grpl-navbar a[href="/register"] *,
+    #grpl-navbar a[href="/register"]:hover,
+    #grpl-navbar a[href="/register"]:visited,
+    #grpl-navbar a[href="/register"]:active,
+    #grpl-navbar a[href="/register"]:focus {
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+    }
+
+    #grpl-navbar a[href="/register"] svg,
+    #grpl-navbar a[href="/register"] path {
+        stroke: #FFFFFF !important;
+        color: #FFFFFF !important;
+    }
+
     .logo-scene {
         width: 32px;
         height: 32px;
@@ -340,13 +425,8 @@
     }
 
     @keyframes grpl-glow-rotate {
-        from {
-            transform: rotate(0deg);
-        }
-
-        to {
-            transform: rotate(360deg);
-        }
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 
     @keyframes grpl-text-in {
@@ -407,13 +487,8 @@
     }
 
     @keyframes grpl-fadein {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     @media (max-width: 767px) {
@@ -549,7 +624,24 @@
             }
         }
 
+        function clearActiveLinks() {
+            navLinks.forEach(function (link) {
+                link.classList.remove('active');
+            });
+
+            mobileLinks.forEach(function (link) {
+                link.classList.remove('active');
+            });
+        }
+
         function setActiveLink() {
+            const path = window.location.pathname;
+
+            if (path !== '/' && path !== '/index') {
+                clearActiveLinks();
+                return;
+            }
+
             const sections = [
                 'beranda',
                 'tentang',
@@ -560,7 +652,7 @@
                 'faq'
             ];
 
-            let currentSection = 'beranda';
+            let currentSection = '';
 
             sections.forEach(function (sectionId) {
                 const section = document.getElementById(sectionId);
@@ -574,17 +666,19 @@
                 }
             });
 
-            navLinks.forEach(function (link) {
-                link.classList.remove('active');
+            clearActiveLinks();
 
+            if (!currentSection) {
+                return;
+            }
+
+            navLinks.forEach(function (link) {
                 if (link.getAttribute('href').includes('#' + currentSection)) {
                     link.classList.add('active');
                 }
             });
 
             mobileLinks.forEach(function (link) {
-                link.classList.remove('active');
-
                 if (link.getAttribute('href').includes('#' + currentSection)) {
                     link.classList.add('active');
                 }
@@ -608,8 +702,14 @@
                 if (!mobileMenu) return;
 
                 mobileMenu.classList.add('hidden');
-                menuOpen.classList.remove('hidden');
-                menuClose.classList.add('hidden');
+
+                if (menuOpen) {
+                    menuOpen.classList.remove('hidden');
+                }
+
+                if (menuClose) {
+                    menuClose.classList.add('hidden');
+                }
 
                 if (menuButton) {
                     menuButton.setAttribute('aria-expanded', 'false');

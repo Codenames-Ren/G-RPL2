@@ -1,8 +1,8 @@
-import { roleOf, escapeHtml } from './utils.js';
+import { roleOf } from './utils.js';
 import { state, apiRequest, clearSession } from './api.js';
 
 export function userRole(user) {
-    return roleOf(user).replaceAll('_', ' ');
+    return formatRole(roleOf(user));
 }
 
 export function userProfile(user) {
@@ -25,42 +25,23 @@ export function userProfile(user) {
     return {};
 }
 
-function navigationItemsForRole(role) {
-    const shared = [
-        { href: '/dashboard', label: 'Dashboard' },
-    ];
+function formatRole(role) {
+    if (!role) {
+        return 'No Role';
+    }
 
-    const roleItems = {
-        applicant: [
-            { href: '/profile', label: 'Profile' },
-            { href: '/applications', label: 'Applications' },
-            { href: '/applications/create', label: 'Create Application' },
-        ],
-        assessor: [
-            { href: '/assessments', label: 'Assessments' },
-        ],
-        committee: [
-            { href: '/approvals', label: 'Approvals' },
-            { href: '/approvals/approved', label: 'Approved' },
-        ],
-        staff_rpl: [
-            { href: '/submissions', label: 'Submissions' },
-        ],
-        system_admin: [
-            { href: '/admin/users', label: 'Users' },
-            { href: '/admin/master-data', label: 'Master Data' },
-            { href: '/admin/study-programs', label: 'Study Programs' },
-            { href: '/admin/courses', label: 'Courses' },
-        ],
-    };
-
-    return [
-        ...shared,
-        ...(roleItems[role] || []),
-    ];
+    return role
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 }
 
-function isActiveSidebarItem(href, currentPath) {
+function isActiveLink(href, currentPath) {
+    if (!href) {
+        return false;
+    }
+
     if (href === '/dashboard') {
         return currentPath === href;
     }
@@ -70,6 +51,12 @@ function isActiveSidebarItem(href, currentPath) {
 
 export function bindLogout() {
     document.querySelectorAll('[data-logout]').forEach((button) => {
+        if (button.dataset.logoutBound === 'true') {
+            return;
+        }
+
+        button.dataset.logoutBound = 'true';
+
         button.addEventListener('click', async () => {
             button.disabled = true;
 
@@ -78,7 +65,7 @@ export function bindLogout() {
                     await apiRequest('/auth/logout', { method: 'POST' });
                 }
             } catch {
-                // Local session is cleared even if the token is already invalid server-side.
+                // Session lokal tetap dibersihkan walaupun token server sudah invalid.
             } finally {
                 clearSession();
                 window.location.assign('/login');
@@ -87,75 +74,55 @@ export function bindLogout() {
     });
 }
 
-function renderSidebarNavigation(user) {
-    const role = roleOf(user);
-    const currentPath = window.location.pathname;
-    const items = navigationItemsForRole(role);
-    const activeItem = items
-        .filter((item) => isActiveSidebarItem(item.href, currentPath))
-        .sort((a, b) => b.href.length - a.href.length)[0];
-
-    document.querySelectorAll('.sidebar').forEach((sidebar) => {
-        sidebar.querySelector('[data-sidebar-nav]')?.remove();
-
-        if (!state.token || !user || !items.length) {
-            return;
-        }
-
-        const nav = document.createElement('nav');
-        nav.className = 'sidebar-nav';
-        nav.dataset.sidebarNav = '';
-        nav.setAttribute('aria-label', 'Role navigation');
-
-        nav.innerHTML = `
-            <span class="sidebar-nav-label">Menu</span>
-            ${items.map((item) => `
-                <a href="${item.href}" class="${activeItem?.href === item.href ? 'active' : ''}" data-nav-link>
-                    ${item.label}
-                </a>
-            `).join('')}
-            <button type="button" data-logout>Logout</button>
-        `;
-
-        sidebar.appendChild(nav);
-    });
-
-    bindLogout();
-}
-
-export function syncNavigation(user = state.user) {
-    const hasSession = Boolean(state.token && user);
-    const currentPath = window.location.pathname;
-    const userRole = roleOf(user);
-
+function syncPublicPrivateNavigation(hasSession, currentRole) {
     document.querySelectorAll('[data-public-nav]').forEach((element) => {
         element.hidden = hasSession;
     });
 
-    document.querySelectorAll('[data-private-nav], [data-logout]').forEach((element) => {
+    document.querySelectorAll('[data-private-nav]').forEach((element) => {
         element.hidden = !hasSession;
     });
 
     document.querySelectorAll('[data-role-link]').forEach((element) => {
-        element.hidden = !hasSession || !userRole || element.dataset.roleLink !== userRole;
+        element.hidden = !hasSession || !currentRole || element.dataset.roleLink !== currentRole;
     });
+}
+
+function syncActiveLinks() {
+    const currentPath = window.location.pathname;
 
     document.querySelectorAll('[data-nav-link]').forEach((element) => {
-        element.classList.toggle('active', element.getAttribute('href') === currentPath);
+        const href = element.getAttribute('href');
+
+        element.classList.toggle('active', isActiveLink(href, currentPath));
     });
 
-    renderSidebarNavigation(user);
+    document.querySelectorAll('[data-admin-sidebar-link]').forEach((element) => {
+        const href = element.getAttribute('href');
+
+        element.classList.toggle('active', isActiveLink(href, currentPath));
+    });
+}
+
+export function syncNavigation(user = state.user) {
+    const hasSession = Boolean(state.token && user);
+    const currentRole = roleOf(user);
+
+    syncPublicPrivateNavigation(hasSession, currentRole);
+    syncActiveLinks();
+    bindLogout();
 }
 
 export function renderUser(user) {
     const currentRole = roleOf(user);
+    const formattedRole = formatRole(currentRole);
 
     document.querySelectorAll('[data-user-name]').forEach((element) => {
         element.textContent = user?.name || 'User';
     });
 
     document.querySelectorAll('[data-user-role]').forEach((element) => {
-        element.textContent = currentRole || 'No role';
+        element.textContent = formattedRole;
     });
 
     document.querySelectorAll('[data-api-status]').forEach((element) => {
@@ -166,4 +133,6 @@ export function renderUser(user) {
     document.querySelectorAll('[data-role-card]').forEach((element) => {
         element.hidden = !currentRole || element.dataset.roleCard !== currentRole;
     });
+
+    syncNavigation(user);
 }
