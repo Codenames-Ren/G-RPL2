@@ -72,7 +72,7 @@
 
         <div class="grpl-footer-bottom">
             <p>
-                © {{ date('Y') }} G-RPL Global Institute. Project by Bayu Sukma, Muhammad Raffi Arosyid, Dias Mayri - TI24PSE3.
+                © {{ date('Y') }} G-RPL Global Institute. Project by Bayu Sukma, Muhammad Raffi Arosyid, Dias Mayri (Project 2 - TI24PSE3).
             </p>
 
             <div class="grpl-footer-bottom-links">
