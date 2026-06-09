@@ -28,6 +28,64 @@ const requiredProfileFields = [
     'graduation_year',
 ];
 
+function setText(selector, value = '-') {
+    const element = document.querySelector(selector);
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent = value ?? '-';
+}
+
+function setAllText(selector, value = '-') {
+    document.querySelectorAll(selector).forEach((element) => {
+        element.textContent = value ?? '-';
+    });
+}
+
+function safePageMessage(message, type = 'error') {
+    const target = document.querySelector('[data-page-message]');
+
+    if (target) {
+        pageMessage(message, type);
+    } else {
+        console.warn(message);
+    }
+}
+
+function safeDate(value) {
+    if (!value) {
+        return '-';
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return '-';
+    }
+
+    return date.toLocaleDateString('id-ID');
+}
+
+function safeStatusClass(status) {
+    const normalized = String(status || 'draft').toLowerCase();
+
+    if (normalized.includes('approved')) {
+        return 'applications-status-badge applications-status-approved status-badge status-approved';
+    }
+
+    if (normalized.includes('rejected')) {
+        return 'applications-status-badge applications-status-rejected status-badge status-rejected';
+    }
+
+    if (normalized.includes('submit') || normalized.includes('review')) {
+        return 'applications-status-badge applications-status-submitted status-badge status-submitted';
+    }
+
+    return 'applications-status-badge applications-status-draft status-badge status-draft';
+}
+
 function formatProfileValue(key, value) {
     if (value === null || value === undefined || value === '') {
         return '-';
@@ -42,6 +100,7 @@ function isProfileComplete(profile) {
 
 async function loadStudyProgramsForApplication() {
     const select = document.querySelector('[name="study_program_id"]');
+
     if (!select) {
         return;
     }
@@ -51,11 +110,14 @@ async function loadStudyProgramsForApplication() {
         const programs = collection(response);
         const selectedValue = select.value;
 
-        select.innerHTML = programs.map((program) => `
-            <option value="${program.id}" ${program.id == selectedValue ? 'selected' : ''}>
-                ${escapeHtml(program.code)} - ${escapeHtml(program.name)}
-            </option>
-        `).join('');
+        select.innerHTML = `
+            <option value="">Pilih program studi</option>
+            ${programs.map((program) => `
+                <option value="${program.id}" ${program.id == selectedValue ? 'selected' : ''}>
+                    ${escapeHtml(program.code)} - ${escapeHtml(program.name)}
+                </option>
+            `).join('')}
+        `;
     } catch (error) {
         console.error('Failed to load study programs:', error);
     }
@@ -65,12 +127,18 @@ function bindCreateApplication() {
     loadStudyProgramsForApplication();
 
     const button = document.querySelector('[data-create-application]');
+
     if (!button) {
         return;
     }
 
     button.addEventListener('click', async () => {
         const form = button.closest('form') || document.querySelector('.form-grid');
+
+        if (!form) {
+            return;
+        }
+
         const studyProgramId = form.querySelector('[name="study_program_id"]')?.value;
         const rplType = form.querySelector('[name="rpl_type"]')?.value;
 
@@ -89,7 +157,10 @@ function bindCreateApplication() {
 
             const response = await apiRequest(path, {
                 method: 'POST',
-                body: JSON.stringify({ study_program_id: Number(studyProgramId), rpl_type: rplType })
+                body: JSON.stringify({
+                    study_program_id: Number(studyProgramId),
+                    rpl_type: rplType
+                })
             });
 
             setMessage(form, response.message || 'Aplikasi berhasil dibuat', 'success');
@@ -106,6 +177,7 @@ function bindCreateApplication() {
 
 async function loadApplications() {
     const target = document.querySelector('[data-applications-body]');
+
     if (!target) {
         return;
     }
@@ -117,15 +189,28 @@ async function loadApplications() {
         target.innerHTML = applications.length
             ? applications.map((app) => {
                 const status = app.status || 'draft';
+
                 return `
                     <tr>
                         <td>${escapeHtml(app.application_number || '-')}</td>
                         <td>${escapeHtml(app.study_program?.name || '-')}</td>
                         <td>${getApplicationTypeLabel(app.rpl_type)}</td>
-                        <td><span class="status-badge" data-status="${escapeHtml(status)}">${getApplicationStatusLabel(status)}</span></td>
-                        <td>${escapeHtml(new Date(app.created_at).toLocaleDateString('id-ID'))}</td>
-                        <td class="table-actions">
-                            <a class="button button-small button-muted" href="/applications/${app.id}">Detail</a>
+                        <td>
+                            <span class="${safeStatusClass(status)}" data-status="${escapeHtml(status)}">
+                                ${getApplicationStatusLabel(status)}
+                            </span>
+                        </td>
+                        <td>${escapeHtml(safeDate(app.created_at))}</td>
+                        <td>
+                            <div class="applications-actions application-actions">
+                                <a class="applications-action-btn applications-detail-btn application-action-btn application-detail-btn" href="/applications/${app.id}">
+                                    Detail
+                                </a>
+
+                                <a class="applications-action-btn applications-edit-btn application-action-btn application-edit-btn" href="/applications/${app.id}/edit">
+                                    Edit
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -133,12 +218,13 @@ async function loadApplications() {
             : '<tr><td colspan="6">Belum ada aplikasi.</td></tr>';
     } catch (error) {
         target.innerHTML = '<tr><td colspan="6">Gagal memuat aplikasi.</td></tr>';
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 async function loadA1Courses(applicationId) {
     const target = document.querySelector('[data-a1-courses-body]');
+
     if (!target) {
         return;
     }
@@ -150,36 +236,39 @@ async function loadA1Courses(applicationId) {
         target.innerHTML = courses.length
             ? courses.map((course) => `
                 <tr>
-                    <td>${escapeHtml(course.course_code)}</td>
-                    <td>${escapeHtml(course.course_name)}</td>
-                    <td>${escapeHtml(course.credits)}</td>
-                    <td>${escapeHtml(course.grade)}</td>
-                    <td>${escapeHtml(course.institution_name)}</td>
-                    <td class="table-actions">
-                        <button
-                            class="button button-small button-muted"
-                            type="button"
-                            data-edit-a1-course="${course.id}"
-                            data-course-code="${escapeHtml(course.course_code)}"
-                            data-course-name="${escapeHtml(course.course_name)}"
-                            data-credits="${escapeHtml(course.credits)}"
-                            data-grade="${escapeHtml(course.grade)}"
-                            data-institution-name="${escapeHtml(course.institution_name)}"
-                        >
-                            Edit
-                        </button>
+                    <td>${escapeHtml(course.course_code || '-')}</td>
+                    <td>${escapeHtml(course.course_name || '-')}</td>
+                    <td>${escapeHtml(course.credits || '-')}</td>
+                    <td>${escapeHtml(course.grade || '-')}</td>
+                    <td>${escapeHtml(course.institution_name || '-')}</td>
+                    <td>
+                        <div class="applications-actions application-actions">
+                            <button
+                                class="applications-action-btn applications-edit-btn application-action-btn application-edit-btn"
+                                type="button"
+                                data-edit-a1-course="${course.id}"
+                                data-course-code="${escapeHtml(course.course_code || '')}"
+                                data-course-name="${escapeHtml(course.course_name || '')}"
+                                data-credits="${escapeHtml(course.credits || '')}"
+                                data-grade="${escapeHtml(course.grade || '')}"
+                                data-institution-name="${escapeHtml(course.institution_name || '')}"
+                            >
+                                Edit
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('')
             : '<tr><td colspan="6">Belum ada data A1 course.</td></tr>';
     } catch (error) {
         target.innerHTML = '<tr><td colspan="6">Gagal memuat A1 courses.</td></tr>';
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 async function loadA2LearningExperiences(applicationId) {
     const target = document.querySelector('[data-a2-experiences-body]');
+
     if (!target) {
         return;
     }
@@ -190,26 +279,28 @@ async function loadA2LearningExperiences(applicationId) {
 
         target.innerHTML = experiences.length
             ? experiences.map((exp) => {
-                const startDate = exp.start_date ? new Date(exp.start_date).toLocaleDateString('id-ID') : '-';
-                const endDate = exp.end_date ? new Date(exp.end_date).toLocaleDateString('id-ID') : (exp.is_ongoing ? 'Ongoing' : '-');
+                const startDate = exp.start_date ? safeDate(exp.start_date) : '-';
+                const endDate = exp.end_date ? safeDate(exp.end_date) : (exp.is_ongoing ? 'Ongoing' : '-');
+
                 return `
                     <tr>
-                        <td>${escapeHtml(exp.title)}</td>
-                        <td>${escapeHtml(exp.experience_type)}</td>
-                        <td>${escapeHtml(exp.organization_name)}</td>
-                        <td>${startDate} - ${endDate}</td>
+                        <td>${escapeHtml(exp.title || '-')}</td>
+                        <td>${escapeHtml(exp.experience_type || '-')}</td>
+                        <td>${escapeHtml(exp.organization_name || '-')}</td>
+                        <td>${escapeHtml(`${startDate} - ${endDate}`)}</td>
                     </tr>
                 `;
             }).join('')
             : '<tr><td colspan="4">Belum ada data learning experience.</td></tr>';
     } catch (error) {
         target.innerHTML = '<tr><td colspan="4">Gagal memuat learning experiences.</td></tr>';
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 async function loadDocuments(applicationId) {
     const target = document.querySelector('[data-documents-body]');
+
     if (!target) {
         return;
     }
@@ -221,27 +312,35 @@ async function loadDocuments(applicationId) {
         target.innerHTML = documents.length
             ? documents.map((doc) => `
                 <tr>
-                    <td>${escapeHtml(doc.document_name)}</td>
-                    <td>${escapeHtml(doc.document_type)}</td>
+                    <td>${escapeHtml(doc.document_name || '-')}</td>
+                    <td>${escapeHtml(doc.document_type || '-')}</td>
                     <td>${escapeHtml(doc.file_size || '-')}</td>
-                    <td>${escapeHtml(new Date(doc.created_at).toLocaleDateString('id-ID'))}</td>
-                    <td class="table-actions">
-                        <button class="button button-small button-muted" type="button" data-download-document="${doc.id}" data-file-name="${escapeHtml(doc.file_name || doc.document_name || 'document')}">
-                            Download
-                        </button>
+                    <td>${escapeHtml(safeDate(doc.created_at))}</td>
+                    <td>
+                        <div class="applications-actions application-actions">
+                            <button
+                                class="applications-action-btn applications-detail-btn application-action-btn application-detail-btn"
+                                type="button"
+                                data-download-document="${doc.id}"
+                                data-file-name="${escapeHtml(doc.file_name || doc.document_name || 'document')}"
+                            >
+                                Download
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('')
             : '<tr><td colspan="5">Belum ada dokumen.</td></tr>';
     } catch (error) {
         target.innerHTML = '<tr><td colspan="5">Gagal memuat dokumen.</td></tr>';
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 function bindDocumentDownload(applicationId) {
     document.addEventListener('click', async (event) => {
         const button = event.target.closest('[data-download-document]');
+
         if (!button) {
             return;
         }
@@ -255,7 +354,7 @@ function bindDocumentDownload(applicationId) {
                 button.dataset.fileName || 'document'
             );
         } catch (error) {
-            pageMessage(validationMessage(error));
+            safePageMessage(validationMessage(error), 'error');
         } finally {
             button.disabled = false;
         }
@@ -264,11 +363,13 @@ function bindDocumentDownload(applicationId) {
 
 function bindDocumentUpload(applicationId) {
     const form = document.querySelector('[data-upload-form]');
+
     if (!form) {
         return;
     }
 
     const button = form.querySelector('[data-upload-document]');
+
     if (!button) {
         return;
     }
@@ -303,6 +404,7 @@ async function submitApplication(applicationId) {
     }
 
     const button = document.querySelector('[data-submit-application]');
+
     if (button) {
         button.disabled = true;
     }
@@ -313,13 +415,14 @@ async function submitApplication(applicationId) {
             body: JSON.stringify({})
         });
 
-        pageMessage(response.message || 'Aplikasi berhasil disubmit', 'success');
+        safePageMessage(response.message || 'Aplikasi berhasil disubmit', 'success');
 
         setTimeout(() => {
             window.location.assign('/applications');
         }, 1500);
     } catch (error) {
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
+
         if (button) {
             button.disabled = false;
         }
@@ -328,18 +431,20 @@ async function submitApplication(applicationId) {
 
 async function loadApplicationDetail() {
     const applicationId = currentResourceId();
+
     if (!applicationId) {
         return;
     }
 
     try {
         const response = await apiRequest(`/applicant/applications/${applicationId}`);
-        const app = response.data;
+        const app = response.data || {};
         const allowed = allowedApplicationSections(app.rpl_type);
 
-        document.querySelector('[data-application-title]').textContent = `Application ${app.application_number}`;
-        document.querySelector('[data-application-number]').textContent = app.application_number;
-        document.querySelector('[data-application-status-badge]').textContent = getApplicationStatusLabel(app.status);
+        setText('[data-application-title]', `Application ${app.application_number || '-'}`);
+        setText('[data-application-number]', app.application_number || 'Application Number');
+        setText('[data-application-status-badge]', getApplicationStatusLabel(app.status || 'draft'));
+
         syncApplicationSections(app.rpl_type);
 
         if (allowed.a1) {
@@ -350,28 +455,31 @@ async function loadApplicationDetail() {
             loadA2LearningExperiences(applicationId);
         }
 
-        loadDocuments(applicationId);
-        bindDocumentDownload(applicationId);
-        bindSubmitApplication();
+loadDocuments(applicationId);
+bindDocumentUpload(applicationId);
+bindDocumentDownload(applicationId);
+bindSubmitApplication();
     } catch (error) {
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 async function loadApplicationEdit() {
     const applicationId = currentResourceId();
+
     if (!applicationId) {
         return;
     }
 
     try {
         const response = await apiRequest(`/applicant/applications/${applicationId}`);
-        const app = response.data;
+        const app = response.data || {};
         const allowed = allowedApplicationSections(app.rpl_type);
 
-        document.querySelector('[data-application-title]').textContent = `Edit ${app.application_number}`;
-        document.querySelector('[data-application-number]').textContent = app.application_number;
-        document.querySelector('[data-application-status-badge]').textContent = getApplicationStatusLabel(app.status);
+        setText('[data-application-title]', `Edit ${app.application_number || '-'}`);
+        setText('[data-application-number]', app.application_number || 'Application Number');
+        setText('[data-application-status-badge]', getApplicationStatusLabel(app.status || 'draft'));
+
         syncApplicationSections(app.rpl_type);
 
         if (allowed.a1) {
@@ -388,22 +496,27 @@ async function loadApplicationEdit() {
         bindSubmitApplication();
 
         const submitSection = document.querySelector('[data-submit-section]');
+
         if (submitSection) {
             submitSection.hidden = app.status !== 'draft';
         }
     } catch (error) {
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 function bindSubmitApplication() {
     const button = document.querySelector('[data-submit-application]');
-    if (!button) {
+
+    if (!button || button.dataset.boundSubmit === 'true') {
         return;
     }
 
+    button.dataset.boundSubmit = 'true';
+
     button.addEventListener('click', () => {
         const applicationId = currentResourceId();
+
         if (applicationId) {
             submitApplication(applicationId);
         }
@@ -480,12 +593,13 @@ async function loadApplicantProfile() {
             });
         }
     } catch (error) {
-        pageMessage(validationMessage(error));
+        safePageMessage(validationMessage(error), 'error');
     }
 }
 
 function bindApplicantProfileForm() {
     const form = document.querySelector('[data-profile-form]');
+
     if (!form) {
         return;
     }
@@ -496,7 +610,10 @@ function bindApplicantProfileForm() {
         const button = form.querySelector('[data-save-profile]');
         const payload = formPayload(form);
 
-        button.disabled = true;
+        if (button) {
+            button.disabled = true;
+        }
+
         setMessage(form, 'Menyimpan...', 'info');
 
         try {
@@ -513,7 +630,9 @@ function bindApplicantProfileForm() {
         } catch (error) {
             setMessage(form, validationMessage(error), 'error');
         } finally {
-            button.disabled = false;
+            if (button) {
+                button.disabled = false;
+            }
         }
     });
 }
@@ -521,9 +640,11 @@ function bindApplicantProfileForm() {
 function bindModalHandlers() {
     document.addEventListener('click', (event) => {
         const closeBtn = event.target.closest('[data-close-modal]');
+
         if (closeBtn) {
             const modalName = closeBtn.dataset.closeModal;
             const modal = document.querySelector(`[data-modal="${modalName}"]`);
+
             if (modal) {
                 modal.hidden = true;
             }
@@ -544,9 +665,11 @@ function bindA1CourseModal() {
     const openCreateModal = () => {
         form.reset();
         delete form.dataset.courseId;
+
         if (title) {
             title.textContent = 'Add A1 Course';
         }
+
         saveButton.textContent = 'Save';
         setMessage(form, '', 'info');
         modal.hidden = false;
@@ -555,20 +678,38 @@ function bindA1CourseModal() {
     const openEditModal = (button) => {
         form.reset();
         form.dataset.courseId = button.dataset.editA1Course;
-        form.elements.course_code.value = button.dataset.courseCode || '';
-        form.elements.course_name.value = button.dataset.courseName || '';
-        form.elements.credits.value = button.dataset.credits || '';
-        form.elements.grade.value = button.dataset.grade || '';
-        form.elements.institution_name.value = button.dataset.institutionName || '';
+
+        if (form.elements.course_code) {
+            form.elements.course_code.value = button.dataset.courseCode || '';
+        }
+
+        if (form.elements.course_name) {
+            form.elements.course_name.value = button.dataset.courseName || '';
+        }
+
+        if (form.elements.credits) {
+            form.elements.credits.value = button.dataset.credits || '';
+        }
+
+        if (form.elements.grade) {
+            form.elements.grade.value = button.dataset.grade || '';
+        }
+
+        if (form.elements.institution_name) {
+            form.elements.institution_name.value = button.dataset.institutionName || '';
+        }
+
         if (title) {
             title.textContent = 'Edit A1 Course';
         }
+
         saveButton.textContent = 'Update';
         setMessage(form, '', 'info');
         modal.hidden = false;
     };
 
     const addButton = document.querySelector('[data-add-a1-course]');
+
     if (addButton) {
         addButton.addEventListener('click', () => {
             openCreateModal();
@@ -577,6 +718,7 @@ function bindA1CourseModal() {
 
     document.addEventListener('click', (event) => {
         const button = event.target.closest('[data-edit-a1-course]');
+
         if (!button) {
             return;
         }
@@ -587,6 +729,7 @@ function bindA1CourseModal() {
 
     saveButton.addEventListener('click', async () => {
         const applicationId = currentResourceId();
+
         if (!applicationId) {
             return;
         }
@@ -598,6 +741,7 @@ function bindA1CourseModal() {
 
         try {
             const courseId = form.dataset.courseId;
+
             const response = await apiRequest(
                 courseId
                     ? `/applicant/applications/${applicationId}/a1-courses/${courseId}`
@@ -639,6 +783,7 @@ function bindA2ExperienceModal() {
     if (isOngoingCheckbox && endDateInput) {
         isOngoingCheckbox.addEventListener('change', () => {
             endDateInput.disabled = isOngoingCheckbox.checked;
+
             if (isOngoingCheckbox.checked) {
                 endDateInput.value = '';
             }
@@ -648,14 +793,17 @@ function bindA2ExperienceModal() {
     addButton.addEventListener('click', () => {
         form.reset();
         setMessage(form, '', 'info');
+
         if (endDateInput) {
             endDateInput.disabled = false;
         }
+
         modal.hidden = false;
     });
 
     saveButton.addEventListener('click', async () => {
         const applicationId = currentResourceId();
+
         if (!applicationId) {
             return;
         }
@@ -696,6 +844,7 @@ export function bootApplicantPages() {
 
     document.addEventListener('click', (event) => {
         const button = event.target.closest('[data-tab-button]');
+
         if (button) {
             event.preventDefault();
             activateTab(button.dataset.tabButton);
