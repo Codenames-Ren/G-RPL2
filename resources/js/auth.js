@@ -93,9 +93,8 @@ export async function hydrateAuthenticatedPage() {
                 icon,
                 title,
                 text,
-                timer: 2500,
-                timerProgressBar: true,
-                showConfirmButton: false,
+                confirmButtonText: 'Oke',
+                showConfirmButton: true,
             });
         }
     } catch (error) {
@@ -123,11 +122,34 @@ export function bindAuthForms() {
                         body: JSON.stringify(payload),
                     });
 
+                    // Skenario: email belum diverifikasi
+                    if (!response.success && response.message === 'Email not verified') {
+                        await Swal.fire({
+                            icon: 'warning',
+                            title: 'Email Belum Diverifikasi',
+                            text: 'Kamu belum memverifikasi email. Silakan cek inbox atau folder spam untuk menemukan link verifikasi yang sudah kami kirimkan.',
+                            confirmButtonText: 'Oke',
+                        });
+                        return;
+                    }
+
+                    // Skenario: akun nonaktif
+                    if (!response.success && response.message === 'Account inactive') {
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Akun Tidak Aktif',
+                            text: 'Akunmu saat ini tidak aktif. Silakan hubungi administrator untuk informasi lebih lanjut.',
+                            confirmButtonText: 'Oke',
+                        });
+                        return;
+                    }
+
+                    // Skenario: kredensial salah atau respons tidak valid
                     if (!response.success || !response.token) {
                         await Swal.fire({
                             icon: 'error',
                             title: 'Login Gagal',
-                            text: 'Email atau password salah. Silakan periksa kembali dan coba lagi.',
+                            text: 'Email atau password yang kamu masukkan salah. Silakan periksa kembali dan coba lagi.',
                             confirmButtonText: 'Tutup',
                         });
                         return;
@@ -156,6 +178,7 @@ export function bindAuthForms() {
                     return;
                 }
 
+                // Mode: register
                 const response = await apiRequest('/auth/register', {
                     method: 'POST',
                     body: JSON.stringify(payload),
@@ -166,23 +189,38 @@ export function bindAuthForms() {
                     await Swal.fire({
                         icon: 'success',
                         title: 'Registrasi Berhasil',
-                        text: 'Link verifikasi telah dikirim ke email kamu. Silakan cek inbox atau folder spam sebelum login.',
+                        text: 'Akun kamu berhasil dibuat! Link verifikasi sudah kami kirimkan ke email kamu. Silakan cek inbox atau folder spam sebelum login.',
                         confirmButtonText: 'Oke',
+                    });
+                    window.location.assign('/login');
+                    return;
+                }
+
+                // Skenario: registrasi gagal dari sisi server
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Registrasi Gagal',
+                    text: 'Pendaftaran tidak dapat diproses saat ini. Pastikan data yang kamu isi sudah benar, atau coba beberapa saat lagi.',
+                    confirmButtonText: 'Tutup',
+                });
+
+            } catch (error) {
+                // Skenario: kredensial salah (401/422 dari server)
+                if (mode === 'login' && (error.status === 401 || error.status === 422)) {
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Login Gagal',
+                        text: 'Email atau password yang kamu masukkan salah. Silakan periksa kembali dan coba lagi.',
+                        confirmButtonText: 'Tutup',
                     });
                     return;
                 }
 
-                await Swal.fire({
-                    icon: 'error',
-                    title: 'Registrasi Gagal',
-                    text: 'Terjadi kesalahan saat mendaftar. Periksa kembali data kamu dan coba lagi.',
-                    confirmButtonText: 'Tutup',
-                });
-            } catch (error) {
+                // Skenario: error jaringan / server tidak merespons
                 await Swal.fire({
                     icon: 'error',
                     title: 'Terjadi Kesalahan',
-                    text: 'Koneksi bermasalah atau server tidak merespons. Coba beberapa saat lagi.',
+                    text: 'Sepertinya ada gangguan koneksi atau server sedang tidak dapat diakses. Coba beberapa saat lagi.',
                     confirmButtonText: 'Tutup',
                 });
             } finally {
