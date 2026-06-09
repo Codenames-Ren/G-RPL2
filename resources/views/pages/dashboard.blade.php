@@ -20,7 +20,7 @@
                     </p>
                 </div>
 
-                <span class="connection-pill" data-api-status>Connecting</span>
+                <span class="connection-pill dashboard-status-pill" data-api-status>Connecting</span>
             </div>
 
             <div class="dashboard-hero">
@@ -159,6 +159,93 @@
             font-size: 0.92rem;
             line-height: 1.65;
             font-weight: 650;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONNECTED PILL - SAMA KAYA USERS
+        |--------------------------------------------------------------------------
+        */
+
+        .dashboard-status-pill,
+        .connection-pill.dashboard-status-pill {
+            min-height: 42px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 9px !important;
+            padding: 0 17px !important;
+            border-radius: 999px !important;
+            border: 1px solid #93c5fd !important;
+            color: #1d4ed8 !important;
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%) !important;
+            box-shadow:
+                0 12px 28px rgba(15, 23, 42, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+            font-size: 0.82rem !important;
+            line-height: 1 !important;
+            font-weight: 950 !important;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            opacity: 1 !important;
+            visibility: visible !important;
+            text-transform: none !important;
+        }
+
+        .dashboard-status-pill::before,
+        .connection-pill.dashboard-status-pill::before {
+            content: "";
+            width: 9px;
+            height: 9px;
+            flex: 0 0 9px;
+            border-radius: 999px;
+            background: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+
+        .dashboard-status-pill[data-status="connected"],
+        .connection-pill.dashboard-status-pill[data-status="connected"],
+        .dashboard-status-pill.is-connected,
+        .connection-pill.dashboard-status-pill.is-connected {
+            color: #14532d !important;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+            border-color: #4ade80 !important;
+            box-shadow:
+                0 12px 28px rgba(34, 197, 94, 0.16),
+                inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+        }
+
+        .dashboard-status-pill[data-status="connected"]::before,
+        .connection-pill.dashboard-status-pill[data-status="connected"]::before,
+        .dashboard-status-pill.is-connected::before,
+        .connection-pill.dashboard-status-pill.is-connected::before {
+            background: #16a34a;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18);
+        }
+
+        .dashboard-status-pill.is-error,
+        .dashboard-status-pill[data-status="error"],
+        .dashboard-status-pill[data-status="disconnected"],
+        .connection-pill.dashboard-status-pill.is-error,
+        .connection-pill.dashboard-status-pill[data-status="error"],
+        .connection-pill.dashboard-status-pill[data-status="disconnected"] {
+            color: #991b1b !important;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
+            border-color: #fca5a5 !important;
+            box-shadow:
+                0 12px 28px rgba(239, 68, 68, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.65) !important;
+        }
+
+        .dashboard-status-pill.is-error::before,
+        .dashboard-status-pill[data-status="error"]::before,
+        .dashboard-status-pill[data-status="disconnected"]::before,
+        .connection-pill.dashboard-status-pill.is-error::before,
+        .connection-pill.dashboard-status-pill[data-status="error"]::before,
+        .connection-pill.dashboard-status-pill[data-status="disconnected"]::before {
+            background: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.16);
         }
 
         .dashboard-hero {
@@ -332,6 +419,14 @@
         */
 
         @media (max-width: 900px) {
+            .dashboard-header {
+                flex-direction: column;
+            }
+
+            .dashboard-status-pill {
+                width: fit-content;
+            }
+
             .dashboard-hero {
                 grid-template-columns: 1fr;
             }
@@ -354,6 +449,12 @@
         @media (max-width: 560px) {
             .dashboard-subtitle {
                 font-size: 0.84rem;
+            }
+
+            .dashboard-status-pill {
+                min-height: 38px !important;
+                padding: 0 14px !important;
+                font-size: 0.78rem !important;
             }
 
             .dashboard-hero {
@@ -382,4 +483,48 @@
             }
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function syncDashboardStatusPill() {
+                document.querySelectorAll('.dashboard-status-pill').forEach(function (pill) {
+                    const text = (pill.textContent || '').trim().toLowerCase();
+                    const status = (pill.dataset.status || '').trim().toLowerCase();
+
+                    pill.classList.remove('is-connected', 'is-error', 'is-connecting');
+
+                    if (status === 'connected' || text === 'connected') {
+                        pill.classList.add('is-connected');
+                        return;
+                    }
+
+                    if (
+                        status === 'error' ||
+                        status === 'disconnected' ||
+                        text === 'error' ||
+                        text === 'disconnected'
+                    ) {
+                        pill.classList.add('is-error');
+                        return;
+                    }
+
+                    pill.classList.add('is-connecting');
+                });
+            }
+
+            syncDashboardStatusPill();
+
+            const observer = new MutationObserver(syncDashboardStatusPill);
+
+            document.querySelectorAll('.dashboard-status-pill').forEach(function (pill) {
+                observer.observe(pill, {
+                    childList: true,
+                    characterData: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['data-status']
+                });
+            });
+        });
+    </script>
 @endsection

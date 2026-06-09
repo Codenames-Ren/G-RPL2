@@ -13,11 +13,13 @@
             <div class="study-hero">
                 <div class="study-hero-content">
                     <div>
-                        <p class="eyebrow study-eyebrow">Master Data</p>
+                        <p class="eyebrow study-eyebrow">Study Program Management</p>
+
                         <h2>Daftar Program Studi</h2>
+
                         <p class="study-subtitle">
-                            Kelola data program studi, kode program, total SKS, status dukungan RPL,
-                            dan status aktif program studi pada sistem G-RPL.
+                            Kelola data program studi, kode program, total SKS, dukungan RPL,
+                            dan status aktif program studi dengan tampilan yang lebih rapi dan mudah dipantau.
                         </p>
                     </div>
 
@@ -61,7 +63,7 @@
                     <div class="study-stat-card">
                         <span class="study-stat-icon study-stat-yellow">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M18 2H7c-1.66 0-3 1.34-3 3v14c0 1.66 1.34 3 3 3h11c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2Zm0 16H7c-.55 0-1 .45-1 1s.45 1 1 1h11v-2Zm0-2H7c-.35 0-.69.06-1 .17V5c0-.55.45-1 1-1h11v12Z"/>
+                                <path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4Zm0 2.18 7 3.11V11c0 4.52-2.98 8.69-7 9.93C7.98 19.69 5 15.52 5 11V6.29l7-3.11Z"/>
                             </svg>
                         </span>
 
@@ -73,25 +75,56 @@
                 </div>
             </div>
 
-            <div class="study-info-card">
-                <div>
-                    <span class="study-info-badge">Study Program Data</span>
-                    <h3>Data Program Studi RPL</h3>
-                    <p>
-                        Halaman ini digunakan untuk mengatur daftar program studi yang tersedia
-                        pada sistem G-RPL, termasuk total SKS dan dukungan skema RPL.
-                    </p>
+            <div class="study-panel">
+                <div class="study-panel-head">
+                    <div>
+                        <h3>Filter Program Studi</h3>
+                        <p>Gunakan filter untuk mencari data berdasarkan kode, nama, dukungan RPL, atau status.</p>
+                    </div>
                 </div>
 
-                <div class="study-info-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 14l9-5-9-5-9 5 9 5zm0 0v6m-6-3.5V11m12 5.5V11"/>
-                    </svg>
-                </div>
+                <form class="toolbar study-toolbar" data-admin-filter="study-programs">
+                    <label class="study-filter-field study-search-field">
+                        <span>Cari Program Studi</span>
+
+                        <div class="study-input-wrap">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M9.5 3a6.5 6.5 0 0 1 5.17 10.44l4.45 4.44-1.41 1.41-4.44-4.45A6.5 6.5 0 1 1 9.5 3Zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"/>
+                            </svg>
+
+                            <input
+                                type="search"
+                                name="search"
+                                placeholder="Cari kode atau nama program studi"
+                            >
+                        </div>
+                    </label>
+
+                    <label class="study-filter-field">
+                        <span>RPL</span>
+                        <select name="supports_rpl">
+                            <option value="">Semua RPL</option>
+                            <option value="1">Mendukung RPL</option>
+                            <option value="0">Tidak RPL</option>
+                        </select>
+                    </label>
+
+                    <label class="study-filter-field">
+                        <span>Status</span>
+                        <select name="is_active">
+                            <option value="">Semua status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </label>
+
+                    <button class="study-filter-btn" type="submit">
+                        <span>Filter</span>
+                    </button>
+                </form>
+
+                <p class="form-message study-message" data-page-message aria-live="polite"></p>
             </div>
-
-            <p class="form-message study-message" data-page-message aria-live="polite"></p>
 
             <div class="study-table-section">
                 <div class="study-table-header">
@@ -136,7 +169,7 @@
     <style>
         /*
         |--------------------------------------------------------------------------
-        | STUDY PROGRAMS PAGE - PREMIUM ADMIN STYLE
+        | STUDY PROGRAMS PAGE - SAME STYLE AS COURSES
         |--------------------------------------------------------------------------
         */
 
@@ -178,10 +211,10 @@
         .study-hero::after {
             content: "";
             position: absolute;
-            width: 170px;
-            height: 170px;
-            right: -72px;
-            bottom: -84px;
+            width: 160px;
+            height: 160px;
+            right: -70px;
+            bottom: -80px;
             border-radius: 999px;
             background: rgba(21, 101, 192, 0.08);
             pointer-events: none;
@@ -445,87 +478,157 @@
 
         /*
         |--------------------------------------------------------------------------
-        | INFO CARD
+        | FILTER PANEL
         |--------------------------------------------------------------------------
         */
 
-        .study-info-card {
-            position: relative;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) 130px;
-            gap: 20px;
-            align-items: center;
-            padding: 24px;
+        .study-panel {
+            overflow: hidden;
+            padding: 20px;
             border-radius: 28px;
+            background: rgba(255, 255, 255, 0.88);
             border: 1px solid rgba(226, 232, 240, 0.95);
-            background:
-                radial-gradient(circle at 95% 0%, rgba(249, 168, 37, 0.14), transparent 32%),
-                radial-gradient(circle at 0% 100%, rgba(21, 101, 192, 0.08), transparent 34%),
-                linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
             box-shadow:
                 0 18px 50px rgba(15, 23, 42, 0.06),
                 inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            overflow: hidden;
         }
 
-        .study-info-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #1565C0;
-            font-size: 0.72rem;
-            font-weight: 950;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
+        .study-panel-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
         }
 
-        .study-info-badge::before {
-            content: "";
-            width: 7px;
-            height: 7px;
-            border-radius: 999px;
-            background: #1565C0;
-            box-shadow: 0 0 0 4px rgba(21, 101, 192, 0.10);
-        }
-
-        .study-info-card h3 {
-            margin: 10px 0 8px;
+        .study-panel-head h3 {
+            margin: 0;
             color: #0f172a;
             font-family: 'Sora', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            font-size: 1.45rem;
+            font-size: 1.08rem;
             line-height: 1.2;
             font-weight: 950;
-            letter-spacing: -0.05em;
+            letter-spacing: -0.04em;
         }
 
-        .study-info-card p {
-            max-width: 720px;
-            margin: 0;
+        .study-panel-head p {
+            margin: 6px 0 0;
             color: #64748b;
-            font-size: 0.92rem;
-            line-height: 1.7;
+            font-size: 0.84rem;
+            line-height: 1.55;
             font-weight: 650;
         }
 
-        .study-info-icon {
-            width: 82px;
-            height: 82px;
-            justify-self: center;
+        .study-toolbar {
             display: grid;
-            place-items: center;
-            border-radius: 28px;
-            color: #ffffff;
-            background: linear-gradient(135deg, #176bd8, #0d55b8);
-            box-shadow: 0 20px 42px rgba(21, 101, 192, 0.24);
+            grid-template-columns: minmax(260px, 1.45fr) minmax(180px, 0.9fr) minmax(150px, 0.7fr) auto;
+            align-items: end;
+            gap: 12px;
+            margin-top: 18px;
+            padding: 0;
+            background: transparent;
+            border: 0;
         }
 
-        .study-info-icon svg {
-            width: 40px;
-            height: 40px;
+        .study-filter-field {
+            display: grid;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .study-filter-field span {
+            color: #475569;
+            font-size: 0.72rem;
+            line-height: 1;
+            font-weight: 950;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .study-input-wrap {
+            position: relative;
+            min-width: 0;
+        }
+
+        .study-input-wrap svg {
+            position: absolute;
+            top: 50%;
+            left: 13px;
+            width: 18px;
+            height: 18px;
+            fill: #94a3b8;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .study-input-wrap input {
+            padding-left: 42px !important;
+        }
+
+        .study-filter-field input,
+        .study-filter-field select {
+            width: 100%;
+            min-height: 46px;
+            border-radius: 16px;
+            border: 1px solid #dbe3ee;
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.035);
+            font-size: 0.9rem;
+            font-weight: 750;
+            outline: none;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .study-filter-field input::placeholder {
+            color: #94a3b8;
+            font-weight: 650;
+        }
+
+        .study-filter-field input:focus,
+        .study-filter-field select:focus {
+            border-color: rgba(21, 101, 192, 0.55);
+            box-shadow:
+                0 0 0 4px rgba(21, 101, 192, 0.10),
+                0 12px 28px rgba(15, 23, 42, 0.05);
+        }
+
+        .study-filter-btn {
+            min-height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            border-radius: 16px;
+            color: #0f172a;
+            background: linear-gradient(135deg, #F9A825, #ffd966);
+            border: 1px solid rgba(249, 168, 37, 0.35);
+            box-shadow:
+                0 14px 28px rgba(249, 168, 37, 0.20),
+                inset 0 1px 0 rgba(255, 255, 255, 0.45);
+            font-family: inherit;
+            font-size: 0.88rem;
+            line-height: 1;
+            font-weight: 950;
+            cursor: pointer;
+            transition:
+                transform 0.22s ease,
+                box-shadow 0.22s ease,
+                filter 0.22s ease;
+        }
+
+        .study-filter-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.02);
+            box-shadow:
+                0 18px 34px rgba(249, 168, 37, 0.24),
+                inset 0 1px 0 rgba(255, 255, 255, 0.48);
         }
 
         .study-message {
-            margin: 0;
+            margin: 13px 0 0;
             font-weight: 800;
         }
 
@@ -538,7 +641,7 @@
         .study-table-section {
             overflow: hidden;
             border-radius: 28px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.88);
             border: 1px solid rgba(226, 232, 240, 0.95);
             box-shadow:
                 0 18px 50px rgba(15, 23, 42, 0.06),
@@ -729,7 +832,7 @@
 
         @media (max-width: 1100px) {
             .study-hero,
-            .study-info-card {
+            .study-panel {
                 padding: 20px;
             }
 
@@ -741,6 +844,18 @@
                 width: 100%;
                 justify-content: flex-start;
                 flex-wrap: wrap;
+            }
+
+            .study-toolbar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .study-search-field {
+                grid-column: 1 / -1;
+            }
+
+            .study-filter-btn {
+                width: 100%;
             }
         }
 
@@ -760,14 +875,6 @@
             .study-status-pill {
                 width: fit-content;
             }
-
-            .study-info-card {
-                grid-template-columns: 1fr;
-            }
-
-            .study-info-icon {
-                display: none;
-            }
         }
 
         /*
@@ -782,13 +889,13 @@
             }
 
             .study-hero,
-            .study-info-card,
+            .study-panel,
             .study-table-section {
                 border-radius: 24px;
             }
 
             .study-hero,
-            .study-info-card {
+            .study-panel {
                 padding: 16px;
             }
 
@@ -797,8 +904,7 @@
                 letter-spacing: -0.055em;
             }
 
-            .study-subtitle,
-            .study-info-card p {
+            .study-subtitle {
                 font-size: 0.84rem;
                 line-height: 1.62;
             }
@@ -817,17 +923,37 @@
                 margin-top: 18px;
             }
 
-            .study-info-card h3 {
-                font-size: 1.25rem;
+            .study-toolbar {
+                grid-template-columns: 1fr;
+                gap: 11px;
+            }
+
+            .study-search-field {
+                grid-column: auto;
+            }
+
+            .study-panel-head,
+            .study-table-header {
+                display: grid;
             }
 
             .study-table-header {
-                display: grid;
                 padding: 16px;
             }
 
             .study-table-badge {
                 width: fit-content;
+            }
+
+            .study-filter-field span {
+                font-size: 0.68rem;
+            }
+
+            .study-filter-field input,
+            .study-filter-field select,
+            .study-filter-btn {
+                min-height: 44px;
+                border-radius: 15px;
             }
 
             .study-table th,
@@ -839,7 +965,7 @@
 
         @media (max-width: 420px) {
             .study-hero,
-            .study-info-card {
+            .study-panel {
                 padding: 14px;
             }
 
@@ -913,7 +1039,8 @@
                         program.rpl.includes('supported') ||
                         program.rpl.includes('aktif') ||
                         program.rpl.includes('active') ||
-                        program.rpl.includes('true')
+                        program.rpl.includes('true') ||
+                        program.rpl.includes('iya')
                     );
                 }).length;
 
