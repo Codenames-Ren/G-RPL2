@@ -41,10 +41,14 @@ Route::view('/applications/{id}', 'pages.applicant.application-detail');
 Route::view('/applications/{id}/edit', 'pages.applicant.application-edit');
 
 Route::view('/assessments', 'pages.assessor.assessments');
+Route::view('/assessments/{id}', 'pages.assessor.assessment-detail');
 
 Route::view('/approvals', 'pages.committee.approvals');
+Route::view('/approvals/approved', 'pages.committee.approvals-approved');
+Route::view('/approvals/{id}', 'pages.committee.approval-detail');
 
 Route::view('/submissions', 'pages.staff.submissions');
+Route::view('/submissions/{id}', 'pages.staff.submission-detail');
 
 Route::view('/admin/master-data', 'pages.admin.master-data');
 

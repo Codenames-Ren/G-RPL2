@@ -19,19 +19,25 @@
                 </div>
                 <span class="connection-pill" data-api-status>Connecting</span>
             </div>
-            <div class="dashboard-grid">
-                <div class="module-card">
-                    <strong>Submission Intake</strong>
-                    <span>Pengajuan masuk akan tampil di sini untuk pemeriksaan administrasi.</span>
-                </div>
-                <div class="module-card">
-                    <strong>Document Check</strong>
-                    <span>Validasi kelengkapan dokumen sebelum diteruskan ke assessor.</span>
-                </div>
-                <div class="module-card">
-                    <strong>Assessor Assignment</strong>
-                    <span>Penugasan assessor mengikuti data submission yang sudah siap diproses.</span>
-                </div>
+            <div data-page-message></div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nomor Aplikasi</th>
+                            <th>Pemohon</th>
+                            <th>Program Studi</th>
+                            <th>Tipe</th>
+                            <th>Status</th>
+                            <th>Diajukan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody data-submissions-body>
+                        <tr><td colspan="7">Memuat data...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>

@@ -781,6 +781,26 @@ textarea:focus {
     background: rgba(21, 101, 192, 0.10);
 }
 
+.status-badge[data-status='under_review'] {
+    color: #9a5b00;
+    background: rgba(249, 168, 37, 0.18);
+}
+
+.status-badge[data-status='returned'] {
+    color: var(--danger);
+    background: rgba(229, 57, 53, 0.10);
+}
+
+.status-badge[data-status='under_assessment'] {
+    color: #7c3aed;
+    background: rgba(124, 58, 237, 0.10);
+}
+
+.status-badge[data-status='assessed'] {
+    color: #0d9488;
+    background: rgba(13, 148, 136, 0.10);
+}
+
 .tabs {
     display: flex;
     flex-wrap: wrap;

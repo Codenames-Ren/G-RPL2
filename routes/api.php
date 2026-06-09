@@ -13,6 +13,9 @@ use App\Http\Controllers\Applicant\ApplicationA2LearningExperienceController;
 use App\Http\Controllers\Applicant\ApplicationHybridController;
 use App\Http\Controllers\Applicant\ApplicationDocumentController;
 use App\Http\Controllers\Applicant\ApplicantProfileController;
+use App\Http\Controllers\Staff\SubmissionController;
+use App\Http\Controllers\Assessor\AssessmentController;
+use App\Http\Controllers\Committee\CommitteeController;
 
 // -------------------------
 // Universal Route for all role
@@ -36,16 +39,35 @@ Route::prefix('auth')->group(function () {
         $user = User::findOrFail($id);
 
         if (! hash_equals(sha1($user->getEmailForVerification()), $hash)) {
-            return response()->json(['success' => false, 'message' => 'Invalid verification link'], 403);
+            return response()->view('emails.email-verified', [
+                'type'    => 'warning',
+                'icon'    => '✕',
+                'title'   => 'Tautan Tidak Valid',
+                'message' => 'Tautan verifikasi yang Anda gunakan tidak valid atau sudah kedaluwarsa.',
+                'sub'     => 'Silakan daftar ulang atau hubungi administrator.',
+            ], 403);
         }
 
         if ($user->hasVerifiedEmail()) {
-            return response()->json(['success' => true, 'message' => 'Email already verified']);
+            return view('emails.email-verified', [
+                'type'    => 'success',
+                'icon'    => '✓',
+                'title'   => 'Email Sudah Terverifikasi',
+                'message' => 'Akun Anda sudah aktif sebelumnya.',
+                'sub'     => 'Silakan masuk menggunakan akun Anda.',
+            ]);
         }
 
         $user->markEmailAsVerified();
 
-        return response()->json(['success' => true, 'message' => 'Email verified successfully']);
+        return view('emails.email-verified', [
+            'type'    => 'success',
+            'icon'    => '✓',
+            'title'   => 'Verifikasi Berhasil!',
+            'message' => 'Email Anda telah berhasil diverifikasi.',
+            'sub'     => 'Silakan masuk menggunakan akun Anda.',
+        ]);
+
     })->middleware('signed')->name('verification.verify');
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -133,5 +155,74 @@ Route::middleware(['auth:sanctum', 'role:applicant'])->prefix('applicant')->grou
             Route::post('/', [ApplicationDocumentController::class, 'store']);
             Route::put('/{document}', [ApplicationDocumentController::class, 'update']);
         });
+    });
+});
+
+// -------------------------
+// Staff Routes (role: staff_rpl)
+// -------------------------
+
+Route::middleware([
+    'auth:sanctum',
+    'role:staff_rpl'
+])->prefix('staff')->group(function () {
+
+    Route::get('/assessors', [SubmissionController::class,'assessors',]);
+    Route::prefix('submissions')->group(function () {
+
+        Route::get('/', [SubmissionController::class,'index',]);
+        Route::get('/{application}', [SubmissionController::class,'show',]);
+        Route::patch('/{application}/review', [SubmissionController::class,'review',]);
+        Route::patch('/{application}/return', [SubmissionController::class,'return',]);
+        Route::patch('/{application}/assign-assessor',[SubmissionController::class,'assignAssessor',]);
+        Route::get('/{application}/documents/{document}/download',[SubmissionController::class,'downloadDocument']);
+    });
+});
+
+// -------------------------
+// Assessor Routes (role: assessor)
+// -------------------------
+
+Route::middleware([
+    'auth:sanctum',
+    'role:assessor'
+])->prefix('assessor')->group(function () {
+
+    Route::prefix('assessments')->group(function () {
+
+        /*
+        | Assigned Applications
+        */
+
+        Route::get('/', [AssessmentController::class, 'index']);
+        Route::get('/{application}', [AssessmentController::class, 'show']);
+        Route::post('/{application}', [AssessmentController::class, 'store']);
+
+        /*
+        | Assessment
+        */
+
+        Route::post('/{assessment}/submit', [AssessmentController::class, 'submit']);
+        Route::get('/{assessment}/mappings', [AssessmentController::class, 'mappings']);
+        Route::post('/{assessment}/mappings', [AssessmentController::class, 'storeCourseMapping']);
+        Route::put('/mappings/{mapping}',[AssessmentController::class, 'updateCourseMapping']);
+    });
+});
+
+Route::middleware([
+    'auth:sanctum',
+    'role:committee'
+])->prefix('committee')->group(function () {
+
+    Route::prefix('applications')->group(function () {
+        Route::get('/approved', [CommitteeController::class, 'approved']);
+        Route::get('/approved/{application}', [CommitteeController::class, 'showApproved']);
+        Route::get('/', [CommitteeController::class, 'index']);
+        Route::get('/{application}', [CommitteeController::class, 'show']);
+        Route::get('/{application}/rector-decree/preview', [CommitteeController::class, 'previewRectorDecree']);
+        Route::get('/{application}/rector-decree/download', [CommitteeController::class, 'downloadRectorDecree']);
+        Route::get('/{application}/assessment-summary/preview', [CommitteeController::class, 'previewAssessmentSummary']);
+        Route::get('/{application}/assessment-summary/download', [CommitteeController::class, 'downloadAssessmentSummary']);
+        Route::patch('/{application}/approve', [CommitteeController::class, 'approve']);
     });
 });
