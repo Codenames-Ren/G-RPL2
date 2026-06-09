@@ -2,7 +2,7 @@ import { apiRequest, downloadRequest } from './api.js';
 import {
     escapeHtml, collection, currentResourceId, setMessage, validationMessage,
     pageMessage, getApplicationTypeLabel, getApplicationStatusLabel,
-    allowedApplicationSections, syncApplicationSections, formPayload
+    allowedApplicationSections, syncApplicationSections, formPayload, activateTab
 } from './utils.js';
 
 const profileLabels = {
@@ -142,7 +142,6 @@ async function loadA1Courses(applicationId) {
     if (!target) {
         return;
     }
-    const editable = document.body.dataset.page === 'application-edit';
 
     try {
         const response = await apiRequest(`/applicant/applications/${applicationId}/a1-courses`);
@@ -156,27 +155,25 @@ async function loadA1Courses(applicationId) {
                     <td>${escapeHtml(course.credits)}</td>
                     <td>${escapeHtml(course.grade)}</td>
                     <td>${escapeHtml(course.institution_name)}</td>
-                    ${editable ? `
-                        <td class="table-actions">
-                            <button
-                                class="button button-small button-muted"
-                                type="button"
-                                data-edit-a1-course="${course.id}"
-                                data-course-code="${escapeHtml(course.course_code)}"
-                                data-course-name="${escapeHtml(course.course_name)}"
-                                data-credits="${escapeHtml(course.credits)}"
-                                data-grade="${escapeHtml(course.grade)}"
-                                data-institution-name="${escapeHtml(course.institution_name)}"
-                            >
-                                Edit
-                            </button>
-                        </td>
-                    ` : ''}
+                    <td class="table-actions">
+                        <button
+                            class="button button-small button-muted"
+                            type="button"
+                            data-edit-a1-course="${course.id}"
+                            data-course-code="${escapeHtml(course.course_code)}"
+                            data-course-name="${escapeHtml(course.course_name)}"
+                            data-credits="${escapeHtml(course.credits)}"
+                            data-grade="${escapeHtml(course.grade)}"
+                            data-institution-name="${escapeHtml(course.institution_name)}"
+                        >
+                            Edit
+                        </button>
+                    </td>
                 </tr>
             `).join('')
-            : `<tr><td colspan="${editable ? 6 : 5}">Belum ada data A1 course.</td></tr>`;
+            : '<tr><td colspan="6">Belum ada data A1 course.</td></tr>';
     } catch (error) {
-        target.innerHTML = `<tr><td colspan="${editable ? 6 : 5}">Gagal memuat A1 courses.</td></tr>`;
+        target.innerHTML = '<tr><td colspan="6">Gagal memuat A1 courses.</td></tr>';
         pageMessage(validationMessage(error));
     }
 }
@@ -535,13 +532,12 @@ function bindModalHandlers() {
 }
 
 function bindA1CourseModal() {
-    const addButton = document.querySelector('[data-add-a1-course]');
     const modal = document.querySelector('[data-modal="a1-course"]');
     const form = document.querySelector('[data-a1-course-form]');
     const saveButton = document.querySelector('[data-save-a1-course]');
     const title = document.querySelector('[data-a1-course-modal-title]');
 
-    if (!addButton || !modal || !form || !saveButton) {
+    if (!modal || !form || !saveButton) {
         return;
     }
 
@@ -572,9 +568,12 @@ function bindA1CourseModal() {
         modal.hidden = false;
     };
 
-    addButton.addEventListener('click', () => {
-        openCreateModal();
-    });
+    const addButton = document.querySelector('[data-add-a1-course]');
+    if (addButton) {
+        addButton.addEventListener('click', () => {
+            openCreateModal();
+        });
+    }
 
     document.addEventListener('click', (event) => {
         const button = event.target.closest('[data-edit-a1-course]');
@@ -695,6 +694,14 @@ export function bootApplicantPages() {
     bindModalHandlers();
     bindApplicantProfileForm();
 
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-tab-button]');
+        if (button) {
+            event.preventDefault();
+            activateTab(button.dataset.tabButton);
+        }
+    });
+
     if (page === 'profile' || page === 'profile-edit') {
         loadApplicantProfile();
     }
@@ -709,6 +716,8 @@ export function bootApplicantPages() {
 
     if (page === 'application-detail') {
         loadApplicationDetail();
+        bindA1CourseModal();
+        bindA2ExperienceModal();
     }
 
     if (page === 'application-edit') {
