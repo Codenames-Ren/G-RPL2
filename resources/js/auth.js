@@ -71,7 +71,14 @@ export async function hydrateAuthenticatedPage() {
         renderUser(user);
 
         if (!isAuthorizedForPage(user)) {
-            window.location.replace('/dashboard');
+            const roleRedirect = {
+                system_admin: '/dashboard',
+                applicant: '/applications',
+                assessor: '/assessments',
+                staff_rpl: '/submissions',
+                committee: '/approvals',
+            };
+            window.location.replace(roleRedirect[roleOf(user)] || '/login');
             return;
         }
 
@@ -107,7 +114,17 @@ export function bindAuthForms() {
                     }
 
                     storeSession(response.token, response.user);
-                    const redirect = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+
+                    const roleRedirect = {
+                        system_admin: '/dashboard',
+                        applicant: '/applications',
+                        assessor: '/assessments',
+                        staff_rpl: '/submissions',
+                        committee: '/approvals',
+                    };
+                    const userRole = roleOf(response.user);
+                    const defaultRedirect = roleRedirect[userRole] || '/dashboard';
+                    const redirect = new URLSearchParams(window.location.search).get('redirect') || defaultRedirect;
                     window.location.assign(redirect);
                     return;
                 }
