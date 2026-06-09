@@ -455,10 +455,16 @@ async function loadApplicationDetail() {
             loadA2LearningExperiences(applicationId);
         }
 
-loadDocuments(applicationId);
-bindDocumentUpload(applicationId);
-bindDocumentDownload(applicationId);
-bindSubmitApplication();
+        loadDocuments(applicationId);
+        bindDocumentUpload(applicationId);
+        bindDocumentDownload(applicationId);
+        bindSubmitApplication();
+
+        const submitSection = document.querySelector('[data-submit-section]');
+
+        if (submitSection) {
+            submitSection.hidden = app.status !== 'draft';
+        }
     } catch (error) {
         safePageMessage(validationMessage(error), 'error');
     }

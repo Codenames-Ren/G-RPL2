@@ -100,12 +100,12 @@
                     <div class="application-detail-control-actions">
                         <button class="application-detail-action-btn" type="button" data-add-a1-course data-rpl-section="a1">
                             <span class="application-detail-action-icon">+</span>
-                            <span>Add A1 Course</span>
+                            <span>Tambah Data Matakuliah</span>
                         </button>
 
                         <button class="application-detail-action-btn application-detail-action-alt" type="button" data-add-a2-experience data-rpl-section="a2">
                             <span class="application-detail-action-icon">+</span>
-                            <span>Add Learning Experience</span>
+                            <span>Tambah Data Pengalaman</span>
                         </button>
                     </div>
                 </div>
@@ -117,7 +117,7 @@
                                 <path d="M18 2H7c-1.66 0-3 1.34-3 3v14c0 1.66 1.34 3 3 3h11c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2Zm0 16H7c-.55 0-1 .45-1 1s.45 1 1 1h11v-2Zm0-2H7c-.35 0-.69.06-1 .17V5c0-.55.45-1 1-1h11v12Z"/>
                             </svg>
                         </span>
-                        <span>A1 Courses</span>
+                        <span>Matakuliah</span>
                     </button>
 
                     <button class="application-detail-tab tab-button" data-tab-button="a2-learning-experiences" data-rpl-section="a2">
@@ -126,7 +126,7 @@
                                 <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm0 14L5 13.18V16c0 2 4.66 4 7 4s7-2 7-4v-2.82L12 17Z"/>
                             </svg>
                         </span>
-                        <span>A2 Learning Experiences</span>
+                        <span>Pengalaman</span>
                     </button>
 
                     <button class="application-detail-tab tab-button" data-tab-button="documents">
@@ -137,6 +137,7 @@
                         </span>
                         <span>Documents</span>
                     </button>
+                    
                 </div>
             </div>
 
@@ -338,7 +339,7 @@
         <div class="modal-content application-detail-modal-content">
             <div class="modal-header application-detail-modal-header">
                 <div>
-                    <p class="eyebrow application-detail-eyebrow">A1 Course</p>
+                    <p class="eyebrow application-detail-eyebrow">A1 - Course</p>
                     <h3 data-a1-course-modal-title>Add A1 Course</h3>
                 </div>
 
@@ -402,7 +403,7 @@
         <div class="modal-content application-detail-modal-content">
             <div class="modal-header application-detail-modal-header">
                 <div>
-                    <p class="eyebrow application-detail-eyebrow">A2 Experience</p>
+                    <p class="eyebrow application-detail-eyebrow">A2 - Experience</p>
                     <h3>Add Learning Experience</h3>
                 </div>
 

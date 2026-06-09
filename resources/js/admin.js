@@ -91,30 +91,29 @@ function bindUserForms() {
 
             try {
                 const path = mode === 'edit' ? `/admin/users/${currentResourceId()}` : '/admin/users';
-                const response = await apiRequest(path, {
+                await apiRequest(path, {
                     method: mode === 'edit' ? 'PUT' : 'POST',
                     body: JSON.stringify(payload),
                 });
 
-                setMessage(form, response.message || 'User tersimpan.', 'success');
-
                 if (mode === 'create') {
                     localStorage.setItem('grpl2_flash', JSON.stringify({
                         icon: 'success',
-                        title: 'User Berhasil Ditambahkan',
-                        text: response.message || 'User baru berhasil disimpan.',
+                        title: 'Berhasil',
+                        text: 'Pengguna baru berhasil disimpan.',
                     }));
                     window.location.assign('/admin/users');
                 } else {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'User Berhasil Diperbarui',
-                        text: response.message || 'Data user berhasil diperbarui.',
+                        title: 'Berhasil',
+                        text: 'Data pengguna berhasil diperbarui.',
                         confirmButtonText: 'Oke',
                     });
+                    window.location.assign('/admin/users');
                 }
             } catch (error) {
-                setMessage(form, validationMessage(error));
+                setMessage(form, 'Gagal menyimpan data pengguna. Periksa kembali isian form.', 'error');
             } finally {
                 button.disabled = false;
             }
@@ -156,16 +155,25 @@ async function loadStudyPrograms() {
         const programs = collection(response);
 
         target.innerHTML = programs.length
-            ? programs.map((program) => `
-                <tr>
-                    <td>${escapeHtml(program.code)}</td>
-                    <td>${escapeHtml(program.name)}</td>
-                    <td>${escapeHtml(program.max_convertible_sks)} / ${escapeHtml(program.total_sks)}</td>
-                    <td>${program.supports_a1 ? 'A1' : '-'} ${program.supports_a2 ? 'A2' : '-'} ${program.is_hybrid_allowed ? 'Hybrid' : ''}</td>
-                    <td><span class="status-badge" data-status="${escapeHtml(program.status)}">${escapeHtml(program.status)}</span></td>
-                    <td><a class="button button-small button-muted" href="/admin/study-programs/${program.id}/edit">Edit</a></td>
-                </tr>
-            `).join('')
+            ? programs.map((program) => {
+                const types = program.is_hybrid_allowed
+                    ? 'Hybrid'
+                    : [
+                        program.supports_a1 ? 'A1' : null,
+                        program.supports_a2 ? 'A2' : null,
+                    ].filter(Boolean).join(', ') || '-';
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(program.code)}</td>
+                        <td>${escapeHtml(program.name)}</td>
+                        <td>${escapeHtml(program.max_convertible_sks)} / ${escapeHtml(program.total_sks)}</td>
+                        <td>${escapeHtml(types)}</td>
+                        <td><span class="status-badge" data-status="${escapeHtml(program.status)}">${escapeHtml(program.status)}</span></td>
+                        <td><a class="button button-small button-muted" href="/admin/study-programs/${program.id}/edit">Edit</a></td>
+                    </tr>
+                `;
+            }).join('')
             : '<tr><td colspan="6">Tidak ada program studi.</td></tr>';
     } catch (error) {
         target.innerHTML = '<tr><td colspan="6">Gagal memuat program studi.</td></tr>';
@@ -232,30 +240,29 @@ function bindStudyProgramForms() {
 
             try {
                 const path = mode === 'edit' ? `/admin/study-programs/${currentResourceId()}` : '/admin/study-programs';
-                const response = await apiRequest(path, {
+                await apiRequest(path, {
                     method: mode === 'edit' ? 'PUT' : 'POST',
                     body: JSON.stringify(payload),
                 });
 
-                setMessage(form, response.message || 'Program studi tersimpan.', 'success');
-
                 if (mode === 'create') {
                     localStorage.setItem('grpl2_flash', JSON.stringify({
                         icon: 'success',
-                        title: 'Program Studi Berhasil Ditambahkan',
-                        text: response.message || 'Program studi baru berhasil disimpan.',
+                        title: 'Berhasil',
+                        text: 'Program studi baru berhasil disimpan.',
                     }));
                     window.location.assign('/admin/study-programs');
                 } else {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'Program Studi Berhasil Diperbarui',
-                        text: response.message || 'Data program studi berhasil diperbarui.',
+                        title: 'Berhasil',
+                        text: 'Program studi berhasil diperbarui.',
                         confirmButtonText: 'Oke',
                     });
+                    window.location.assign('/admin/study-programs');
                 }
             } catch (error) {
-                setMessage(form, validationMessage(error));
+                setMessage(form, 'Gagal menyimpan program studi. Periksa kembali isian form.', 'error');
             } finally {
                 button.disabled = false;
             }
@@ -290,6 +297,8 @@ async function loadCourses() {
                 const programs = (course.study_programs || course.studyPrograms || [])
                     .map((program) => program.code || program.name)
                     .join(', ');
+                const rplTypeLabels = { a1: 'A1', a2: 'A2', hybrid: 'Hybrid' };
+                const rplType = rplTypeLabels[course.rpl_type] || course.rpl_type || '-';
 
                 return `
                     <tr>
@@ -298,12 +307,12 @@ async function loadCourses() {
                         <td>${escapeHtml(programs || '-')}</td>
                         <td>${escapeHtml(course.semester)}</td>
                         <td>${escapeHtml(course.sks)}</td>
-                        <td>${escapeHtml(course.rpl_type)}</td>
+                        <td>${escapeHtml(rplType)}</td>
                         <td><span class="status-badge" data-status="${active ? 'active' : 'inactive'}">${active ? 'Active' : 'Inactive'}</span></td>
                         <td class="table-actions">
                             <a class="button button-small button-muted" href="/admin/courses/${course.id}/edit">Edit</a>
                             <button class="button button-small button-muted" type="button" data-toggle-course="${course.id}" data-next-active="${active ? '0' : '1'}">
-                                ${active ? 'Deactivate' : 'Activate'}
+                                ${active ? 'Nonaktifkan' : 'Aktifkan'}
                             </button>
                         </td>
                     </tr>
@@ -353,30 +362,29 @@ function bindCourseForms() {
 
             try {
                 const path = mode === 'edit' ? `/admin/courses/${currentResourceId()}` : '/admin/courses';
-                const response = await apiRequest(path, {
+                await apiRequest(path, {
                     method: mode === 'edit' ? 'PUT' : 'POST',
                     body: JSON.stringify(payload),
                 });
 
-                setMessage(form, response.message || 'Mata kuliah tersimpan.', 'success');
-
                 if (mode === 'create') {
                     localStorage.setItem('grpl2_flash', JSON.stringify({
                         icon: 'success',
-                        title: 'Mata Kuliah Berhasil Ditambahkan',
-                        text: response.message || 'Mata kuliah baru berhasil disimpan.',
+                        title: 'Berhasil',
+                        text: 'Mata kuliah baru berhasil disimpan.',
                     }));
                     window.location.assign('/admin/courses');
                 } else {
                     await Swal.fire({
                         icon: 'success',
-                        title: 'Mata Kuliah Berhasil Diperbarui',
-                        text: response.message || 'Data mata kuliah berhasil diperbarui.',
+                        title: 'Berhasil',
+                        text: 'Data mata kuliah berhasil diperbarui.',
                         confirmButtonText: 'Oke',
                     });
+                    window.location.assign('/admin/courses');
                 }
             } catch (error) {
-                setMessage(form, validationMessage(error));
+                setMessage(form, 'Gagal menyimpan data mata kuliah. Periksa kembali isian form.', 'error');
             } finally {
                 button.disabled = false;
             }

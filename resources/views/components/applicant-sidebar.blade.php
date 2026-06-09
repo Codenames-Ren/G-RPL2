@@ -677,23 +677,5 @@
                 element.textContent = storedUserRole.charAt(0).toUpperCase() + storedUserRole.slice(1);
             }
         });
-
-        const logoutButtons = document.querySelectorAll('[data-logout]');
-
-        logoutButtons.forEach(function (button) {
-            button.addEventListener('click', function () {
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('user_role');
-                localStorage.removeItem('user_name');
-                localStorage.removeItem('user_email');
-
-                sessionStorage.removeItem('access_token');
-                sessionStorage.removeItem('user_role');
-                sessionStorage.removeItem('user_name');
-                sessionStorage.removeItem('user_email');
-
-                window.location.href = '/login';
-            });
-        });
     });
 </script>

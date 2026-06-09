@@ -51,40 +51,44 @@ function isActiveLink(href, currentPath) {
 }
 
 export function bindLogout() {
-    document.querySelectorAll('[data-logout]').forEach((button) => {
-        if (button.dataset.logoutBound === 'true') {
+    if (document._logoutBound) {
+        return;
+    }
+
+    document._logoutBound = true;
+
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-logout]');
+
+        if (!button) {
             return;
         }
 
-        button.dataset.logoutBound = 'true';
-
-        button.addEventListener('click', async () => {
-            const confirm = await Swal.fire({
-                icon: 'question',
-                title: 'Keluar',
-                text: 'Kamu yakin ingin keluar dari aplikasi?',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Keluar',
-                cancelButtonText: 'Batal',
-            });
-
-            if (!confirm.isConfirmed) {
-                return;
-            }
-
-            button.disabled = true;
-
-            try {
-                if (state.token) {
-                    await apiRequest('/auth/logout', { method: 'POST' });
-                }
-            } catch {
-                // Session lokal tetap dibersihkan walaupun token server sudah invalid.
-            } finally {
-                clearSession();
-                window.location.assign('/login');
-            }
+        const confirm = await Swal.fire({
+            icon: 'question',
+            title: 'Keluar',
+            text: 'Kamu yakin ingin keluar dari aplikasi?',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Keluar',
+            cancelButtonText: 'Batal',
         });
+
+        if (!confirm.isConfirmed) {
+            return;
+        }
+
+        button.disabled = true;
+
+        try {
+            if (state.token) {
+                await apiRequest('/auth/logout', { method: 'POST' });
+            }
+        } catch {
+            // Session lokal tetap dibersihkan walaupun token server sudah invalid.
+        } finally {
+            clearSession();
+            window.location.assign('/login');
+        }
     });
 }
 
