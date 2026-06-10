@@ -17,7 +17,7 @@ async function loadApprovals() {
                 const applicantName = app.applicant?.user?.name || '-';
                 const studyProgram = app.study_program?.name || '-';
                 const totalSks = app.assessment?.total_converted_sks || '-';
-                const assessorName = app.assessment?.assessor?.user?.name || '-';
+                // const assessorName = app.assessment?.assessor?.user?.name || '-';
                 const createdAt = app.created_at
                     ? new Date(app.created_at).toLocaleDateString('id-ID')
                     : '-';
@@ -27,7 +27,6 @@ async function loadApprovals() {
                         <td>${escapeHtml(applicantName)}</td>
                         <td>${escapeHtml(studyProgram)}</td>
                         <td>${escapeHtml(totalSks)}</td>
-                        <td>${escapeHtml(assessorName)}</td>
                         <td>${createdAt}</td>
                         <td class="table-actions">
                             <a class="button button-small button-muted" href="/approvals/${app.id}">Detail</a>
@@ -35,9 +34,9 @@ async function loadApprovals() {
                     </tr>
                 `;
             }).join('')
-            : '<tr><td colspan="7">Tidak ada pengajuan yang perlu disetujui.</td></tr>';
+            : '<tr><td colspan="6">Tidak ada pengajuan yang perlu disetujui.</td></tr>';
     } catch (error) {
-        target.innerHTML = '<tr><td colspan="7">Gagal memuat data.</td></tr>';
+        target.innerHTML = '<tr><td colspan="6">Gagal memuat data.</td></tr>';
         pageMessage(validationMessage(error));
     }
 }
@@ -49,13 +48,14 @@ async function loadApprovedApprovals() {
     try {
         const response = await apiRequest('/committee/applications/approved');
         const applications = collection(response);
+        console.log('approved app[0]:', applications[0]?.assessment);
 
         target.innerHTML = applications.length
             ? applications.map((app) => {
                 const applicantName = app.applicant?.user?.name || '-';
                 const studyProgram = app.study_program?.name || '-';
                 const totalSks = app.assessment?.total_converted_sks || '-';
-                const reviewNotes = app.review_notes || '-';
+                // const reviewNotes = app.review_notes || '-';
                 const updatedAt = app.updated_at
                     ? new Date(app.updated_at).toLocaleDateString('id-ID')
                     : '-';
@@ -65,7 +65,6 @@ async function loadApprovedApprovals() {
                         <td>${escapeHtml(applicantName)}</td>
                         <td>${escapeHtml(studyProgram)}</td>
                         <td>${escapeHtml(totalSks)}</td>
-                        <td>${escapeHtml(reviewNotes)}</td>
                         <td>${updatedAt}</td>
                         <td class="table-actions">
                             <a class="button button-small button-muted" href="/approvals/${app.id}">Detail</a>
@@ -73,9 +72,9 @@ async function loadApprovedApprovals() {
                     </tr>
                 `;
             }).join('')
-            : '<tr><td colspan="7">Belum ada pengajuan yang disetujui.</td></tr>';
+            : '<tr><td colspan="6">Belum ada pengajuan yang disetujui.</td></tr>';
     } catch (error) {
-        target.innerHTML = '<tr><td colspan="7">Gagal memuat data.</td></tr>';
+        target.innerHTML = '<tr><td colspan="6">Gagal memuat data.</td></tr>';
         pageMessage(validationMessage(error));
     }
 }
@@ -98,7 +97,7 @@ async function loadApprovalDetail() {
         document.querySelector('[data-detail-rpl-type]').textContent = app.rpl_type ? getApplicationTypeLabel(app.rpl_type) : '-';
         document.querySelector('[data-detail-total-sks]').textContent = app.assessment?.total_converted_sks ?? '-';
         document.querySelector('[data-detail-assessor]').textContent = app.assessment?.assessor?.user?.name || '-';
-        document.querySelector('[data-detail-review-notes]').textContent = app.review_notes || '-';
+        // document.querySelector('[data-detail-review-notes]').textContent = app.review_notes || '-';
         document.querySelector('[data-detail-submitted-at]').textContent = app.created_at
             ? new Date(app.created_at).toLocaleDateString('id-ID')
             : '-';
@@ -190,6 +189,25 @@ function renderCommitteeDocuments(documents, applicationId) {
     });
 }
 
+async function previewPdf(path) {
+    const headers = { Accept: 'application/octet-stream' };
+    const token = localStorage.getItem('grpl2_token');
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`/api${path}`, { headers });
+
+    if (!response.ok) {
+        throw new Error('Preview gagal dimuat.');
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+}
+
 function bindCommitteeActions() {
     const applicationId = currentResourceId();
     if (!applicationId) return;
@@ -238,7 +256,23 @@ function bindCommitteeActions() {
         event.preventDefault();
         previewBtn.disabled = true;
         try {
-            window.open(`/api/committee/applications/${applicationId}/rector-decree/preview`, '_blank');
+            await previewPdf(`/committee/applications/${applicationId}/rector-decree/preview`);
+        } catch (error) {
+            pageMessage(validationMessage(error));
+        } finally {
+            previewBtn.disabled = false;
+        }
+    });
+
+    document.addEventListener('click', async (event) => {
+        const previewBtn = event.target.closest('[data-preview-assessment-summary]');
+        if (!previewBtn) return;
+        event.preventDefault();
+        previewBtn.disabled = true;
+        try {
+            await previewPdf(`/committee/applications/${applicationId}/assessment-summary/preview`);
+        } catch (error) {
+            pageMessage(validationMessage(error));
         } finally {
             previewBtn.disabled = false;
         }
@@ -255,18 +289,6 @@ function bindCommitteeActions() {
             pageMessage(validationMessage(error));
         } finally {
             downloadBtn.disabled = false;
-        }
-    });
-
-    document.addEventListener('click', async (event) => {
-        const previewBtn = event.target.closest('[data-preview-assessment-summary]');
-        if (!previewBtn) return;
-        event.preventDefault();
-        previewBtn.disabled = true;
-        try {
-            window.open(`/api/committee/applications/${applicationId}/assessment-summary/preview`, '_blank');
-        } finally {
-            previewBtn.disabled = false;
         }
     });
 
