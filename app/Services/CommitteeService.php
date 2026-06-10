@@ -17,15 +17,26 @@ class CommitteeService
 
     public function listAssessedApplications()
     {
-        return Application::query()
+        $applications = Application::query()
             ->where('status', ApplicationStatus::ASSESSED)
             ->with([
                 'applicant.user',
                 'studyProgram',
+                'assessment.assessor.user',
                 'assessment.courseMappings.course',
             ])
             ->latest()
             ->get();
+
+        $applications->each(function ($app) {
+            if ($app->assessment) {
+                $app->assessment->total_converted_sks = $app->assessment->courseMappings
+                    ->where('is_recognized', true)
+                    ->sum(fn($m) => $m->course->sks ?? 0);
+            }
+        });
+
+        return $applications;
     }
 
     /*
@@ -262,22 +273,25 @@ class CommitteeService
 
     public function listApprovedApplications()
     {
-        return Application::query()
-
-            ->where(
-                'status',
-                ApplicationStatus::APPROVED
-            )
-
+        $applications = Application::query()
+            ->where('status', ApplicationStatus::APPROVED)
             ->with([
                 'applicant.user',
                 'studyProgram',
                 'assessment.courseMappings.course',
             ])
-
             ->latest()
-
             ->get();
+
+        $applications->each(function ($app) {
+            if ($app->assessment) {
+                $app->assessment->total_converted_sks = $app->assessment->courseMappings
+                    ->where('is_recognized', true)
+                    ->sum(fn($m) => $m->course->sks ?? 0);
+            }
+        });
+
+        return $applications;
     }
 
     public function getApprovedApplicationDetail(Application $application)
