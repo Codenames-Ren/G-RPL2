@@ -92,16 +92,10 @@ class ApplicationService
                 $applicant->id
             )
 
-            ->whereIn(
+            ->where(
                 'status',
-                [
-                    ApplicationStatus::DRAFT,
-                    ApplicationStatus::SUBMITTED,
-                    ApplicationStatus::UNDER_REVIEW,
-                    ApplicationStatus::RETURNED,
-                    ApplicationStatus::UNDER_ASSESSMENT,
-                    ApplicationStatus::ASSESSED,
-                ]
+                '!=',
+                ApplicationStatus::APPROVED
             )
 
             ->exists();
