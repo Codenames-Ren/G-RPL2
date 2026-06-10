@@ -133,7 +133,8 @@ function navigationItemsForRole(role) {
             { href: '/assessments', label: 'Assessments' },
         ],
         committee: [
-            { href: '/approvals', label: 'Approvals' },
+            { href: '/approvals', label: 'Daftar Pengajuan' },
+            { href: '/approvals/approved', label: 'Pengajuan Disetujui' },
         ],
         staff_rpl: [
             { href: '/submissions', label: 'Submissions' },
