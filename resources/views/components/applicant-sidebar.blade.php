@@ -37,6 +37,15 @@
     </div>
 
     <nav class="applicant-sidebar-menu" aria-label="Applicant Navigation">
+        <a href="/profile" class="applicant-sidebar-link" data-applicant-sidebar-link="profile">
+            <span class="applicant-sidebar-link-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z"/>
+                </svg>
+            </span>
+            <span class="applicant-sidebar-link-text">Profile</span>
+        </a>    
+
         <a href="/applications" class="applicant-sidebar-link" data-applicant-sidebar-link="applications">
             <span class="applicant-sidebar-link-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -54,16 +63,6 @@
             </span>
             <span class="applicant-sidebar-link-text">Create Application</span>
         </a>
-
-        <a href="/profile" class="applicant-sidebar-link" data-applicant-sidebar-link="profile">
-            <span class="applicant-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z"/>
-                </svg>
-            </span>
-            <span class="applicant-sidebar-link-text">Profile</span>
-        </a>
-
     </nav>
 
     <div class="applicant-sidebar-bottom">
