@@ -39,6 +39,13 @@ function setText(selector, value = '-') {
     element.textContent = value ?? '-';
 }
 
+function isApplicationLocked(error) {
+    const msg = (error?.payload?.message || error?.message || '').toLowerCase();
+    return msg.includes('cannot be modified') || msg.includes('cannot be updated') || msg.includes('cannot be submitted');
+}
+
+const LOCKED_MESSAGE = 'Tidak dapat mengubah data pada pengajuan yang sudah disubmit.';
+
 function setAllText(selector, value = '-') {
     document.querySelectorAll(selector).forEach((element) => {
         element.textContent = value ?? '-';
@@ -172,8 +179,7 @@ function bindCreateApplication() {
                 icon: 'success',
                 title: 'Berhasil',
                 text: response.message || 'Aplikasi berhasil dibuat.',
-                timer: 1500,
-                showConfirmButton: false,
+                confirmButtonText: 'Oke',
             });
 
             window.location.assign(`/applications/${response.data.id}`);
@@ -181,8 +187,8 @@ function bindCreateApplication() {
             console.error('[Create Application]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: validationMessage(error),
+                title: 'Gagal Membuat Aplikasi',
+                text: 'Pastikan profil Anda sudah lengkap dan Anda belum memiliki pengajuan aktif.',
                 confirmButtonText: 'Tutup',
             });
             button.disabled = false;
@@ -372,8 +378,8 @@ function bindDocumentDownload(applicationId) {
             console.error('[Download Document]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: validationMessage(error),
+                title: 'Gagal Mengunduh Dokumen',
+                text: 'Dokumen tidak ditemukan atau sudah tidak tersedia.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
@@ -411,17 +417,17 @@ function bindDocumentUpload(applicationId) {
                 icon: 'success',
                 title: 'Berhasil',
                 text: response.message || 'Dokumen berhasil diunggah.',
-                timer: 1500,
-                showConfirmButton: false,
+                confirmButtonText: 'Oke',
             });
             form.reset();
             loadDocuments(applicationId);
         } catch (error) {
-            console.error('[Upload Document]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: validationMessage(error),
+                title: 'Gagal Mengunggah Dokumen',
+                text: isApplicationLocked(error)
+                    ? LOCKED_MESSAGE
+                    : 'Pastikan format dan ukuran file sesuai ketentuan.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
@@ -461,8 +467,7 @@ async function submitApplication(applicationId) {
             icon: 'success',
             title: 'Berhasil',
             text: response.message || 'Aplikasi berhasil disubmit.',
-            timer: 1500,
-            showConfirmButton: false,
+            confirmButtonText: 'Oke',
         });
 
         window.location.assign('/applications');
@@ -470,8 +475,8 @@ async function submitApplication(applicationId) {
         console.error('[Submit Application]', error);
         await Swal.fire({
             icon: 'error',
-            title: 'Gagal',
-            text: validationMessage(error),
+            title: 'Gagal Mengirim Aplikasi',
+            text: 'Pastikan semua data dan dokumen yang diperlukan sudah lengkap.',
             confirmButtonText: 'Tutup',
         });
 
@@ -499,6 +504,18 @@ async function loadApplicationDetail() {
 
         syncApplicationSections(app.rpl_type);
 
+        const reviewNotesSection = document.querySelector('[data-review-notes-section]');
+        const reviewNotesText = document.querySelector('[data-review-notes-text]');
+
+        if (reviewNotesSection && reviewNotesText) {
+            if (app.status === 'returned' && app.review_notes) {
+                reviewNotesText.textContent = app.review_notes;
+                reviewNotesSection.hidden = false;
+            } else {
+                reviewNotesSection.hidden = true;
+            }
+        }
+
         if (allowed.a1) {
             loadA1Courses(applicationId);
         }
@@ -515,7 +532,7 @@ async function loadApplicationDetail() {
         const submitSection = document.querySelector('[data-submit-section]');
 
         if (submitSection) {
-            submitSection.hidden = app.status !== 'draft';
+            submitSection.hidden = !['draft', 'returned'].includes(app.status);
         }
     } catch (error) {
         safePageMessage(validationMessage(error), 'error');
@@ -540,6 +557,18 @@ async function loadApplicationEdit() {
 
         syncApplicationSections(app.rpl_type);
 
+        const reviewNotesSection = document.querySelector('[data-review-notes-section]');
+        const reviewNotesText = document.querySelector('[data-review-notes-text]');
+
+        if (reviewNotesSection && reviewNotesText) {
+            if (app.status === 'returned' && app.review_notes) {
+                reviewNotesText.textContent = app.review_notes;
+                reviewNotesSection.hidden = false;
+            } else {
+                reviewNotesSection.hidden = true;
+            }
+        }
+
         if (allowed.a1) {
             loadA1Courses(applicationId);
         }
@@ -556,7 +585,7 @@ async function loadApplicationEdit() {
         const submitSection = document.querySelector('[data-submit-section]');
 
         if (submitSection) {
-            submitSection.hidden = app.status !== 'draft';
+            submitSection.hidden = !['draft', 'returned'].includes(app.status);
         }
     } catch (error) {
         safePageMessage(validationMessage(error), 'error');
@@ -682,8 +711,7 @@ function bindApplicantProfileForm() {
                 icon: 'success',
                 title: 'Berhasil',
                 text: response.message || 'Profil berhasil disimpan.',
-                timer: 1500,
-                showConfirmButton: false,
+                confirmButtonText: 'Oke',
             });
 
             window.location.assign('/profile');
@@ -691,8 +719,8 @@ function bindApplicantProfileForm() {
             console.error('[Save Profile]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: validationMessage(error),
+                title: 'Gagal Menyimpan Profil',
+                text: 'Periksa kembali data yang diisi dan pastikan semua field wajib sudah terisi.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
@@ -820,9 +848,8 @@ function bindA1CourseModal() {
             await Swal.fire({
                 icon: 'success',
                 title: 'Berhasil',
-                text: response.message || 'A1 course berhasil disimpan.',
-                timer: 1500,
-                showConfirmButton: false,
+                text: response.message || 'Data mata kuliah berhasil disimpan.',
+                confirmButtonText: 'Oke',
             });
             form.reset();
             delete form.dataset.courseId;
@@ -830,11 +857,12 @@ function bindA1CourseModal() {
             modal.hidden = true;
             loadA1Courses(applicationId);
         } catch (error) {
-            console.error('[Save A1 Course]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: validationMessage(error),
+                title: 'Gagal Menyimpan Mata Kuliah',
+                text: isApplicationLocked(error)
+                    ? LOCKED_MESSAGE
+                    : 'Periksa kembali data yang diisi dan pastikan semua field sudah terisi dengan benar.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
@@ -899,19 +927,19 @@ function bindA2ExperienceModal() {
                 icon: 'success',
                 title: 'Berhasil',
                 text: response.message || 'Pengalaman pembelajaran berhasil ditambahkan.',
-                timer: 1500,
-                showConfirmButton: false,
+                confirmButtonText: 'Oke',
             });
             form.reset();
 
             modal.hidden = true;
             loadA2LearningExperiences(applicationId);
         } catch (error) {
-            console.error('[Save A2 Experience]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal',
-                text: validationMessage(error),
+                title: 'Gagal Menyimpan Pengalaman',
+                text: isApplicationLocked(error)
+                    ? LOCKED_MESSAGE
+                    : 'Periksa kembali data yang diisi dan pastikan semua field sudah terisi dengan benar.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
