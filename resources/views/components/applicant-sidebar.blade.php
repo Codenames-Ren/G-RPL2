@@ -68,7 +68,7 @@
     <div class="applicant-sidebar-bottom">
         <div class="applicant-sidebar-help">
             <span>Applicant Area</span>
-            <strong>Complete your profile and manage RPL applications.</strong>
+            <strong>Complete your profile and manage RPL applications</strong>
         </div>
 
         <button type="button" class="applicant-sidebar-logout" data-logout>
