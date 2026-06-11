@@ -669,7 +669,7 @@
     }
 
     .mapping-actions {
-        margin-top: 16px;
+        margin-top: 0;
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
@@ -702,6 +702,12 @@
         color: #047857;
         background: #d1fae5;
         border-color: rgba(16, 185, 129, .24);
+    }
+
+    .status-badge[data-status="rejected"] {
+        color: #b91c1c;
+        background: #fee2e2;
+        border-color: rgba(239, 68, 68, .25);
     }
 
     .table-actions {
@@ -744,6 +750,7 @@
         min-height: 34px;
         padding: 8px 12px;
         font-size: 12px;
+        white-space: nowrap;
     }
 
     .button-muted {
@@ -850,6 +857,10 @@
         width: 17px;
         height: 17px;
         accent-color: #2563eb;
+    }
+
+    .modal-body {
+        min-height: 340px;
     }
 
     .form-grid textarea,
@@ -1048,7 +1059,7 @@
                 <div class="assessor-brand-text">
                     <small>Assessor Panel</small>
                     <h1 data-assessment-title>Assessment Detail</h1>
-                    <p>Detail pemeriksaan dan penilaian pengajuan RPL applicant.</p>
+                    <p>Detail pemeriksaan dan penilaian pengajuan calon mahasiswa.</p>
                 </div>
             </div>
 
@@ -1074,8 +1085,8 @@
                         <p class="eyebrow" data-assessment-status-badge>Status</p>
                         <h2 data-assessment-number>Application Number</h2>
                         <p class="assessor-subtitle">
-                            Periksa data applicant, A1 course, pengalaman belajar A2, dokumen pendukung,
-                            serta buat mapping mata kuliah untuk proses konversi SKS.
+                            Periksa data calon mahasiswa, matakuliah sebelumnya, pengalaman belajar, dokumen pendukung,
+                            dan mapping ke mata kuliah tujuan untuk proses konversi SKS.
                         </p>
                     </div>
                 </div>
@@ -1099,7 +1110,7 @@
                         <div>
                             <h3>Informasi Assessment</h3>
                             <p>
-                                Ringkasan data applicant dan hasil assessment sementara.
+                                Ringkasan data calon mahasiswa dan hasil assessment.
                             </p>
                         </div>
 
@@ -1154,15 +1165,15 @@
                 <section class="assessor-tabs-panel">
                     <div class="tabs" data-tabs>
                         <button class="tab-button active" data-tab-button="a1-courses" data-rpl-section="a1">
-                            A1 Courses
+                            Matakuliah Sumber
                         </button>
 
                         <button class="tab-button" data-tab-button="a2-experiences" data-rpl-section="a2">
-                            A2 Learning Experiences
+                            Pengalaman Belajar
                         </button>
 
                         <button class="tab-button" data-tab-button="course-mappings">
-                            Course Mappings
+                            Mapping Matakuliah
                         </button>
 
                         <button class="tab-button" data-tab-button="documents">
@@ -1176,16 +1187,27 @@
                             <p>Gunakan search bar untuk mencari data pada tabel aktif.</p>
                         </div>
 
-                        <label class="assessor-search-wrap" for="assessmentDetailSearch">
-                            <input
-                                type="search"
-                                id="assessmentDetailSearch"
-                                class="assessor-search-input"
-                                data-assessment-detail-search
-                                placeholder="Cari data tabel aktif..."
-                                autocomplete="off"
-                            >
-                        </label>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="mapping-actions" data-mapping-actions style="margin-top:0;">
+                                <button class="button button-small button-muted" type="button" data-add-a1-mapping hidden>
+                                    Mapping Matakuliah
+                                </button>
+                                <button class="button button-small button-muted" type="button" data-add-a2-mapping hidden>
+                                    Mapping Matakuliah
+                                </button>
+                            </div>
+
+                            <label class="assessor-search-wrap" for="assessmentDetailSearch">
+                                <input
+                                    type="search"
+                                    id="assessmentDetailSearch"
+                                    class="assessor-search-input"
+                                    data-assessment-detail-search
+                                    placeholder="Cari data tabel aktif..."
+                                    autocomplete="off"
+                                >
+                            </label>
+                        </div>
                     </div>
 
                     <div class="tab-content active" data-tab-content="a1-courses" data-rpl-section="a1">
@@ -1243,7 +1265,7 @@
                                     <thead>
                                         <tr>
                                             <th>Sumber</th>
-                                            <th>Tipe Sumber</th>
+                                            <th>Tipe Pengajuan</th>
                                             <th>Mata Kuliah Tujuan</th>
                                             <th>SKS</th>
                                             <th>Diakui</th>
@@ -1258,16 +1280,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-
-                        <div class="mapping-actions" data-mapping-actions>
-                            <button class="button button-small button-muted" type="button" data-add-a1-mapping hidden>
-                                Tambah Mapping A1
-                            </button>
-
-                            <button class="button button-small button-muted" type="button" data-add-a2-mapping hidden>
-                                Tambah Mapping A2
-                            </button>
                         </div>
                     </div>
 
@@ -1302,7 +1314,7 @@
 <div class="modal" data-modal="create-mapping" hidden>
     <div class="modal-content">
         <div class="modal-header">
-            <h3 data-mapping-modal-title>Tambah Mapping</h3>
+            <h3 data-mapping-modal-title>Mapping Matakuliah</h3>
             <button class="modal-close" type="button" data-close-modal="create-mapping">&times;</button>
         </div>
 
@@ -1321,17 +1333,46 @@
 
                 <div class="form-grid-full">
                     <label>
-                        Mata Kuliah Tujuan
-                        <select name="course_id" data-course-select>
-                            <option value="">Memuat course...</option>
+                        Status Pengakuan
+                        <select name="is_recognized" data-recognized-select>
+                            <option value="1">Diakui</option>
+                            <option value="0">Tidak Diakui</option>
                         </select>
                     </label>
                 </div>
 
-                <div class="form-grid-full">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="is_recognized" value="1" checked data-recognized-checkbox>
-                        <span>Diakui (recognized)</span>
+                <div class="form-grid-full" data-study-program-wrapper>
+                    <label>
+                        Filter Prodi
+                        <select data-study-program-select>
+                            <option value="">Memuat prodi...</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="form-grid-full" data-semester-wrapper>
+                    <label>
+                        Filter Semester
+                        <select data-semester-select>
+                            <option value="">-- Semua Semester --</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="form-grid-full" data-course-select-wrapper>
+                    <label>
+                        Mata Kuliah Tujuan
+                        <select name="course_id" data-course-select>
+                            <option value="">Memuat course...</option>
+                        </select>
                     </label>
                 </div>
 
@@ -1373,34 +1414,19 @@
 
             const text = normalizeText(apiStatus.textContent);
 
-            apiStatus.classList.remove(
-                'is-connected',
-                'is-connecting',
-                'is-error',
-                'is-disconnected'
-            );
+            apiStatus.classList.remove('is-connected', 'is-connecting', 'is-error', 'is-disconnected');
 
             if (text.includes('connected') && !text.includes('disconnect')) {
                 apiStatus.classList.add('is-connected');
                 return;
             }
 
-            if (
-                text.includes('connecting') ||
-                text.includes('loading') ||
-                text.includes('memuat')
-            ) {
+            if (text.includes('connecting') || text.includes('loading') || text.includes('memuat')) {
                 apiStatus.classList.add('is-connecting');
                 return;
             }
 
-            if (
-                text.includes('error') ||
-                text.includes('failed') ||
-                text.includes('offline') ||
-                text.includes('disconnected') ||
-                text.includes('gagal')
-            ) {
+            if (text.includes('error') || text.includes('failed') || text.includes('offline') || text.includes('disconnected') || text.includes('gagal')) {
                 apiStatus.classList.add('is-error');
                 return;
             }
@@ -1414,12 +1440,9 @@
 
         function isUtilityRow(row) {
             if (!row) return true;
-
             const colspanCell = row.querySelector('td[colspan]');
             if (!colspanCell) return false;
-
             const text = normalizeText(row.textContent);
-
             return (
                 text.includes('memuat') ||
                 text.includes('gagal') ||
@@ -1430,18 +1453,13 @@
 
         function removeSearchEmptyRow(tbody) {
             if (!tbody) return;
-
             const emptyRow = tbody.querySelector('[data-search-empty-row]');
-            if (emptyRow) {
-                emptyRow.remove();
-            }
+            if (emptyRow) emptyRow.remove();
         }
 
         function ensureSearchEmptyRow(tbody, colspan) {
             if (!tbody) return;
-
             let emptyRow = tbody.querySelector('[data-search-empty-row]');
-
             if (!emptyRow) {
                 emptyRow = document.createElement('tr');
                 emptyRow.setAttribute('data-search-empty-row', 'true');
@@ -1456,49 +1474,45 @@
             });
         }
 
+        function syncMappingActionsVisibility() {
+            const mappingActions = document.querySelector('[data-mapping-actions]');
+            if (!mappingActions) return;
+
+            const activeTab = document.querySelector('.tab-button.active');
+            const isMappingTab = activeTab?.dataset.tabButton === 'course-mappings';
+            const isAllowed = mappingActions.dataset.allowMapping === 'true';
+
+            mappingActions.hidden = !(isMappingTab && isAllowed);
+        }
+
+        window.syncMappingActionsVisibility = syncMappingActionsVisibility;
+
         function filterActiveTable() {
             if (!searchInput) return;
-
             const activeContent = getActiveTabContent();
             if (!activeContent) return;
-
             const tbody = activeContent.querySelector('tbody');
             if (!tbody) return;
-
             const query = normalizeText(searchInput.value);
-            const rows = Array.from(tbody.querySelectorAll('tr'))
-                .filter(function (row) {
-                    return !row.hasAttribute('data-search-empty-row');
-                });
-
+            const rows = Array.from(tbody.querySelectorAll('tr')).filter(function (row) {
+                return !row.hasAttribute('data-search-empty-row');
+            });
             const dataRows = rows.filter(function (row) {
                 return !isUtilityRow(row);
             });
-
             const firstRow = rows[0];
             const colspan = firstRow?.querySelector('td[colspan]')?.getAttribute('colspan')
                 || activeContent.querySelectorAll('thead th').length
                 || 1;
-
             removeSearchEmptyRow(tbody);
-
-            if (!dataRows.length) {
-                return;
-            }
-
+            if (!dataRows.length) return;
             let visibleCount = 0;
-
             dataRows.forEach(function (row) {
                 const text = normalizeText(row.textContent);
                 const match = !query || text.includes(query);
-
                 row.hidden = !match;
-
-                if (match) {
-                    visibleCount++;
-                }
+                if (match) visibleCount++;
             });
-
             if (query && visibleCount === 0) {
                 ensureSearchEmptyRow(tbody, colspan);
             }
@@ -1506,13 +1520,7 @@
 
         if (apiStatus) {
             const statusObserver = new MutationObserver(refreshApiStatusClass);
-
-            statusObserver.observe(apiStatus, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            });
-
+            statusObserver.observe(apiStatus, { childList: true, subtree: true, characterData: true });
             refreshApiStatusClass();
         }
 
@@ -1525,18 +1533,14 @@
                 setTimeout(function () {
                     resetHiddenRowsOutsideActive();
                     filterActiveTable();
+                    syncMappingActionsVisibility();
                 }, 0);
             });
         }
 
         document.querySelectorAll('.tab-content tbody').forEach(function (tbody) {
             const observer = new MutationObserver(filterActiveTable);
-
-            observer.observe(tbody, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            });
+            observer.observe(tbody, { childList: true, subtree: true, characterData: true });
         });
     });
 </script>

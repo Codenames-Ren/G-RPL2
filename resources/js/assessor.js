@@ -4,6 +4,7 @@ import {
     pageMessage, getApplicationStatusLabel, getApplicationTypeLabel,
     allowedApplicationSections, syncApplicationSections
 } from './utils.js';
+import Swal from 'sweetalert2';
 
 const assessmentState = {
     applicationId: null,
@@ -12,6 +13,8 @@ const assessmentState = {
     a1Courses: [],
     a2Experiences: [],
     hasAssessment: false,
+    usedA1SourceIds: new Set(),
+    usedA2SourceIds: new Set(),
 };
 
 function currentAssessmentId() {
@@ -112,9 +115,21 @@ async function loadAssessmentDetail() {
             submitBtn.hidden = !canSubmit;
         }
 
+        const shouldShowMapping = hasAssessment && app.status === 'under_assessment';
         const mappingActions = document.querySelector('[data-mapping-actions]');
         if (mappingActions) {
-            mappingActions.hidden = !hasAssessment || app.status !== 'under_assessment';
+            mappingActions.dataset.allowMapping = shouldShowMapping ? 'true' : 'false';
+            mappingActions.hidden = true;
+        }
+
+        const addA1Btn = document.querySelector('[data-add-a1-mapping]');
+        if (addA1Btn) {
+            addA1Btn.hidden = !hasAssessment || app.status !== 'under_assessment' || !allowed.a1;
+        }
+
+        const addA2Btn = document.querySelector('[data-add-a2-mapping]');
+        if (addA2Btn) {
+            addA2Btn.hidden = !hasAssessment || app.status !== 'under_assessment' || !allowed.a2;
         }
 
         if (allowed.a1 && app.a1_courses) {
@@ -132,6 +147,12 @@ async function loadAssessmentDetail() {
         if (app.documents) {
             renderAssessmentDocuments(app.documents, applicationId);
         }
+
+        // sync visibility mapping actions berdasarkan tab aktif
+        if (window.syncMappingActionsVisibility) {
+            window.syncMappingActionsVisibility();
+        }
+
     } catch (error) {
         pageMessage(validationMessage(error));
     }
@@ -182,6 +203,18 @@ async function loadAssessmentMappings(assessmentId) {
     try {
         const response = await apiRequest(`/assessor/assessments/${assessmentId}/mappings`);
         const mappings = collection(response);
+
+        assessmentState.usedA1SourceIds = new Set(
+            mappings
+                .filter(m => m.application_a1_course_id)
+                .map(m => String(m.application_a1_course_id))
+        );
+
+        assessmentState.usedA2SourceIds = new Set(
+            mappings
+                .filter(m => m.application_a2_learning_experience_id)
+                .map(m => String(m.application_a2_learning_experience_id))
+        );
 
         target.innerHTML = mappings.length
             ? mappings.map((m) => {
@@ -254,18 +287,43 @@ function bindAssessorActions() {
     const createBtn = document.querySelector('[data-create-assessment]');
     if (createBtn) {
         createBtn.addEventListener('click', async () => {
-            if (!confirm('Mulai penilaian untuk aplikasi ini?')) return;
+            const confirm = await Swal.fire({
+                title: 'Mulai Penilaian?',
+                text: 'Penilaian untuk aplikasi ini akan dimulai. Lanjutkan?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Mulai',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#64748b',
+            });
+
+            if (!confirm.isConfirmed) return;
             createBtn.disabled = true;
 
             try {
-                const response = await apiRequest(`/assessor/assessments/${applicationId}`, {
+                await apiRequest(`/assessor/assessments/${applicationId}`, {
                     method: 'POST',
                     body: JSON.stringify({ notes: '' })
                 });
-                pageMessage(response.message || 'Penilaian dimulai.', 'success');
-                setTimeout(() => loadAssessmentDetail(), 800);
+
+                await Swal.fire({
+                    title: 'Penilaian Dimulai',
+                    text: 'Penilaian berhasil dibuat. Silakan tambahkan mapping mata kuliah.',
+                    icon: 'success',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
+
+                loadAssessmentDetail();
             } catch (error) {
-                pageMessage(validationMessage(error));
+                Swal.fire({
+                    title: 'Gagal Memulai Penilaian',
+                    text: 'Penilaian untuk aplikasi ini sudah pernah dibuat sebelumnya.',
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
             } finally {
                 createBtn.disabled = false;
             }
@@ -275,7 +333,18 @@ function bindAssessorActions() {
     const submitBtn = document.querySelector('[data-submit-assessment]');
     if (submitBtn) {
         submitBtn.addEventListener('click', async () => {
-            if (!confirm('Submit penilaian? Tindakan ini tidak dapat dibatalkan.')) return;
+            const confirm = await Swal.fire({
+                title: 'Submit Penilaian?',
+                text: 'Penilaian akan difinalisasi dan tidak dapat diubah setelah ini. Pastikan semua mapping sudah benar.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Submit',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+            });
+
+            if (!confirm.isConfirmed) return;
             submitBtn.disabled = true;
 
             try {
@@ -283,10 +352,43 @@ function bindAssessorActions() {
                     method: 'POST',
                     body: JSON.stringify({})
                 });
-                pageMessage(response.message || 'Penilaian disubmit.', 'success');
-                setTimeout(() => loadAssessmentDetail(), 800);
+
+                const recommendation = response.data?.recommendation;
+                const totalSks = response.data?.total_converted_sks ?? 0;
+
+                if (recommendation === 'pass') {
+                    await Swal.fire({
+                        title: 'Penilaian Disetujui',
+                        text: `Penilaian berhasil disubmit. Total ${totalSks} SKS berhasil dikonversi.`,
+                        icon: 'success',
+                        confirmButtonText: 'Oke',
+                        confirmButtonColor: '#2563eb',
+                    });
+                } else {
+                    await Swal.fire({
+                        title: 'Penilaian Tidak Lolos',
+                        text: 'Tidak ada mata kuliah yang diakui dalam penilaian ini. Aplikasi dikembalikan ke pemohon.',
+                        icon: 'info',
+                        confirmButtonText: 'Oke',
+                        confirmButtonColor: '#2563eb',
+                    });
+                }
+
+                loadAssessmentDetail();
             } catch (error) {
-                pageMessage(validationMessage(error));
+                const status = error?.status;
+
+                const message = status === 422
+                    ? 'Penilaian tidak dapat disubmit. Pastikan minimal ada satu mapping dan penilaian belum pernah disubmit sebelumnya.'
+                    : 'Terjadi kesalahan saat mengsubmit penilaian. Silakan coba beberapa saat lagi.';
+
+                Swal.fire({
+                    title: 'Gagal Submit Penilaian',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
             } finally {
                 submitBtn.disabled = false;
             }
@@ -319,50 +421,93 @@ function bindAssessorActions() {
 
         const title = mappingForm.querySelector('[data-mapping-modal-title]');
         if (title) {
-            title.textContent = sourceType === 'a1' ? 'Tambah Mapping A1' : 'Tambah Mapping A2';
+            title.textContent = sourceType === 'a1' ? 'Mapping Matakuliah A1' : 'Mapping Matakuliah A2';
         }
 
         const sources = sourceType === 'a1' ? assessmentState.a1Courses : assessmentState.a2Experiences;
         const labelKey = sourceType === 'a1' ? 'course_name' : 'title';
         const idAttr = sourceType === 'a1' ? 'course_code' : 'experience_type';
 
+        const usedIds = sourceType === 'a1' ? assessmentState.usedA1SourceIds : assessmentState.usedA2SourceIds;
+        const availableSources = sources.filter(s => !usedIds.has(String(s.id)));
+
         if (sourceSelect) {
-            sourceSelect.innerHTML = sources.length
+            sourceSelect.innerHTML = availableSources.length
                 ? '<option value="">-- Pilih Sumber --</option>' +
-                sources.map((s) => `<option value="${s.id}">${escapeHtml(s[labelKey] || s[idAttr] || 'Item ' + s.id)}</option>`).join('')
-                : '<option value="">Tidak ada data tersedia</option>';
+                availableSources.map((s) => `<option value="${s.id}">${escapeHtml(s[labelKey] || s[idAttr] || 'Item ' + s.id)}</option>`).join('')
+                : '<option value="">Semua sumber sudah mapping</option>';
         }
 
         if (sourceNameDisplay) {
             sourceNameDisplay.textContent = sourceType === 'a1' ? 'A1 Course' : 'A2 Learning Experience';
         }
 
-        loadCourseOptions();
+        const recognizedSelect = mappingForm.querySelector('[data-recognized-select]');
+        const courseWrapper = mappingForm.querySelector('[data-course-select-wrapper]');
+
+        if (recognizedSelect && courseWrapper) {
+            courseWrapper.hidden = recognizedSelect.value !== '1';
+
+            recognizedSelect.onchange = function () {
+                courseWrapper.hidden = this.value !== '1';
+                if (this.value !== '1') {
+                    mappingForm.elements.course_id.value = '';
+                }
+            };
+        }
+
+        const studyProgramSelect = mappingForm.querySelector('[data-study-program-select]');
+        const semesterSelect = mappingForm.querySelector('[data-semester-select]');
+
+        if (studyProgramSelect) {
+            studyProgramSelect.innerHTML = '<option value="">Memuat prodi...</option>';
+
+            apiRequest('/study-programs').then((response) => {
+                const programs = collection(response);
+                studyProgramSelect.innerHTML = '<option value="">-- Semua Prodi --</option>' +
+                    programs.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+
+                // default ke semua prodi, langsung load semua course
+                loadCourseOptions(null, null);
+            }).catch(() => {
+                studyProgramSelect.innerHTML = '<option value="">Gagal memuat prodi</option>';
+                loadCourseOptions();
+            });
+
+            studyProgramSelect.onchange = function () {
+                loadCourseOptions(this.value || null, semesterSelect?.value || null);
+            };
+        } else {
+            loadCourseOptions();
+        }
+
+        if (semesterSelect) {
+            semesterSelect.onchange = function () {
+                loadCourseOptions(studyProgramSelect?.value || null, this.value || null);
+            };
+        }
+
         mappingModal.hidden = false;
     }
 
-    function loadCourseOptions() {
+    function loadCourseOptions(studyProgramId = null, semester = null) {
         if (!courseSelect) return;
 
         courseSelect.innerHTML = '<option value="">Memuat course...</option>';
 
-        apiRequest('/study-programs').then((response) => {
-            const programs = collection(response);
-            const allCourses = [];
-            programs.forEach((program) => {
-                if (program.courses) {
-                    program.courses.forEach((course) => {
-                        if (!allCourses.find((c) => c.id === course.id)) {
-                            allCourses.push(course);
-                        }
-                    });
-                }
-            });
+        const params = new URLSearchParams();
+        if (studyProgramId) params.set('study_program_id', studyProgramId);
+        if (semester) params.set('semester', semester);
 
-            courseSelect.innerHTML = allCourses.length
+        const url = '/courses' + (params.toString() ? '?' + params.toString() : '');
+
+        apiRequest(url).then((response) => {
+            const courses = collection(response);
+
+            courseSelect.innerHTML = courses.length
                 ? '<option value="">-- Pilih Mata Kuliah Tujuan --</option>' +
-                allCourses.map((c) => `<option value="${c.id}">${escapeHtml(c.code || '')} ${escapeHtml(c.name)} (${escapeHtml(c.sks)} SKS)</option>`).join('')
-                : '<option value="">Tidak ada course tersedia</option>';
+                courses.map((c) => `<option value="${c.id}">${escapeHtml(c.code || '')} ${escapeHtml(c.name)} - Sem ${escapeHtml(String(c.semester))} (${escapeHtml(String(c.sks))} SKS)</option>`).join('')
+                : '<option value="">Tidak ada course untuk filter ini</option>';
         }).catch(() => {
             courseSelect.innerHTML = '<option value="">Gagal memuat course</option>';
         });
@@ -373,7 +518,7 @@ function bindAssessorActions() {
             const sourceType = mappingForm.querySelector('[data-source-type]').value;
             const sourceId = mappingForm.elements.source_id?.value;
             const courseId = mappingForm.elements.course_id.value;
-            const isRecognized = mappingForm.querySelector('[data-recognized-checkbox]').checked;
+            const isRecognized = mappingForm.querySelector('[data-recognized-select]').value === '1';
             const notes = mappingForm.elements.notes.value.trim();
 
             if (!assessmentState.assessmentId) {
@@ -408,18 +553,31 @@ function bindAssessorActions() {
             setMessage(mappingForm, 'Menyimpan...', 'info');
 
             try {
-                const response = await apiRequest(`/assessor/assessments/${assessmentState.assessmentId}/mappings`, {
+                await apiRequest(`/assessor/assessments/${assessmentState.assessmentId}/mappings`, {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-                setMessage(mappingForm, response.message || 'Mapping tersimpan.', 'success');
-                setTimeout(() => {
-                    mappingModal.hidden = true;
-                    mappingForm.reset();
-                    loadAssessmentMappings(assessmentState.assessmentId);
-                }, 800);
+
+                mappingModal.hidden = true;
+                mappingForm.reset();
+
+                await Swal.fire({
+                    title: 'Mapping Tersimpan',
+                    text: 'Mapping mata kuliah berhasil ditambahkan.',
+                    icon: 'success',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
+
+                loadAssessmentMappings(assessmentState.assessmentId);
             } catch (error) {
-                setMessage(mappingForm, validationMessage(error), 'error');
+                const status = error?.status;
+
+                const message = status === 422
+                    ? 'Mapping gagal disimpan. Kemungkinan mata kuliah tujuan sudah dipakai di mapping lain, atau sumber tidak valid.'
+                    : 'Terjadi kesalahan saat menyimpan mapping. Silakan coba beberapa saat lagi.';
+
+                setMessage(mappingForm, message, 'error');
             } finally {
                 submitMappingBtn.disabled = false;
             }
