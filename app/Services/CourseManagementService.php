@@ -11,7 +11,7 @@ class CourseManagementService
      * Get all courses.
      */
     public function list(
-        array $filters = []
+    array $filters = []
     ): LengthAwarePaginator {
 
         return Course::query()
@@ -41,17 +41,12 @@ class CourseManagementService
             )
 
             ->when(
-                $filters['study_program_id']
-                    ?? null,
-                function (
-                    $query,
-                    $studyProgramId
-                ) {
+                $filters['study_program_id'] ?? null,
+                function ($query, $studyProgramId) {
 
                     $query->whereHas(
                         'studyPrograms',
-                        function ($q)
-                        use ($studyProgramId) {
+                        function ($q) use ($studyProgramId) {
 
                             $q->where(
                                 'study_program_id',
@@ -63,10 +58,15 @@ class CourseManagementService
             )
 
             ->when(
+                $filters['semester'] ?? null,
+                function ($query, $semester) {
+                    $query->where('semester', $semester);
+                }
+            )
+
+            ->when(
                 isset($filters['is_active']),
-                function (
-                    $query
-                ) use ($filters) {
+                function ($query) use ($filters) {
 
                     $query->where(
                         'is_active',
@@ -78,8 +78,7 @@ class CourseManagementService
             ->latest()
 
             ->paginate(
-                $filters['per_page']
-                    ?? 10
+                $filters['per_page'] ?? 10
             );
     }
 
@@ -202,5 +201,15 @@ class CourseManagementService
         return $this->getById(
             $course->id
         );
+    }
+
+    /**
+     * Get all active courses.
+     */
+    public function listActive(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Course::where('is_active', true)
+            ->orderBy('name')
+            ->get();
     }
 }

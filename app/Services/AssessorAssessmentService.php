@@ -114,6 +114,34 @@ class AssessorAssessmentService
 
         /*
         |--------------------------------------------------------------------------
+        | Prevent Duplicate Source
+        |--------------------------------------------------------------------------
+        */
+
+        if (! empty($data['application_a1_course_id'])) {
+            $sourceAlreadyMapped = AssessmentCourseMapping::query()
+                ->where('assessment_id', $assessment->id)
+                ->where('application_a1_course_id', $data['application_a1_course_id'])
+                ->exists();
+
+            if ($sourceAlreadyMapped) {
+                abort(422, 'Selected A1 course has already been mapped.');
+            }
+        }
+
+        if (! empty($data['application_a2_learning_experience_id'])) {
+            $sourceAlreadyMapped = AssessmentCourseMapping::query()
+                ->where('assessment_id', $assessment->id)
+                ->where('application_a2_learning_experience_id', $data['application_a2_learning_experience_id'])
+                ->exists();
+
+            if ($sourceAlreadyMapped) {
+                abort(422, 'Selected learning experience has already been mapped.');
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
         | Prevent Duplicate Target Course
         |--------------------------------------------------------------------------
         */
