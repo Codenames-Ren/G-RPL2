@@ -24,6 +24,7 @@ use App\Http\Controllers\Committee\CommitteeController;
 Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/study-programs', [StudyProgramController::class, 'publicIndex']);
+    Route::get('/courses', [CourseManagementController::class, 'publicIndex']);
 });
 
 // -------------------------
