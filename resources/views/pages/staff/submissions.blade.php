@@ -233,6 +233,50 @@
         flex: 0 0 auto;
     }
 
+    .staff-user-pill {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px 8px 11px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        border: 1px solid rgba(37, 99, 235, .18);
+        box-shadow: 0 4px 14px rgba(37, 99, 235, .08);
+        white-space: nowrap;
+    }
+
+    .staff-user-pill-dot {
+        width: 9px;
+        height: 9px;
+        flex: 0 0 9px;
+        border-radius: 999px;
+        background: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, .15);
+    }
+
+    .staff-user-pill-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        line-height: 1.1;
+    }
+
+    .staff-user-pill-label {
+        color: var(--staff-gold);
+        font-size: 10px;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: .09em;
+    }
+
+    .staff-user-pill-name {
+        color: var(--staff-dark);
+        font-size: 13px;
+        font-weight: 950;
+        letter-spacing: -.01em;
+    }
+
     .connection-pill {
         min-height: 56px;
         display: inline-flex;
@@ -599,8 +643,31 @@
         .data-table {
             min-width: 860px;
         }
+
+        .staff-user-pill {
+            width: 100%;
+            justify-content: flex-start;
+        }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let name = 'Staff RPL';
+
+        try {
+            const raw = localStorage.getItem('grpl2_user');
+            if (raw) {
+                const user = JSON.parse(raw);
+                name = user.name || 'Staff RPL';
+            }
+        } catch (e) {}
+
+        document.querySelectorAll('[data-staff-user-name]').forEach(function (el) {
+            el.textContent = name;
+        });
+    });
+</script>
 
 <section class="staff-shell" data-protected-shell hidden>
     <div class="staff-container">
@@ -617,6 +684,13 @@
             </div>
 
             <div class="staff-top-actions">
+                <span class="staff-user-pill">
+                    <span class="staff-user-pill-dot"></span>
+                    <span class="staff-user-pill-text">
+                        <span class="staff-user-pill-label">Staff RPL</span>
+                        <span class="staff-user-pill-name" data-staff-user-name>—</span>
+                    </span>
+                </span>
                 <a href="/submissions" class="staff-nav-link active">Submissions</a>
 
                 <button type="button" class="staff-logout-btn" data-logout>

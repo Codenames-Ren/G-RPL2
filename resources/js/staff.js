@@ -4,6 +4,7 @@ import {
     pageMessage, getApplicationTypeLabel, getApplicationStatusLabel,
     allowedApplicationSections, syncApplicationSections
 } from './utils.js';
+import Swal from 'sweetalert2';
 
 async function loadSubmissions() {
     const target = document.querySelector('[data-submissions-body]');
@@ -191,18 +192,43 @@ function bindStaffActions() {
     const reviewBtn = document.querySelector('[data-review-application]');
     if (reviewBtn) {
         reviewBtn.addEventListener('click', async () => {
-            if (!confirm('Mulai review aplikasi ini?')) return;
+            const confirm = await Swal.fire({
+                title: 'Mulai Review?',
+                text: 'Aplikasi akan dipindahkan ke status "Sedang Direview". Lanjutkan?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Mulai Review',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#2563eb',
+                cancelButtonColor: '#64748b',
+            });
+
+            if (!confirm.isConfirmed) return;
             reviewBtn.disabled = true;
 
             try {
-                const response = await apiRequest(`/staff/submissions/${applicationId}/review`, {
+                await apiRequest(`/staff/submissions/${applicationId}/review`, {
                     method: 'PATCH',
                     body: JSON.stringify({})
                 });
-                pageMessage(response.message || 'Review dimulai.', 'success');
-                setTimeout(() => loadSubmissionDetail(), 800);
+
+                await Swal.fire({
+                    title: 'Review Dimulai',
+                    text: 'Aplikasi berhasil dipindahkan ke status "Sedang Direview".',
+                    icon: 'success',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
+
+                loadSubmissionDetail();
             } catch (error) {
-                pageMessage(validationMessage(error));
+                Swal.fire({
+                    title: 'Gagal Memulai Review',
+                    text: 'Hanya aplikasi dengan status "Submitted" yang bisa direview. Pastikan status aplikasi sudah benar.',
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
             } finally {
                 reviewBtn.disabled = false;
             }
@@ -228,22 +254,42 @@ function bindStaffActions() {
                 return;
             }
 
+            const confirm = await Swal.fire({
+                title: 'Kembalikan Aplikasi?',
+                text: 'Aplikasi akan dikembalikan ke pemohon untuk direvisi. Lanjutkan?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Kembalikan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#64748b',
+            });
+
+            if (!confirm.isConfirmed) return;
+
             submitReturnBtn.disabled = true;
             setMessage(returnForm, 'Mengembalikan...', 'info');
 
             try {
-                const response = await apiRequest(`/staff/submissions/${applicationId}/return`, {
+                await apiRequest(`/staff/submissions/${applicationId}/return`, {
                     method: 'PATCH',
                     body: JSON.stringify({ review_notes: notes })
                 });
-                setMessage(returnForm, response.message || 'Aplikasi dikembalikan.', 'success');
-                setTimeout(() => {
-                    returnModal.hidden = true;
-                    returnForm.reset();
-                    loadSubmissionDetail();
-                }, 800);
+
+                returnModal.hidden = true;
+                returnForm.reset();
+
+                await Swal.fire({
+                    title: 'Aplikasi Dikembalikan',
+                    text: 'Aplikasi berhasil dikembalikan ke pemohon untuk direvisi.',
+                    icon: 'success',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
+
+                loadSubmissionDetail();
             } catch (error) {
-                setMessage(returnForm, validationMessage(error), 'error');
+                setMessage(returnForm, 'Gagal mengembalikan aplikasi. Pastikan status aplikasi masih "Sedang Direview".', 'error');
             } finally {
                 submitReturnBtn.disabled = false;
             }
@@ -253,7 +299,6 @@ function bindStaffActions() {
     const assignModal = document.querySelector('[data-modal="assign-assessor"]');
     const assignForm = document.querySelector('[data-assign-form]');
     const submitAssignBtn = document.querySelector('[data-submit-assign]');
-    const assessorSelect = document.querySelector('[data-assessor-select]');
 
     document.addEventListener('click', async (event) => {
         const openBtn = event.target.closest('[data-assign-assessor]');
@@ -271,22 +316,46 @@ function bindStaffActions() {
                 return;
             }
 
+            const confirm = await Swal.fire({
+                title: 'Tugaskan Assessor?',
+                text: 'Assessor yang dipilih akan ditugaskan untuk menilai aplikasi ini. Lanjutkan?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Tugaskan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+            });
+
+            if (!confirm.isConfirmed) return;
+
             submitAssignBtn.disabled = true;
             setMessage(assignForm, 'Menugaskan...', 'info');
 
             try {
-                const response = await apiRequest(`/staff/submissions/${applicationId}/assign-assessor`, {
+                await apiRequest(`/staff/submissions/${applicationId}/assign-assessor`, {
                     method: 'PATCH',
                     body: JSON.stringify({ assessor_id: Number(assessorId) })
                 });
-                setMessage(assignForm, response.message || 'Assessor ditugaskan.', 'success');
-                setTimeout(() => {
-                    assignModal.hidden = true;
-                    assignForm.reset();
-                    loadSubmissionDetail();
-                }, 800);
+
+                assignModal.hidden = true;
+                assignForm.reset();
+
+                await Swal.fire({
+                    title: 'Assessor Ditugaskan',
+                    text: 'Assessor berhasil ditugaskan. Aplikasi akan dilanjutkan ke tahap penilaian.',
+                    icon: 'success',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
+
+                loadSubmissionDetail();
             } catch (error) {
-                setMessage(assignForm, validationMessage(error), 'error');
+                const errMsg = error?.response?.status === 422
+                    ? 'User yang dipilih bukan assessor yang valid. Pilih assessor lain.'
+                    : 'Gagal menugaskan assessor. Pastikan status aplikasi masih "Sedang Direview".';
+
+                setMessage(assignForm, errMsg, 'error');
             } finally {
                 submitAssignBtn.disabled = false;
             }
