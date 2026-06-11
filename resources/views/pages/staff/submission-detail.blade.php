@@ -353,14 +353,22 @@
         margin-bottom: 16px;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | INFORMASI SUBMISSION - CUMA DIPERJELAS SHADOW DAN BORDER
+    |--------------------------------------------------------------------------
+    */
+
     .detail-panel {
         margin-bottom: 22px;
         padding: 18px;
-        border: 1px solid rgba(148, 163, 184, .24);
+        border: 1px solid rgba(148, 163, 184, .32);
         border-radius: 24px;
         background:
-            linear-gradient(135deg, rgba(248, 250, 252, .95), rgba(255, 255, 255, .95));
-        box-shadow: 0 12px 30px rgba(15, 23, 42, .045);
+            linear-gradient(135deg, rgba(248, 250, 252, .98), rgba(255, 255, 255, .98));
+        box-shadow:
+            0 16px 38px rgba(15, 23, 42, .075),
+            inset 0 1px 0 rgba(255, 255, 255, .9);
     }
 
     .detail-panel-header {
@@ -412,10 +420,17 @@
         min-height: 96px;
         padding: 16px;
         border-radius: 20px;
-        border: 1px solid rgba(148, 163, 184, .24);
+        border: 1px solid rgba(148, 163, 184, .42);
         background: #fff;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, .035);
+        box-shadow:
+            0 18px 36px rgba(15, 23, 42, .085),
+            0 3px 8px rgba(15, 23, 42, .035),
+            inset 0 1px 0 rgba(255, 255, 255, .95);
         overflow: hidden;
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease,
+            border-color .2s ease;
     }
 
     .detail-item::after {
@@ -427,6 +442,15 @@
         height: 58px;
         border-radius: 999px;
         background: rgba(37, 99, 235, .07);
+    }
+
+    .detail-item:hover {
+        transform: translateY(-2px);
+        border-color: rgba(148, 163, 184, .55);
+        box-shadow:
+            0 22px 42px rgba(15, 23, 42, .11),
+            0 5px 12px rgba(15, 23, 42, .045),
+            inset 0 1px 0 rgba(255, 255, 255, .96);
     }
 
     .detail-label {
