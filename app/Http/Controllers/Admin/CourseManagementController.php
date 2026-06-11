@@ -141,4 +141,26 @@ class CourseManagementController extends Controller
             'data' => $course,
         ]);
     }
+
+    /**
+     * Get all active courses (public, any authenticated role).
+     */
+    public function publicIndex(Request $request): JsonResponse
+    {
+        $courses = $this
+            ->courseManagementService
+            ->list([
+                'study_program_id' => $request->query('study_program_id'),
+                'semester'         => $request->query('semester'),
+                'search'           => $request->query('search'),
+                'is_active'        => true,
+                'per_page'         => 100,
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Courses retrieved successfully.',
+            'data'    => $courses,
+        ]);
+    }
 }
