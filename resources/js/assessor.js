@@ -154,6 +154,22 @@ async function loadAssessmentDetail() {
         }
 
     } catch (error) {
+
+        if (
+            error?.status === 404 ||
+            error?.status === 403
+        ) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Assessment tidak ditemukan',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/assessments');
+            });
+
+            return;
+        }
+
         pageMessage(validationMessage(error));
     }
 }
