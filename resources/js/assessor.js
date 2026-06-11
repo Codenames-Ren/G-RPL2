@@ -390,7 +390,7 @@ function bindAssessorActions() {
                     });
                 }
 
-                loadAssessmentDetail();
+                window.location.replace('/assessments');
             } catch (error) {
                 const status = error?.status;
 

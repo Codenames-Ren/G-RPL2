@@ -70,6 +70,18 @@ async function loadUserForm(form) {
         form.elements.phone.value = profile.phone || '';
         form.elements.address.value = profile.address || '';
     } catch (error) {
+        if ([403, 404].includes(error?.status)) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Data tidak ditemukan atau tidak dapat diakses.',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/admin/users');
+            });
+
+            return;
+        }
+
         setMessage(form, validationMessage(error));
     }
 }
@@ -219,6 +231,18 @@ async function loadStudyProgramForm(form) {
             }
         });
     } catch (error) {
+        if ([403, 404].includes(error?.status)) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Data tidak ditemukan atau tidak dapat diakses.',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/admin/study-programs');
+            });
+
+            return;
+        }
+
         setMessage(form, validationMessage(error));
     }
 }
@@ -343,6 +367,19 @@ async function loadCourseForm(form) {
 
         await fillStudyProgramOptions(selectedIds);
     } catch (error) {
+
+        if ([403, 404].includes(error?.status)) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Data tidak ditemukan atau tidak dapat diakses.',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/admin/courses');
+            });
+
+            return;
+        }
+
         setMessage(form, validationMessage(error));
     }
 }

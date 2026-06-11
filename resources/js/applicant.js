@@ -535,6 +535,19 @@ async function loadApplicationDetail() {
             submitSection.hidden = !['draft', 'returned'].includes(app.status);
         }
     } catch (error) {
+
+        if ([403, 404].includes(error?.status)) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Application tidak ditemukan atau bukan milik Anda.',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/applications');
+            });
+
+            return;
+        }
+
         safePageMessage(validationMessage(error), 'error');
     }
 }
@@ -588,6 +601,19 @@ async function loadApplicationEdit() {
             submitSection.hidden = !['draft', 'returned'].includes(app.status);
         }
     } catch (error) {
+
+        if ([403, 404].includes(error?.status)) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Application tidak ditemukan atau bukan milik Anda.',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/applications');
+            });
+
+            return;
+        }
+
         safePageMessage(validationMessage(error), 'error');
     }
 }

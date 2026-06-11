@@ -104,6 +104,18 @@ async function loadSubmissionDetail() {
             renderDocuments(sub.documents, applicationId);
         }
     } catch (error) {
+        if ([403, 404].includes(error?.status)) {
+            Swal.fire({
+                title: 'Akses Ditolak',
+                text: 'Submission tidak ditemukan atau tidak dapat diakses.',
+                icon: 'error'
+            }).then(() => {
+                window.location.replace('/submissions');
+            });
+
+            return;
+        }
+
         pageMessage(validationMessage(error));
     }
 }
