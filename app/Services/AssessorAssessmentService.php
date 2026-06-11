@@ -142,7 +142,7 @@ class AssessorAssessmentService
 
         /*
         |--------------------------------------------------------------------------
-        | Prevent Duplicate Target Course
+        | Prevent Duplicate Course Target
         |--------------------------------------------------------------------------
         */
 
