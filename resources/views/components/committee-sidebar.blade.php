@@ -48,7 +48,7 @@
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Zm-1 16H6V5h12v14ZM8 7h8v2H8V7Zm0 4h8v2H8v-2Zm0 4h5v2H8v-2Z"/>
                 </svg>
             </span>
-            <span class="committee-sidebar-link-text">Pending Approval</span>
+            <span class="committee-sidebar-link-text">Daftar Pengajuan</span>
         </a>
 
         <a href="/approvals/approved"
@@ -59,15 +59,15 @@
                     <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.1 14.2-4-4 1.4-1.4 2.6 2.58 5.8-5.78 1.4 1.4-7.2 7.2Z"/>
                 </svg>
             </span>
-            <span class="committee-sidebar-link-text">Approved Applications</span>
+            <span class="committee-sidebar-link-text">Pengajuan Disetujui</span>
         </a>
     </nav>
 
     {{-- Bottom --}}
     <div class="committee-sidebar-bottom">
         <div class="committee-sidebar-help">
-            <span>Committee Area</span>
-            <strong>Review, approve, and manage final RPL application decisions</strong>
+            <span>Committee RPL Area</span>
+            <strong>Meninjau dan menyelesaikan proses persetujuan pengajuan RPL</strong>
         </div>
 
         <button type="button" class="committee-sidebar-logout" data-logout onclick="committeeLogout()">
@@ -400,7 +400,7 @@
         background: transparent;
         border: 1px solid transparent;
         font-size: 0.92rem;
-        line-height: 1;
+        line-height: normal;
         font-weight: 850;
         text-decoration: none;
         outline: none;
@@ -706,26 +706,35 @@
         const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
         const links = document.querySelectorAll('[data-committee-sidebar-link]');
 
+        // Kalau ini halaman list, update sessionStorage
+        if (currentPath === '/approvals') {
+            sessionStorage.setItem('committee_active_tab', 'approvals');
+        } else if (currentPath === '/approvals/approved') {
+            sessionStorage.setItem('committee_active_tab', 'approved');
+        }
+
+        // Tentukan active state
+        const isDetailPage = /^\/approvals\/\d+$/.test(currentPath);
+        const lastTab = sessionStorage.getItem('committee_active_tab') || 'approvals';
+
         links.forEach(function (link) {
             const type = link.getAttribute('data-committee-sidebar-link');
             let isActive = false;
 
             if (type === 'approvals') {
-                isActive =
-                    currentPath === '/approvals'
-                    || (
-                        currentPath.startsWith('/approvals/')
-                        && currentPath !== '/approvals/approved'
-                    );
+                isActive = currentPath === '/approvals'
+                    || (isDetailPage && lastTab === 'approvals');
             }
 
             if (type === 'approved') {
-                isActive = currentPath === '/approvals/approved';
+                isActive = currentPath === '/approvals/approved'
+                    || (isDetailPage && lastTab === 'approved');
             }
 
             link.classList.toggle('active', isActive);
         });
 
+        // ... sisa kode nama/role tetap sama
         const storedUserName =
             localStorage.getItem('user_name')
             || sessionStorage.getItem('user_name')
@@ -739,9 +748,7 @@
             || 'committee';
 
         document.querySelectorAll('[data-sidebar-user-name], [data-user-name]').forEach(function (element) {
-            if (element) {
-                element.textContent = storedUserName;
-            }
+            if (element) element.textContent = storedUserName;
         });
 
         document.querySelectorAll('[data-sidebar-user-role], [data-user-role]').forEach(function (element) {
@@ -751,10 +758,4 @@
             }
         });
     });
-
-    function committeeLogout() {
-        sessionStorage.clear();
-        localStorage.clear();
-        window.location.href = '/login';
-    }
 </script>

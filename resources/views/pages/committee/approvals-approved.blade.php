@@ -753,8 +753,8 @@
 
                     <div class="committee-brand-text">
                         <small>Committee Panel</small>
-                        <h1>Approved Applications</h1>
-                        <p>Daftar pengajuan RPL yang sudah mendapatkan approval akhir.</p>
+                        <h1>Pengajuan yang sudah disetujui</h1>
+                        <p>Daftar pengajuan RPL yang sudah melalui proses validasi akhir.</p>
                     </div>
                 </div>
 
@@ -769,11 +769,11 @@
                         <span class="committee-title-line"></span>
 
                         <div>
-                            <p class="eyebrow">Approval Board</p>
+                            <p class="eyebrow">Finalization Board</p>
                             <h2>Pengajuan sudah disetujui</h2>
                             <p class="committee-subtitle">
-                                Lihat daftar pengajuan RPL yang sudah lolos proses approval committee.
-                                Data pada halaman ini dapat digunakan untuk memeriksa hasil keputusan akhir, catatan review, dan status kelanjutan aplikasi.
+                                Lihat daftar pengajuan RPL yang sudah lolos proses proses validasi akhir Komite RPL.
+                                Data pada halaman ini dapat digunakan untuk mencetak Surat Keterangan Rektor dan Keterangan Hasil Assessment.
                             </p>
                         </div>
                     </div>
@@ -795,7 +795,7 @@
                             <div class="committee-summary-icon blue">📄</div>
                             <div>
                                 <span>Status Pengajuan</span>
-                                <strong>Approved</strong>
+                                <strong>Final</strong>
                             </div>
                         </div>
 
@@ -811,22 +811,22 @@
                     <section class="committee-info-panel">
                         <div class="committee-info-header">
                             <div>
-                                <h3>Ringkasan Approved Applications</h3>
+                                <h3>Ringkasan Pengajuan Akhir</h3>
                                 <p>
-                                    Semua aplikasi yang sudah disetujui akan tampil pada tabel di bawah.
-                                    Gunakan search bar untuk mencari nomor aplikasi, pemohon, program studi, total SKS, catatan, atau status approval.
+                                    Semua pengajuan yang sudah melewati proses validasi akhir akan tampil pada tabel di bawah.
+                                    Gunakan fitur pencarian untuk mencari nomor aplikasi, pemohon, atau program studi.
                                 </p>
                             </div>
 
-                            <span class="committee-mini-badge">Approved List</span>
+                            <span class="committee-mini-badge">Application List</span>
                         </div>
                     </section>
 
                     <div class="table-container">
                         <div class="table-header">
                             <div>
-                                <h3>Data Approved Applications</h3>
-                                <p>Daftar applicant yang sudah mendapatkan persetujuan akhir dari committee.</p>
+                                <h3>Data pengajuan yang sudah disetujui</h3>
+                                <p>Daftar calon mahasiswa yang sudah lolos validasi akhir oleh Komite RPL</p>
                             </div>
 
                             <div class="committee-table-tools">
@@ -836,7 +836,7 @@
                                         id="committeeApprovedSearch"
                                         class="committee-search-input"
                                         data-approved-search
-                                        placeholder="Cari approved application..."
+                                        placeholder="Cari pengajuan..."
                                         autocomplete="off"
                                     >
                                 </label>
@@ -953,7 +953,7 @@
         function makeBadgeYes() {
             const badge = document.createElement('span');
             badge.className = 'approved-badge yes';
-            badge.textContent = 'Iya';
+            badge.textContent = 'Ya';
             return badge;
         }
 

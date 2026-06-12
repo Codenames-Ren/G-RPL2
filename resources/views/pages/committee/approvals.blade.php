@@ -777,8 +777,8 @@
 
                     <div class="committee-brand-text">
                         <small>Committee Panel</small>
-                        <h1>Approvals</h1>
-                        <p>Antrean pengajuan RPL yang membutuhkan keputusan akhir committee.</p>
+                        <h1>Tinjauan Assessment</h1>
+                        <p>Meninjau hasil assessment pengajuan RPL calon mahasiswa oleh komite RPL.</p>
                     </div>
                 </div>
 
@@ -793,11 +793,11 @@
                         <span class="committee-title-line"></span>
 
                         <div>
-                            <p class="eyebrow">Approval Board</p>
-                            <h2>Pengajuan perlu persetujuan</h2>
+                            <p class="eyebrow">Validation Board</p>
+                            <h2>Pengajuan perlu ditinjau</h2>
                             <p class="committee-subtitle">
-                                Kelola daftar pengajuan RPL yang sudah selesai dinilai oleh assessor.
-                                Buka detail pengajuan untuk memeriksa hasil konversi SKS, dokumen, dan memberikan keputusan akhir.
+                                Kelola daftar pengajuan RPL yang telah selesai dinilai oleh assessor.
+                                <br>Buka detail pengajuan untuk memeriksa hasil konversi SKS, <br>dokumen pendukung, dan menyelesaikan proses pengajuan.
                             </p>
                         </div>
                     </div>
@@ -810,7 +810,7 @@
                         <div class="committee-summary-card">
                             <div class="committee-summary-icon blue">📥</div>
                             <div>
-                                <span>Menunggu Approval</span>
+                                <span>Menunggu Tinjauan</span>
                                 <strong data-total-pending>0</strong>
                             </div>
                         </div>
@@ -835,15 +835,15 @@
                     <section class="committee-info-panel">
                         <div class="committee-info-header">
                             <div>
-                                <h3>Ringkasan Approval</h3>
+                                <h3>Ringkasan Peninjauan</h3>
                                 <p>
-                                    Semua pengajuan yang sudah masuk tahap final approval akan tampil pada tabel di bawah.
-                                    Gunakan search bar untuk mencari nomor aplikasi, nama pemohon, program studi, total SKS, assessor, atau tanggal.
+                                    Semua pengajuan yang sudah masuk tahap final akan tampil pada tabel di bawah.
+                                    Gunakan fitur pencarian untuk mencari nomor aplikasi, nama pemohon, program studi, assessor, atau tanggal.
                                 </p>
                             </div>
 
                             <span class="committee-mini-badge">
-                                Approval List
+                                Application List
                             </span>
                         </div>
                     </section>
@@ -851,8 +851,8 @@
                     <div class="table-container">
                         <div class="table-header">
                             <div>
-                                <h3>Data Approvals</h3>
-                                <p>Daftar applicant yang perlu diperiksa dan disetujui oleh committee.</p>
+                                <h3>Data Pengajuan Calon Mahasiswa</h3>
+                                <p>Daftar Pengajuan RPL yang perlu ditinjau sebagai validasi <br>akhir oleh Komite RPL.</p>
                             </div>
 
                             <div class="committee-table-tools">
@@ -862,7 +862,7 @@
                                         id="committeeApprovalSearch"
                                         class="committee-search-input"
                                         data-approval-search
-                                        placeholder="Cari approval..."
+                                        placeholder="Cari pengajuan..."
                                         autocomplete="off"
                                     >
                                 </label>

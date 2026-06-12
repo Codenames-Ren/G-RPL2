@@ -1015,8 +1015,8 @@
 
                     <div class="committee-brand-text">
                         <small>Committee Panel</small>
-                        <h1>Approval Detail</h1>
-                        <p>Detail pengajuan RPL untuk proses final approval committee.</p>
+                        <h1>Detail Pengajuan</h1>
+                        <p>Detail pengajuan RPL untuk ditinjau sebagai validasi akhir oleh Komite RPL.</p>
                     </div>
                 </div>
 
@@ -1047,8 +1047,8 @@
                             <p class="eyebrow" data-approval-status-badge>Status</p>
                             <h2 data-approval-number>Application Number</h2>
                             <p class="committee-subtitle">
-                                Periksa informasi applicant, hasil assessment, dokumen pendukung, dan hasil konversi SKS
-                                sebelum memberikan keputusan approval akhir.
+                                Periksa informasi Calon Mahasiswa, hasil assessment, dokumen pendukung, dan hasil konversi SKS
+                                sebelum menyelesaikan tahap akhir RPL.
                             </p>
                         </div>
                     </div>
@@ -1065,7 +1065,7 @@
                             </div>
 
                             <span class="committee-mini-badge">
-                                Detail Applicant
+                                Data Calon Mahasiswa
                             </span>
                         </div>
 
@@ -1112,7 +1112,7 @@
             <section class="committee-tabs-card">
                 <div class="committee-tabs tabs" data-tabs>
                     <button class="tab-button active" data-tab-button="course-mappings" type="button">
-                        Course Mappings
+                        Matakuliah Konversi
                     </button>
 
                     <button class="tab-button" data-tab-button="documents" type="button">
@@ -1120,14 +1120,14 @@
                     </button>
 
                     <button class="tab-button" data-tab-button="documents-pdf" type="button" hidden>
-                        PDF Documents
+                        Cetak Hasil Asssessment
                     </button>
                 </div>
 
                 <div class="committee-tab-content tab-content active" data-tab-content="course-mappings">
                     <div class="committee-section-header">
                         <div>
-                            <h3>Course Mappings</h3>
+                            <h3>Konversi Matakuliah</h3>
                             <p>Daftar mata kuliah asal yang dinilai dan dikonversi ke mata kuliah tujuan.</p>
                         </div>
 
@@ -1146,7 +1146,7 @@
                                         <th>Mata Kuliah Tujuan</th>
                                         <th>SKS</th>
                                         <th>Diakui</th>
-                                        <th>Catatan</th>
+                                        <th>Keterangan</th>
                                     </tr>
                                 </thead>
 
@@ -1200,12 +1200,12 @@
                 <div class="committee-tab-content tab-content" data-tab-content="documents-pdf">
                     <div class="committee-section-header">
                         <div>
-                            <h3>PDF Documents</h3>
-                            <p>Preview atau download dokumen PDF hasil proses approval dan assessment.</p>
+                            <h3>Cetak Hasil Assessment</h3>
+                            <p>Preview atau download dokumen hasil assessment yang sudah melalui proses validasi akhir.</p>
                         </div>
 
                         <span class="committee-mini-badge">
-                            PDF Output
+                            Document Output
                         </span>
                     </div>
 
@@ -1241,7 +1241,7 @@
                             <div class="committee-pdf-icon">📑</div>
 
                             <div>
-                                <strong>Assessment Summary</strong>
+                                <strong>Ringkasan Assessment</strong>
                                 <span>Preview atau download ringkasan hasil assessment.</span>
                             </div>
 
