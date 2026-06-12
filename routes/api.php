@@ -220,6 +220,7 @@ Route::middleware([
         Route::get('/approved/{application}', [CommitteeController::class, 'showApproved']);
         Route::get('/', [CommitteeController::class, 'index']);
         Route::get('/{application}', [CommitteeController::class, 'show']);
+        Route::get('/{application}/documents/{document}/download', [CommitteeController::class, 'downloadDocument']);
         Route::get('/{application}/rector-decree/preview', [CommitteeController::class, 'previewRectorDecree']);
         Route::get('/{application}/rector-decree/download', [CommitteeController::class, 'downloadRectorDecree']);
         Route::get('/{application}/assessment-summary/preview', [CommitteeController::class, 'previewAssessmentSummary']);
