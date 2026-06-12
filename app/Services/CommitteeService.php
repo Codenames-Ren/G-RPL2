@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
+use Illuminate\Support\Facades\Storage;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -308,5 +309,21 @@ class CommitteeService
             'assessment.courseMappings.applicationA1Course',
             'assessment.courseMappings.applicationA2LearningExperience',
         ]);
+    }
+
+    public function downloadDocument(int $applicationId, int $documentId)
+    {
+        $application = $this->getById($applicationId); // reuse yang udah ada
+
+        $document = $application->documents()->findOrFail($documentId);
+
+        if (!Storage::disk('public')->exists($document->file_path)) {
+            abort(404, 'Document file not found.');
+        }
+
+        return Storage::disk('public')->download(
+            $document->file_path,
+            $document->file_name
+        );
     }
 }
