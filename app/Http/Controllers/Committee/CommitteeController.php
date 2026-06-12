@@ -169,4 +169,9 @@ class CommitteeController extends Controller
             'data' => $this->committeeService->getApprovedApplicationDetail($application)
         ]);
     }
+
+    public function downloadDocument(int $application, int $document)
+    {
+        return $this->committeeService->downloadDocument($application, $document);
+    }
 }
