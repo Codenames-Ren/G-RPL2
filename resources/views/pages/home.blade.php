@@ -1150,6 +1150,7 @@
         padding-bottom: 0.85rem;
         border-radius: 1rem;
         font-size: 0.78rem;
+        color: inherit;
     }
 }
 
@@ -1424,54 +1425,76 @@
                 </p>
             </div>
 
-            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="section-reveal-right clean-card group bg-white border border-[#1565C0]/10 rounded-[2rem] p-7 shadow-sm">
-                    <div class="w-14 h-14 rounded-2xl bg-[#EAF3FF] text-[#1565C0] flex items-center justify-center mb-6">
-                        <span class="font-heading text-2xl font-extrabold">A</span>
+            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="section-reveal-right clean-card group bg-white border border-[#1565C0]/10 rounded-[2rem] p-7 shadow-sm flex flex-col">
+                    <div class="w-14 h-14 rounded-2xl bg-[#EAF3FF] text-[#1565C0] flex items-center justify-center mb-6 shrink-0">
+                        <span class="font-heading text-lg font-extrabold leading-none">A1</span>
                     </div>
 
-                    <span class="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#EAF3FF] text-[#0D47A1] mb-4">
-                        RPL Tipe A
+                    <span class="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#EAF3FF] text-[#0D47A1] mb-4 w-fit">
+                       Tipe A1
                     </span>
 
                     <h3 class="font-heading font-extrabold text-[#172033] text-xl mb-3">
-                        Transfer Kredit
+                        Konversi Kredit Pendidikan Formal
                     </h3>
 
-                    <p class="text-sm text-[#64748B] leading-relaxed mb-6">
-                        Digunakan untuk melanjutkan pendidikan formal di perguruan tinggi. Pengalaman
-                        kerja atau pendidikan sebelumnya dapat dinilai untuk mengurangi beban SKS.
+                    <p class="text-sm text-[#64748B] leading-relaxed mb-6 flex-grow">
+                        Digunakan untuk melanjutkan pendidikan formal di perguruan tinggi. Pendidikan sebelumnya dapat dinilai untuk mengurangi beban SKS.
                     </p>
 
                     <div class="flex items-center gap-3 text-sm font-bold text-[#1565C0]">
-                        <span>Fokus: lanjut studi</span>
-                        <span class="w-8 h-[2px] bg-[#1565C0]/30"></span>
+                        <span>Pengakuan Pendidikan Formal</span>
+                        <span class="w-8 h-[2px] bg-[#1565C0]/30 shrink-0"></span>
                     </div>
                 </div>
 
-                <div class="section-reveal-right clean-card group bg-white border border-[#F9A825]/25 rounded-[2rem] p-7 shadow-sm">
-                    <div class="w-14 h-14 rounded-2xl bg-[#FFF8E1] text-[#F9A825] flex items-center justify-center mb-6">
-                        <span class="font-heading text-2xl font-extrabold">B</span>
+                <div class="section-reveal-right clean-card group bg-white border border-[#F9A825]/25 rounded-[2rem] p-7 shadow-sm flex flex-col">
+                    <div class="w-14 h-14 rounded-2xl bg-[#FFF8E1] text-[#F9A825] flex items-center justify-center mb-6 shrink-0">
+                        <span class="font-heading text-lg font-extrabold leading-none">A2</span>
                     </div>
 
-                    <span class="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#FFF8E1] text-[#B7791F] mb-4">
-                        RPL Tipe B
+                    <span class="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#FFF8E1] text-[#B7791F] mb-4 w-fit">
+                       Tipe A2
                     </span>
 
                     <h3 class="font-heading font-extrabold text-[#172033] text-xl mb-3">
-                        Penyetaraan
+                        Penyetaraan Pendidikan Nonformal dan Pengalaman Kerja
                     </h3>
 
-                    <p class="text-sm text-[#64748B] leading-relaxed mb-6">
-                        Digunakan untuk penyetaraan kualifikasi atau pengakuan kompetensi sesuai
-                        standar akademik dan kebutuhan program studi.
+                    <p class="text-sm text-[#64748B] leading-relaxed mb-6 flex-grow">
+                        Digunakan untuk menyetarakan kompetensi atau pengalaman pendidikan nonformal maupun pengalaman kerja sesuai standar akademik dan kebutuhan program studi.
                     </p>
 
                     <div class="flex items-center gap-3 text-sm font-bold text-[#B7791F]">
-                        <span>Fokus: kompetensi</span>
-                        <span class="w-8 h-[2px] bg-[#F9A825]/40"></span>
+                        <span>Penyetaraan Pengalaman</span>
+                        <span class="w-8 h-[2px] bg-[#F9A825]/40 shrink-0"></span>
                     </div>
                 </div>
+
+                <div class="section-reveal-right clean-card group bg-white border border-[#E53935]/20 rounded-[2rem] p-7 shadow-sm flex flex-col">
+                    <div class="w-14 h-14 rounded-2xl bg-[#FEECEC] text-[#E53935] flex items-center justify-center mb-6 shrink-0">
+                        <span class="font-heading text-lg font-extrabold leading-none">H</span>
+                    </div>
+
+                    <span class="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#FEECEC] text-[#C62828] mb-4 w-fit">
+                        Tipe Hybrid
+                    </span>
+
+                    <h3 class="font-heading font-extrabold text-[#172033] text-xl mb-3">
+                        Kombinasi A1 & A2
+                    </h3>
+
+                    <p class="text-sm text-[#64748B] leading-relaxed mb-6 flex-grow">
+                        Menggabungkan konversi kredit dan penyetaraan kompetensi sekaligus. Cocok bagi peserta yang memiliki riwayat pendidikan formal sekaligus pengalaman kerja dan sertifikasi yang relevan.
+                    </p>
+
+                    <div class="flex items-center gap-3 text-sm font-bold text-[#E53935]">
+                        <span>Pengakuan dan Penyetaraan</span>
+                        <span class="w-8 h-[2px] bg-[#F9A825]/40 shrink-0"></span>
+                    </div>
+                  </div>
+                </div>    
             </div>
         </div>
 
