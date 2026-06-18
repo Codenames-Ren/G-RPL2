@@ -9,6 +9,7 @@ use App\Models\AssessmentCourseMapping;
 use App\Models\Assessor;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AssessorAssessmentService
 {
@@ -278,5 +279,33 @@ class AssessorAssessmentService
             ])
             ->latest()
             ->get();
+    }
+
+    public function downloadDocument(
+        int $applicationId,
+        int $documentId,
+        Assessor $assessor
+    ) {
+        $application = Application::query()
+            ->where('assigned_assessor_id', $assessor->user_id)
+            ->with('documents')
+            ->findOrFail($applicationId);
+
+        $document = $application
+            ->documents()
+            ->findOrFail($documentId);
+
+        if (
+            ! Storage::disk('public')
+                ->exists($document->file_path)
+        ) {
+            abort(404, 'Document file not found.');
+        }
+
+        return Storage::disk('public')
+            ->download(
+                $document->file_path,
+                $document->file_name
+            );
     }
 }

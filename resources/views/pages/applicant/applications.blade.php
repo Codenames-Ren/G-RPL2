@@ -28,7 +28,7 @@
 
                         <a href="/applications/create" class="applications-create-btn">
                             <span class="applications-create-icon">+</span>
-                            <span>Create Application</span>
+                            <span>Buat Pengajuan</span>
                         </a>
                     </div>
                 </div>
@@ -94,8 +94,8 @@
             <div class="applications-table-section">
                 <div class="applications-table-header">
                     <div>
-                        <h3>Data Applications</h3>
-                        <p>Daftar seluruh pengajuan RPL yang terhubung dengan akun applicant Anda.</p>
+                        <h3>Data Pengajuan</h3>
+                        <p>Daftar seluruh pengajuan RPL Anda.</p>
                     </div>
 
                     <span class="applications-table-badge">Application List</span>

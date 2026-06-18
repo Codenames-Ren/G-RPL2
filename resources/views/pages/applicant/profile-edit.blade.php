@@ -151,7 +151,6 @@
                                 <option value="">Pilih status</option>
                                 <option value="single">Belum Kawin</option>
                                 <option value="married">Kawin</option>
-                                <option value="divorced">Cerai</option>
                             </select>
                         </label>
 
@@ -202,8 +201,6 @@
                                 <option value="D3">Diploma 3 (D3)</option>
                                 <option value="D4">Diploma 4 (D4) / Sarjana Terapan</option>
                                 <option value="S1">Sarjana (S1)</option>
-                                <option value="S2">Magister (S2)</option>
-                                <option value="S3">Doktor (S3)</option>
                             </select>
                         </label>
 
@@ -252,7 +249,7 @@
                         </a>
 
                         <button class="profile-edit-submit-btn button" type="submit" data-save-profile>
-                            Simpan Profil
+                            Simpan Profile
                         </button>
                     </div>
                 </div>

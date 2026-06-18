@@ -19,10 +19,10 @@
                     <div>
                         <p class="eyebrow profile-page-eyebrow">Data Diri</p>
 
-                        <h2>Data Profil</h2>
+                        <h2>Data Profile</h2>
 
                         <p class="profile-page-subtitle">
-                            Pastikan data profil Anda lengkap sebelum membuat atau mengirim pengajuan RPL.
+                            Pastikan data profile Anda lengkap sebelum membuat atau mengirim pengajuan RPL.
                             Data ini akan digunakan untuk kebutuhan validasi pelamar.
                         </p>
                     </div>
@@ -38,7 +38,7 @@
                                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm17.71-10.04c.39-.39.39-1.02 0-1.41L18.2 3.29a.9959.9959 0 0 0-1.41 0l-1.96 1.96L18.58 9l2.13-1.79Z"/>
                                 </svg>
                             </span>
-                            <span>Edit Profil</span>
+                            <span>Edit Profile</span>
                         </a>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                         </span>
 
                         <div>
-                            <p>Status Profil</p>
+                            <p>Status Profile</p>
                             <strong data-profile-completeness-badge>-</strong>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
             <div class="profile-page-panel">
                 <div class="profile-page-panel-head">
                     <div>
-                        <h3>                        Ringkasan Profil</h3>
+                        <h3>                        Ringkasan Profile</h3>
                         <p>
                             Data pelamar yang terhubung dengan akun Anda. Lengkapi bagian yang masih kosong
                             supaya proses pengajuan RPL berjalan lebih lancar.
@@ -137,7 +137,7 @@
                         </span>
 
                         <p data-profile-completeness-note>
-                            Pastikan data profil lengkap sebelum membuat pengajuan RPL.
+                            Pastikan data profile lengkap sebelum membuat pengajuan RPL.
                         </p>
                     </div>
                 </div>
@@ -208,7 +208,7 @@
 
                         <div class="profile-page-detail-item">
                             <span>Status Perkawinan <b>*</b></span>
-                            <strong data-profile-marital-status>-</strong>
+                            <strong data-profile-marital-status></strong>
                         </div>
 
                         <div class="profile-page-detail-item">

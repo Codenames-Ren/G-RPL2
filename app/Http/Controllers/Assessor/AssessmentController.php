@@ -195,4 +195,24 @@ class AssessmentController extends Controller
                     ),
         ]);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Download Document
+    |--------------------------------------------------------------------------
+    */
+
+    public function downloadDocument(
+        Request $request,
+        int $application,
+        int $document
+    )
+    {
+        return $this->assessorAssessmentService
+            ->downloadDocument(
+                $application,
+                $document,
+                $request->user()->assessor
+            );
+    }
 }

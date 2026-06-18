@@ -204,6 +204,7 @@ Route::middleware([
         */
 
         Route::post('/{assessment}/submit', [AssessmentController::class, 'submit']);
+        Route::get('/{application}/documents/{document}/download', [AssessmentController::class, 'downloadDocument']);
         Route::get('/{assessment}/mappings', [AssessmentController::class, 'mappings']);
         Route::post('/{assessment}/mappings', [AssessmentController::class, 'storeCourseMapping']);
         Route::put('/mappings/{mapping}',[AssessmentController::class, 'updateCourseMapping']);
