@@ -487,11 +487,12 @@
     }
 
     #faq .section-reveal.bg-white {
-        height: 100%;
+        height: auto;
+        align-self: start;
     }
 
     #faq details {
-        height: 100%;
+        height: auto;
     }
 
     #faq .mt-12.text-center {
@@ -1249,7 +1250,7 @@
             <div class="hero-fade-left delay-3 flex flex-col sm:flex-row gap-4 mb-10">
                 <a
                     href="/register"
-                    class="group inline-flex items-center justify-center px-7 py-3.5 bg-[#1565C0] text-white text-sm font-bold rounded-2xl hover:bg-[#0D47A1] transition-all shadow-xl shadow-blue-500/20 hover:-translate-y-1"
+                    class="group inline-flex items-center justify-center px-7 py-3.5 bg-[#F9A825] text-white text-sm font-bold rounded-2xl hover:bg-[#FFB300] transition-all shadow-xl shadow-yellow-500/20 hover:-translate-y-1"
                 >
                     Daftar Sekarang
                     <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1272,7 +1273,7 @@
                 </div>
 
                 <div class="clean-card glass-card border border-[#1565C0]/10 rounded-3xl p-5 shadow-sm">
-                    <div class="font-heading text-3xl font-extrabold text-[#1565C0]">144</div>
+                    <div class="font-heading text-3xl font-extrabold text-[#1565C0]">100</div>
                     <p class="text-xs text-[#64748B] font-semibold mt-1">Maks SKS</p>
                 </div>
 
@@ -1377,7 +1378,7 @@
         @foreach([
             ['2.500+', 'Pendaftar Aktif', 'Calon mahasiswa telah menggunakan sistem G-RPL'],
             ['45', 'Program Studi', 'Pilihan prodi tersedia untuk jalur RPL'],
-            ['144', 'Maksimal SKS', 'Potensi pengakuan pembelajaran lampau'],
+            ['100', 'Maksimal SKS', 'Potensi pengakuan pembelajaran lampau'],
             ['2+', 'Tahun Pengalaman', 'Minimal pengalaman kerja yang relevan'],
         ] as $stat)
             <div class="section-reveal clean-card bg-[#F8FAFC] border border-[#1565C0]/10 rounded-3xl p-6 text-center">
@@ -2025,7 +2026,7 @@
 
                     <a
                         href="/register"
-                        class="px-8 py-3.5 bg-[#F9A825] text-[#5D3B00] text-sm font-bold rounded-2xl hover:bg-[#FFB300] transition-all shadow-lg shadow-yellow-500/20 hover:-translate-y-1"
+                        class="px-8 py-3.5 bg-[#F9A825] text-white text-sm font-bold rounded-2xl hover:bg-[#FFB300] transition-all shadow-lg shadow-yellow-500/20 hover:-translate-y-1"
                     >
                         Daftar Sekarang
                     </a>
