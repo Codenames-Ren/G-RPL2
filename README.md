@@ -1,58 +1,127 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="public/images/logo.png" width="150" alt="G-RPL2 Logo">
 </p>
 
-## About Laravel
+<h1 align="center">G-RPL2 (Global Rekognisi Pembelajaran Lampau)</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <strong>Sistem Digital Terintegrasi Rekognisi Pembelajaran Lampau Berbasis Web</strong>
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<p align="center">
+  <a href="#tentang-project">Tentang Project</a> •
+  <a href="#fitur-utama">Fitur Utama</a> •
+  <a href="#alur-sistem-bisnis">Alur Sistem</a> •
+  <a href="#modul-sistem">Modul Sistem</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#instalasi">Instalasi</a> •
+  <a href="#dokumentasi">Dokumentasi</a>
+</p>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🚀 Tentang Project
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Global RPL (G-RPL2)** adalah sistem informasi akademik modern yang dirancang khusus untuk mendigitalkan dan mengelola proses **Rekognisi Pembelajaran Lampau (RPL)**. Sistem ini memfasilitasi pengakuan atas capaian pembelajaran seseorang yang diperoleh dari pendidikan formal, nonformal, informal, dan/atau pengalaman kerja sebagai dasar untuk melanjutkan pendidikan formal.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Dikembangkan dengan prinsip desain *Clean, Modern, dan Profesional*, G-RPL2 mengintegrasikan seluruh entitas yang terlibat (Pendaftar, Komite, dan Asesor) ke dalam satu platform yang terpusat, menghilangkan kebutuhan administrasi berbasis kertas, dan mempercepat proses evaluasi.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## ✨ Fitur Utama
 
-## Agentic Development
+*   **Pendaftaran 100% Digital:** Pendaftar dapat mengunggah portofolio, sertifikat, dan bukti pengalaman kerja secara online.
+*   **Dukungan Tipe RPL A1 & A2:** Mengakomodasi berbagai skema RPL sesuai standar akademik.
+*   **Role-Based Access Control (RBAC):** Portal dan dashboard spesifik untuk masing-masing peran (Applicant, Committee, Assessor, Admin).
+*   **Sistem Penilaian Terstruktur:** Asesor memiliki modul khusus untuk mengevaluasi dan memetakan pengalaman kerja ke dalam SKS/Mata Kuliah.
+*   **Pelacakan Status Real-time:** Pendaftar dapat memantau status aplikasi mereka dari `Draft` hingga `Approved` atau `Rejected`.
+*   **UI/UX Modern:** Menggunakan pendekatan Glassmorphism, animasi halus, dan tata letak yang bersih untuk meningkatkan pengalaman pengguna (Detail di `DESIGN.md`).
+*   **API Ready:** Arsitektur backend berbasis REST API, siap untuk integrasi dengan aplikasi mobile atau sistem pihak ketiga di masa depan.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## 🔄 Alur Sistem (Bisnis Flow)
 
-```bash
-composer require laravel/boost --dev
+Sistem G-RPL2 digerakkan oleh status aplikasi yang ketat untuk memastikan integritas data dan proses evaluasi yang benar:
 
-php artisan boost:install
-```
+1.  **Draft:** Pendaftar (Applicant) membuat *Application Header* awal (Tipe A1/A2). Di tahap ini, pendaftar melengkapi profil dan dokumen pendukung.
+2.  **Submitted:** Pendaftar mengirimkan aplikasi untuk ditinjau. Data terkunci dan tidak dapat diubah oleh pendaftar.
+3.  **Under Review (Komite):** Komite melakukan verifikasi administratif terhadap kelengkapan dokumen. Jika valid, komite menugaskan Asesor.
+4.  **Under Assessment (Asesor):** Asesor yang ditugaskan melakukan evaluasi akademik/profesional terhadap dokumen pendaftar dan memetakannya ke mata kuliah yang relevan. Status berubah menjadi `Assessed`.
+5.  **Final Approval (Komite):** Komite meninjau hasil penilaian asesor dan memberikan keputusan akhir: **Approved** (Diterima) atau **Rejected** (Ditolak).
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## 📦 Modul Sistem
 
-## Contributing
+Project ini dibagi menjadi beberapa modul API utama:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+*   **Applicant Module:** Registrasi, pembuatan aplikasi (A1/A2), upload dokumen, pelacakan status.
+*   **Committee Module:** Verifikasi dokumen administrasi, penugasan asesor, dan persetujuan akhir (Final Approval).
+*   **Assessor Module:** Penilaian portofolio, evaluasi pengalaman kerja, pemetaan kompetensi ke kurikulum (Mata Kuliah/SKS).
+*   **Staff/Admin Module:** Manajemen program studi, manajemen pengguna, konfigurasi sistem.
+*   **Profile Module:** Manajemen data pribadi, riwayat pendidikan, dan pekerjaan pengguna.
 
-## Code of Conduct
+## 💻 Tech Stack
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+*   **Backend Framework:** Laravel 11.x (PHP 8.2+)
+*   **Frontend:** React (App.jsx) terintegrasi via Laravel Vite
+*   **Styling:** Tailwind CSS (Kustomisasi spesifik di `app.css`)
+*   **Database:** MySQL / PostgreSQL
+*   **Authentication:** Laravel Sanctum (Token-based API Auth)
 
-## Security Vulnerabilities
+## 🛠️ Instalasi
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Ikuti langkah-langkah berikut untuk menjalankan project di lingkungan lokal:
 
-## License
+1.  **Clone repositori:**
+    ```bash
+    git clone <repository-url>
+    cd G-RPL2
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2.  **Install dependensi PHP:**
+    ```bash
+    composer install
+    ```
+
+3.  **Install dependensi Node.js:**
+    ```bash
+    npm install
+    ```
+
+4.  **Konfigurasi Environment:**
+    Salin file `.env.example` menjadi `.env` lalu generate application key.
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+    *Penting: Sesuaikan konfigurasi database (`DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`) di file `.env`.*
+
+5.  **Migrasi Database dan Seeding:**
+    Jalankan migrasi untuk membuat struktur tabel dan seeding data awal (Role, Admin, Prodi).
+    ```bash
+    php artisan migrate --seed
+    ```
+
+6.  **Jalankan Server Development:**
+    Buka dua terminal terpisah.
+    
+    Terminal 1 (Backend API):
+    ```bash
+    php artisan serve
+    ```
+    Terminal 2 (Frontend Build/Vite):
+    ```bash
+    npm run dev
+    ```
+
+## 📚 Dokumentasi Lengkap
+
+Untuk memahami struktur API dan routing lebih detail, silakan baca dokumentasi teknis di dalam folder `/Documentation`:
+
+*   [`Assessor_Module_API_Documentation_Full.md`](Documentation/Assessor_Module_API_Documentation_Full.md) - Endpoint khusus penugasan dan penilaian oleh Asesor.
+*   [`Backend_application_api.md`](Documentation/Backend_application_api.md) - Alur pembuatan dan pengiriman aplikasi pendaftar.
+*   [`Backend_profile_api.md`](Documentation/Backend_profile_api.md) - Endpoint manajemen profil pengguna.
+*   [`Backend_StaffRPL_Api.md`](Documentation/Backend_StaffRPL_Api.md) - Endpoint pengelolaan data master oleh Admin/Staff.
+*   [`Committee_Api_Docs.md`](Documentation/Committee_Api_Docs.md) - Endpoint verifikasi dan persetujuan oleh Komite.
+*   [`Frontend_routing.md`](Documentation/Frontend_routing.md) - Struktur routing untuk antarmuka frontend (React).
+*   [`DESIGN.md`](DESIGN.md) - Panduan sistem desain (Warna, Tipografi, Komponen UI).
+
+## 📄 Lisensi
+
+Hak cipta dilindungi. Project ini adalah perangkat lunak berpemilik (Proprietary). Tidak untuk didistribusikan tanpa izin tertulis.

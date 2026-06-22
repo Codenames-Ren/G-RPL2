@@ -31,8 +31,7 @@ abstract class ApplicantRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
+    public function attributes(): array{
         return [
             'study_program_id' => 'program studi',
             'rpl_type' => 'tipe RPL',
