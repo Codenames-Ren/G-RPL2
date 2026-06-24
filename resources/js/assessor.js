@@ -232,6 +232,12 @@ async function loadAssessmentMappings(assessmentId) {
                 .map(m => String(m.application_a2_learning_experience_id))
         );
 
+        assessmentState.usedTargetCourseIds = new Set(
+            mappings
+                .filter(m => m.course_id)
+                .map(m => String(m.course_id))
+        );
+
         target.innerHTML = mappings.length
             ? mappings.map((m) => {
                 const sourceName = m.application_a1_course?.course_name
@@ -413,12 +419,6 @@ function bindAssessorActions() {
 
     const addA1Btn = document.querySelector('[data-add-a1-mapping]');
     const addA2Btn = document.querySelector('[data-add-a2-mapping]');
-    const mappingModal = document.querySelector('[data-modal="create-mapping"]');
-    const mappingForm = document.querySelector('[data-mapping-form]');
-    const submitMappingBtn = document.querySelector('[data-submit-mapping]');
-    const courseSelect = document.querySelector('[data-course-select]');
-    const sourceSelect = document.querySelector('[name="source_id"]');
-    const sourceNameDisplay = mappingForm?.querySelector('[data-mapping-source-name]');
 
     if (addA1Btn) {
         addA1Btn.addEventListener('click', () => openMappingModal('a1'));
@@ -429,153 +429,295 @@ function bindAssessorActions() {
     }
 
     function openMappingModal(sourceType) {
-        if (!mappingModal || !mappingForm) return;
+        const isA1 = sourceType === 'a1';
 
-        mappingForm.reset();
-        mappingForm.querySelector('[data-source-type]').value = sourceType;
-        setMessage(mappingForm, '', 'info');
+        const sources = isA1 ? assessmentState.a1Courses : assessmentState.a2Experiences;
+        const labelKey = isA1 ? 'course_name' : 'title';
+        const idAttr = isA1 ? 'course_code' : 'experience_type';
+        const usedSourceIds = isA1 ? assessmentState.usedA1SourceIds : assessmentState.usedA2SourceIds;
+        const availableSources = sources.filter(s => !usedSourceIds.has(String(s.id)));
 
-        const title = mappingForm.querySelector('[data-mapping-modal-title]');
-        if (title) {
-            title.textContent = sourceType === 'a1' ? 'Mapping Matakuliah A1' : 'Mapping Matakuliah A2';
-        }
+        const accentColor = isA1 ? '#2563eb' : '#7c3aed';
+        const accentBg = isA1 ? '#eff6ff' : '#f5f3ff';
+        const accentText = isA1 ? '#1e40af' : '#5b21b6';
+        const sourceLabel = isA1 ? 'Mata Kuliah A1' : 'Pengalaman Belajar A2';
+        const modalTitle = isA1
+            ? 'Mapping Mata Kuliah — A1'
+            : 'Mapping Mata Kuliah — A2';
 
-        const sources = sourceType === 'a1' ? assessmentState.a1Courses : assessmentState.a2Experiences;
-        const labelKey = sourceType === 'a1' ? 'course_name' : 'title';
-        const idAttr = sourceType === 'a1' ? 'course_code' : 'experience_type';
+        let allCourses = [];
 
-        const usedIds = sourceType === 'a1' ? assessmentState.usedA1SourceIds : assessmentState.usedA2SourceIds;
-        const availableSources = sources.filter(s => !usedIds.has(String(s.id)));
-
-        if (sourceSelect) {
+        const renderSourceOptions = () => {
+            const sourceSelect = document.getElementById('swal-mapping-source');
+            if (!sourceSelect) return;
             sourceSelect.innerHTML = availableSources.length
-                ? '<option value="">-- Pilih Sumber --</option>' +
-                availableSources.map((s) => `<option value="${s.id}">${escapeHtml(s[labelKey] || s[idAttr] || 'Item ' + s.id)}</option>`).join('')
+                ? `<option value="">— Pilih ${escapeHtml(sourceLabel)} —</option>` +
+                availableSources.map(s =>
+                    `<option value="${s.id}">${escapeHtml(s[labelKey] || s[idAttr] || 'Item ' + s.id)}</option>`
+                ).join('')
                 : '<option value="">Semua sumber sudah mapping</option>';
-        }
+        };
 
-        if (sourceNameDisplay) {
-            sourceNameDisplay.textContent = sourceType === 'a1' ? 'A1 Course' : 'A2 Learning Experience';
-        }
+        const renderCourseOptions = (courses) => {
+            const courseSelect = document.getElementById('swal-mapping-course');
+            if (!courseSelect) return;
+            const filtered = courses.filter(c => !assessmentState.usedTargetCourseIds.has(String(c.id)));
+            courseSelect.innerHTML = filtered.length
+                ? '<option value="">— Pilih Mata Kuliah Tujuan —</option>' +
+                filtered.map(c =>
+                    `<option value="${c.id}">${escapeHtml(c.code || '')} ${escapeHtml(c.name)} - Sem ${escapeHtml(String(c.semester))} (${escapeHtml(String(c.sks))} SKS)</option>`
+                ).join('')
+                : '<option value="">Tidak ada course tersedia</option>';
+        };
 
-        const recognizedSelect = mappingForm.querySelector('[data-recognized-select]');
-        const courseWrapper = mappingForm.querySelector('[data-course-select-wrapper]');
+        const fetchCourses = (studyProgramId, semester) => {
+            const courseSelect = document.getElementById('swal-mapping-course');
+            if (courseSelect) courseSelect.innerHTML = '<option value="">Memuat course...</option>';
 
-        if (recognizedSelect && courseWrapper) {
-            courseWrapper.hidden = recognizedSelect.value !== '1';
+            const params = new URLSearchParams();
+            if (studyProgramId) params.set('study_program_id', studyProgramId);
+            if (semester) params.set('semester', semester);
 
-            recognizedSelect.onchange = function () {
-                courseWrapper.hidden = this.value !== '1';
-                if (this.value !== '1') {
-                    mappingForm.elements.course_id.value = '';
+            const url = '/courses' + (params.toString() ? '?' + params.toString() : '');
+            apiRequest(url)
+                .then(response => { allCourses = collection(response); renderCourseOptions(allCourses); })
+                .catch(() => { if (courseSelect) courseSelect.innerHTML = '<option value="">Gagal memuat course</option>'; });
+        };
+
+        Swal.fire({
+            title: modalTitle,
+            width: 460,
+            padding: '1.25rem 1.5rem 1.5rem',
+            customClass: { popup: 'swal-mapping-popup' },
+            html: `
+                <style>
+                    .swal-mapping-popup { font-size: 14px !important; }
+                    .swal-mapping-popup .swal2-title {
+                        font-size: 17px !important;
+                        padding-bottom: 0 !important;
+                        margin-bottom: 0 !important;
+                    }
+                    .swal-mapping-popup .swal2-html-container {
+                        margin: 0.5rem 0 0 !important;
+                        padding: 0 !important;
+                        overflow: visible !important;
+                        text-align: left !important;
+                    }
+
+                    .sm-badge {
+                        display: inline-block;
+                        background: ${accentBg};
+                        color: ${accentText};
+                        font-size: 11px;
+                        font-weight: 600;
+                        padding: 2px 10px;
+                        border-radius: 4px;
+                        margin-bottom: 12px;
+                    }
+                    .sm-field { margin-bottom: 10px; }
+                    .sm-label {
+                        display: block;
+                        font-size: 12px;
+                        font-weight: 500;
+                        color: #64748b;
+                        margin-bottom: 3px;
+                    }
+                    .sm-row { display: flex; gap: 8px; }
+                    .sm-row .sm-field { flex: 1; }
+                    .sm-select, .sm-textarea {
+                        width: 100%;
+                        box-sizing: border-box;
+                        margin: 0 !important;
+                        font-family: inherit;
+                        font-size: 13px !important;
+                        padding: 6px 10px !important;
+                        border: 1px solid #e2e8f0 !important;
+                        border-radius: 6px !important;
+                        background: #fff !important;
+                        color: #1e293b !important;
+                        height: auto !important;
+                    }
+                    .sm-select:focus, .sm-textarea:focus {
+                        outline: none !important;
+                        border-color: ${accentColor} !important;
+                        box-shadow: 0 0 0 2px ${accentBg} !important;
+                    }
+
+                    /* Chip toggle untuk status pengakuan */
+                    .sm-chip-group { display: flex; gap: 6px; }
+                    .sm-chip {
+                        flex: 1;
+                        padding: 6px 0;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 6px;
+                        background: #f8fafc;
+                        color: #64748b;
+                        font-size: 12px;
+                        font-weight: 500;
+                        text-align: center;
+                        cursor: pointer;
+                        transition: all 0.15s;
+                        user-select: none;
+                    }
+                    .sm-chip:hover { border-color: #cbd5e1; background: #f1f5f9; }
+                    .sm-chip.active {
+                        background: ${accentBg};
+                        border-color: ${accentColor};
+                        color: ${accentText};
+                    }
+                </style>
+
+                <div class="sm-badge">${escapeHtml(isA1 ? 'A1 · Mata Kuliah Sebelumnya' : 'A2 · Pengalaman Belajar')}</div>
+
+                <div class="sm-field">
+                    <label class="sm-label">${escapeHtml(sourceLabel)}</label>
+                    <select id="swal-mapping-source" class="sm-select"></select>
+                </div>
+
+                <div class="sm-row" id="swal-filter-row" style="display:none;">
+                    <div class="sm-field">
+                        <label class="sm-label">Program Studi</label>
+                        <select id="swal-mapping-program" class="sm-select">
+                            <option value="">Memuat prodi...</option>
+                        </select>
+                    </div>
+                    <div class="sm-field">
+                        <label class="sm-label">Semester</label>
+                        <select id="swal-mapping-semester" class="sm-select">
+                            <option value="">Semua</option>
+                            ${[1, 2, 3, 4, 5, 6, 7, 8].map(s => `<option value="${s}">Sem ${s}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sm-field">
+                    <label class="sm-label">Status Pengakuan</label>
+                    <div class="sm-chip-group">
+                        <div class="sm-chip active" id="chip-tidak" data-value="0">Tidak Diakui</div>
+                        <div class="sm-chip" id="chip-diakui" data-value="1">Diakui</div>
+                    </div>
+                    <input type="hidden" id="swal-mapping-recognized" value="0">
+                </div>
+
+                <div class="sm-field" id="swal-mapping-course-wrapper" style="display:none;">
+                    <label class="sm-label">Mata Kuliah Tujuan</label>
+                    <select id="swal-mapping-course" class="sm-select">
+                        <option value="">— Pilih Mata Kuliah Tujuan —</option>
+                    </select>
+                </div>
+
+                <div class="sm-field" style="margin-bottom:0;">
+                    <label class="sm-label">Catatan <span style="font-weight:400;">(opsional)</span></label>
+                    <textarea id="swal-mapping-notes" class="sm-textarea" style="height:60px;resize:none;" placeholder="Catatan tambahan..."></textarea>
+                </div>
+            `,
+            icon: undefined,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan Mapping',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: accentColor,
+            cancelButtonColor: '#64748b',
+            focusConfirm: false,
+            didOpen: () => {
+                renderSourceOptions();
+
+                const programSelect = document.getElementById('swal-mapping-program');
+                const semesterSelect = document.getElementById('swal-mapping-semester');
+                const recognizedInput = document.getElementById('swal-mapping-recognized');
+                const courseWrapper = document.getElementById('swal-mapping-course-wrapper');
+                const chipTidak = document.getElementById('chip-tidak');
+                const chipDiakui = document.getElementById('chip-diakui');
+
+                // Load study programs
+                apiRequest('/study-programs')
+                    .then(response => {
+                        const programs = collection(response);
+                        programSelect.innerHTML = '<option value="">— Semua Prodi —</option>' +
+                            programs.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+                        fetchCourses(null, null);
+                    })
+                    .catch(() => {
+                        programSelect.innerHTML = '<option value="">Gagal memuat prodi</option>';
+                        fetchCourses(null, null);
+                    });
+
+                programSelect.addEventListener('change', () =>
+                    fetchCourses(programSelect.value || null, semesterSelect.value || null)
+                );
+                semesterSelect.addEventListener('change', () =>
+                    fetchCourses(programSelect.value || null, semesterSelect.value || null)
+                );
+
+                // Chip toggle
+                const filterRow = document.getElementById('swal-filter-row');
+
+                const setRecognized = (value) => {
+                    recognizedInput.value = value;
+                    const isRecognized = value === '1';
+                    chipTidak.classList.toggle('active', !isRecognized);
+                    chipDiakui.classList.toggle('active', isRecognized);
+                    courseWrapper.style.display = isRecognized ? 'block' : 'none';
+                    filterRow.style.display = isRecognized ? 'flex' : 'none';
+                    if (!isRecognized) {
+                        document.getElementById('swal-mapping-course').value = '';
+                        programSelect.value = '';
+                        semesterSelect.value = '';
+                    }
+                };
+
+                chipTidak.addEventListener('click', () => setRecognized('0'));
+                chipDiakui.addEventListener('click', () => setRecognized('1'));
+            },
+            preConfirm: () => {
+                const sourceId = document.getElementById('swal-mapping-source').value;
+                const recognized = document.getElementById('swal-mapping-recognized').value === '1';
+                const courseId = document.getElementById('swal-mapping-course').value;
+                const notes = document.getElementById('swal-mapping-notes').value.trim();
+
+                if (!sourceId) {
+                    Swal.showValidationMessage(`Pilih ${sourceLabel} terlebih dahulu.`);
+                    return false;
                 }
-            };
-        }
+                if (recognized && !courseId) {
+                    Swal.showValidationMessage('Pilih mata kuliah tujuan untuk mapping yang diakui.');
+                    return false;
+                }
 
-        const studyProgramSelect = mappingForm.querySelector('[data-study-program-select]');
-        const semesterSelect = mappingForm.querySelector('[data-semester-select]');
-
-        if (studyProgramSelect) {
-            studyProgramSelect.innerHTML = '<option value="">Memuat prodi...</option>';
-
-            apiRequest('/study-programs').then((response) => {
-                const programs = collection(response);
-                studyProgramSelect.innerHTML = '<option value="">-- Semua Prodi --</option>' +
-                    programs.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
-
-                // default ke semua prodi, langsung load semua course
-                loadCourseOptions(null, null);
-            }).catch(() => {
-                studyProgramSelect.innerHTML = '<option value="">Gagal memuat prodi</option>';
-                loadCourseOptions();
-            });
-
-            studyProgramSelect.onchange = function () {
-                loadCourseOptions(this.value || null, semesterSelect?.value || null);
-            };
-        } else {
-            loadCourseOptions();
-        }
-
-        if (semesterSelect) {
-            semesterSelect.onchange = function () {
-                loadCourseOptions(studyProgramSelect?.value || null, this.value || null);
-            };
-        }
-
-        mappingModal.hidden = false;
-    }
-
-    function loadCourseOptions(studyProgramId = null, semester = null) {
-        if (!courseSelect) return;
-
-        courseSelect.innerHTML = '<option value="">Memuat course...</option>';
-
-        const params = new URLSearchParams();
-        if (studyProgramId) params.set('study_program_id', studyProgramId);
-        if (semester) params.set('semester', semester);
-
-        const url = '/courses' + (params.toString() ? '?' + params.toString() : '');
-
-        apiRequest(url).then((response) => {
-            const courses = collection(response);
-
-            courseSelect.innerHTML = courses.length
-                ? '<option value="">-- Pilih Mata Kuliah Tujuan --</option>' +
-                courses.map((c) => `<option value="${c.id}">${escapeHtml(c.code || '')} ${escapeHtml(c.name)} - Sem ${escapeHtml(String(c.semester))} (${escapeHtml(String(c.sks))} SKS)</option>`).join('')
-                : '<option value="">Tidak ada course untuk filter ini</option>';
-        }).catch(() => {
-            courseSelect.innerHTML = '<option value="">Gagal memuat course</option>';
-        });
-    }
-
-    if (submitMappingBtn && mappingForm) {
-        submitMappingBtn.addEventListener('click', async () => {
-            const sourceType = mappingForm.querySelector('[data-source-type]').value;
-            const sourceId = mappingForm.elements.source_id?.value;
-            const courseId = mappingForm.elements.course_id.value;
-            const isRecognized = mappingForm.querySelector('[data-recognized-select]').value === '1';
-            const notes = mappingForm.elements.notes.value.trim();
+                return { sourceId, courseId, recognized, notes };
+            }
+        }).then(async (result) => {
+            if (!result.isConfirmed || !result.value) return;
 
             if (!assessmentState.assessmentId) {
-                setMessage(mappingForm, 'Assessment belum dibuat.', 'error');
+                Swal.fire({
+                    title: 'Gagal Menyimpan Mapping',
+                    text: 'Assessment belum dibuat.',
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
                 return;
             }
 
-            if (!sourceId) {
-                setMessage(mappingForm, 'Pilih sumber terlebih dahulu.', 'error');
-                return;
-            }
-
-            if (isRecognized && !courseId) {
-                setMessage(mappingForm, 'Pilih mata kuliah tujuan untuk mapping yang diakui.', 'error');
-                return;
-            }
+            const { sourceId, courseId, recognized, notes } = result.value;
 
             const payload = {};
-            if (sourceType === 'a1') {
+            if (isA1) {
                 payload.application_a1_course_id = Number(sourceId);
             } else {
                 payload.application_a2_learning_experience_id = Number(sourceId);
             }
-
-            if (isRecognized) {
+            if (recognized) {
                 payload.course_id = Number(courseId);
             }
-            payload.is_recognized = isRecognized;
+            payload.is_recognized = recognized;
             payload.notes = notes;
-
-            submitMappingBtn.disabled = true;
-            setMessage(mappingForm, 'Menyimpan...', 'info');
 
             try {
                 await apiRequest(`/assessor/assessments/${assessmentState.assessmentId}/mappings`, {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
-
-                mappingModal.hidden = true;
-                mappingForm.reset();
 
                 await Swal.fire({
                     title: 'Mapping Tersimpan',
@@ -588,14 +730,17 @@ function bindAssessorActions() {
                 loadAssessmentMappings(assessmentState.assessmentId);
             } catch (error) {
                 const status = error?.status;
-
                 const message = status === 422
                     ? 'Mapping gagal disimpan. Kemungkinan mata kuliah tujuan sudah dipakai di mapping lain, atau sumber tidak valid.'
                     : 'Terjadi kesalahan saat menyimpan mapping. Silakan coba beberapa saat lagi.';
 
-                setMessage(mappingForm, message, 'error');
-            } finally {
-                submitMappingBtn.disabled = false;
+                Swal.fire({
+                    title: 'Gagal Menyimpan Mapping',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
             }
         });
     }
