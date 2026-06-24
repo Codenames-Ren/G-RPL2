@@ -136,9 +136,22 @@ function bindUserForms() {
 function bindUserActions() {
     document.addEventListener('click', async (event) => {
         const button = event.target.closest('[data-toggle-user]');
-        if (!button) {
-            return;
-        }
+        if (!button) return;
+
+        const nextActive = button.dataset.nextActive === '1';
+
+        const confirm = await Swal.fire({
+            title: nextActive ? 'Aktifkan User?' : 'Nonaktifkan User?',
+            text: nextActive
+                ? 'User akan dapat mengakses sistem kembali.'
+                : 'User tidak akan bisa mengakses sistem.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: nextActive ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan',
+            cancelButtonText: 'Batal',
+        });
+
+        if (!confirm.isConfirmed) return;
 
         button.disabled = true;
 
@@ -147,10 +160,19 @@ function bindUserActions() {
                 method: 'PATCH',
                 body: JSON.stringify({ is_active: toBoolean(button.dataset.nextActive) }),
             });
-            pageMessage('Status user diperbarui.', 'success');
+            await Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: `User berhasil ${nextActive ? 'diaktifkan' : 'dinonaktifkan'}.`,
+                confirmButtonText: 'Oke',
+            });
             loadUsers();
         } catch (error) {
-            pageMessage(validationMessage(error));
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: validationMessage(error),
+            });
             button.disabled = false;
         }
     });
@@ -432,9 +454,22 @@ function bindCourseForms() {
 function bindCourseActions() {
     document.addEventListener('click', async (event) => {
         const button = event.target.closest('[data-toggle-course]');
-        if (!button) {
-            return;
-        }
+        if (!button) return;
+
+        const nextActive = button.dataset.nextActive === '1';
+
+        const confirm = await Swal.fire({
+            title: nextActive ? 'Aktifkan Mata Kuliah?' : 'Nonaktifkan Mata Kuliah?',
+            text: nextActive
+                ? 'Mata kuliah akan muncul di sistem RPL.'
+                : 'Mata kuliah tidak akan tersedia di sistem RPL.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: nextActive ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan',
+            cancelButtonText: 'Batal',
+        });
+
+        if (!confirm.isConfirmed) return;
 
         button.disabled = true;
 
@@ -443,10 +478,19 @@ function bindCourseActions() {
                 method: 'PATCH',
                 body: JSON.stringify({ is_active: toBoolean(button.dataset.nextActive) }),
             });
-            pageMessage('Status mata kuliah diperbarui.', 'success');
+            await Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: `Mata kuliah berhasil ${nextActive ? 'diaktifkan' : 'dinonaktifkan'}.`,
+                confirmButtonText: 'Oke',
+            });
             loadCourses();
         } catch (error) {
-            pageMessage(validationMessage(error));
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: validationMessage(error),
+            });
             button.disabled = false;
         }
     });
