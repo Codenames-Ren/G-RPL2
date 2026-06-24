@@ -177,8 +177,8 @@ function bindCreateApplication() {
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Berhasil',
-                text: response.message || 'Aplikasi berhasil dibuat.',
+                title: 'Pengajuan Dibuat',
+                text: 'Pengajuan RPL berhasil dibuat. Silakan lengkapi data pengajuan Anda.',
                 confirmButtonText: 'Oke',
             });
 
@@ -187,7 +187,7 @@ function bindCreateApplication() {
             console.error('[Create Application]', error);
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal Membuat Aplikasi',
+                title: 'Gagal Membuat Pengajuan',
                 text: 'Pastikan profil Anda sudah lengkap dan Anda belum memiliki pengajuan aktif.',
                 confirmButtonText: 'Tutup',
             });
@@ -408,15 +408,15 @@ function bindDocumentUpload(applicationId) {
         button.disabled = true;
 
         try {
-            const response = await apiRequest(`/applicant/applications/${applicationId}/documents`, {
+            await apiRequest(`/applicant/applications/${applicationId}/documents`, {
                 method: 'POST',
                 body: formData
             });
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Berhasil',
-                text: response.message || 'Dokumen berhasil diunggah.',
+                title: 'Dokumen Diunggah',
+                text: 'Dokumen berhasil diunggah dan ditambahkan ke pengajuan Anda.',
                 confirmButtonText: 'Oke',
             });
             form.reset();
@@ -427,7 +427,7 @@ function bindDocumentUpload(applicationId) {
                 title: 'Gagal Mengunggah Dokumen',
                 text: isApplicationLocked(error)
                     ? LOCKED_MESSAGE
-                    : 'Pastikan format dan ukuran file sesuai ketentuan.',
+                    : 'Pastikan format file yang diunggah sesuai ketentuan dan ukurannya tidak melebihi batas.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
@@ -439,8 +439,8 @@ function bindDocumentUpload(applicationId) {
 async function submitApplication(applicationId) {
     const confirm = await Swal.fire({
         icon: 'warning',
-        title: 'Submit Aplikasi?',
-        text: 'Aplikasi ini akan disubmit. Tidak dapat diubah setelah submit.',
+        title: 'Submit Pengajuan?',
+        text: 'Pengajuan akan dikirim ke staf RPL untuk diproses. Data tidak dapat diubah setelah disubmit.',
         showCancelButton: true,
         confirmButtonText: 'Ya, Submit',
         cancelButtonText: 'Batal',
@@ -458,15 +458,15 @@ async function submitApplication(applicationId) {
     }
 
     try {
-        const response = await apiRequest(`/applicant/applications/${applicationId}/submit`, {
+        await apiRequest(`/applicant/applications/${applicationId}/submit`, {
             method: 'POST',
             body: JSON.stringify({})
         });
 
         await Swal.fire({
             icon: 'success',
-            title: 'Berhasil',
-            text: response.message || 'Aplikasi berhasil disubmit.',
+            title: 'Pengajuan Berhasil Dikirim',
+            text: 'Pengajuan RPL Anda telah diterima dan sedang menunggu proses verifikasi.',
             confirmButtonText: 'Oke',
         });
 
@@ -475,8 +475,8 @@ async function submitApplication(applicationId) {
         console.error('[Submit Application]', error);
         await Swal.fire({
             icon: 'error',
-            title: 'Gagal Mengirim Aplikasi',
-            text: 'Pastikan semua data dan dokumen yang diperlukan sudah lengkap.',
+            title: 'Gagal Mengirim Pengajuan',
+            text: 'Pastikan semua data dan dokumen yang diperlukan sudah lengkap sebelum submit.',
             confirmButtonText: 'Tutup',
         });
 
@@ -782,86 +782,72 @@ function bindA1CourseModal() {
         return;
     }
 
-    const openCreateModal = () => {
+    async function prefillInstitution() {
+        const institutionInput = form.elements.institution_name;
+        if (!institutionInput) return;
+
+        try {
+            const response = await apiRequest('/applicant/profile');
+            const profile = response.data || {};
+            institutionInput.value = profile.institution_name || '';
+            institutionInput.readOnly = true;
+        } catch {
+            institutionInput.readOnly = false;
+        }
+    }
+
+    const openCreateModal = async () => {
         form.reset();
         delete form.dataset.courseId;
 
-        if (title) {
-            title.textContent = 'Tambah Mata Kuliah A1';
-        }
-
+        if (title) title.textContent = 'Tambah Mata Kuliah A1';
         saveButton.textContent = 'Simpan';
         setMessage(form, '', 'info');
         modal.hidden = false;
+
+        await prefillInstitution();
     };
 
-    const openEditModal = (button) => {
+    const openEditModal = async (button) => {
         form.reset();
         form.dataset.courseId = button.dataset.editA1Course;
 
-        if (form.elements.course_code) {
-            form.elements.course_code.value = button.dataset.courseCode || '';
-        }
+        if (form.elements.course_code) form.elements.course_code.value = button.dataset.courseCode || '';
+        if (form.elements.course_name) form.elements.course_name.value = button.dataset.courseName || '';
+        if (form.elements.credits) form.elements.credits.value = button.dataset.credits || '';
+        if (form.elements.grade) form.elements.grade.value = button.dataset.grade || '';
 
-        if (form.elements.course_name) {
-            form.elements.course_name.value = button.dataset.courseName || '';
-        }
-
-        if (form.elements.credits) {
-            form.elements.credits.value = button.dataset.credits || '';
-        }
-
-        if (form.elements.grade) {
-            form.elements.grade.value = button.dataset.grade || '';
-        }
-
-        if (form.elements.institution_name) {
-            form.elements.institution_name.value = button.dataset.institutionName || '';
-        }
-
-        if (title) {
-            title.textContent = 'Edit Mata Kuliah A1';
-        }
-
+        if (title) title.textContent = 'Edit Mata Kuliah A1';
         saveButton.textContent = 'Update';
         setMessage(form, '', 'info');
         modal.hidden = false;
+
+        await prefillInstitution();
     };
 
     const addButton = document.querySelector('[data-add-a1-course]');
-
     if (addButton) {
-        addButton.addEventListener('click', () => {
-            openCreateModal();
-        });
+        addButton.addEventListener('click', () => openCreateModal());
     }
 
     document.addEventListener('click', (event) => {
         const button = event.target.closest('[data-edit-a1-course]');
-
-        if (!button) {
-            return;
-        }
-
+        if (!button) return;
         event.preventDefault();
         openEditModal(button);
     });
 
     saveButton.addEventListener('click', async () => {
         const applicationId = currentResourceId();
-
-        if (!applicationId) {
-            return;
-        }
+        if (!applicationId) return;
 
         const payload = formPayload(form);
-
         saveButton.disabled = true;
 
         try {
             const courseId = form.dataset.courseId;
 
-            const response = await apiRequest(
+            await apiRequest(
                 courseId
                     ? `/applicant/applications/${applicationId}/a1-courses/${courseId}`
                     : `/applicant/applications/${applicationId}/a1-courses`,
@@ -874,21 +860,23 @@ function bindA1CourseModal() {
             await Swal.fire({
                 icon: 'success',
                 title: 'Berhasil',
-                text: response.message || 'Data mata kuliah berhasil disimpan.',
+                text: courseId
+                    ? 'Data mata kuliah berhasil diperbarui.'
+                    : 'Mata kuliah berhasil ditambahkan ke daftar.',
                 confirmButtonText: 'Oke',
             });
+
             form.reset();
             delete form.dataset.courseId;
-
             modal.hidden = true;
             loadA1Courses(applicationId);
         } catch (error) {
             await Swal.fire({
                 icon: 'error',
-                title: 'Gagal Menyimpan Mata Kuliah',
+                title: courseId ? 'Gagal Memperbarui Mata Kuliah' : 'Gagal Menambahkan Mata Kuliah',
                 text: isApplicationLocked(error)
                     ? LOCKED_MESSAGE
-                    : 'Periksa kembali data yang diisi dan pastikan semua field sudah terisi dengan benar.',
+                    : 'Periksa kembali data yang diisi. Pastikan semua field sudah terisi dengan benar.',
                 confirmButtonText: 'Tutup',
             });
         } finally {
@@ -944,15 +932,15 @@ function bindA2ExperienceModal() {
         saveButton.disabled = true;
 
         try {
-            const response = await apiRequest(`/applicant/applications/${applicationId}/a2-learning-experiences`, {
+            await apiRequest(`/applicant/applications/${applicationId}/a2-learning-experiences`, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Berhasil',
-                text: response.message || 'Pengalaman pembelajaran berhasil ditambahkan.',
+                title: 'Pengalaman Ditambahkan',
+                text: 'Data pengalaman pembelajaran berhasil disimpan ke pengajuan Anda.',
                 confirmButtonText: 'Oke',
             });
             form.reset();
