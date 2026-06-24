@@ -101,7 +101,7 @@ async function loadSubmissionDetail() {
             renderA2Experiences(sub.a2_learning_experiences);
         }
         if (sub.documents) {
-            renderDocuments(sub.documents, applicationId);
+            renderDocuments(sub.documents);
         }
     } catch (error) {
         if ([403, 404].includes(error?.status)) {
@@ -157,7 +157,7 @@ function renderA2Experiences(experiences) {
         : '<tr><td colspan="4">Tidak ada data learning experience.</td></tr>';
 }
 
-function renderDocuments(documents, applicationId) {
+function renderDocuments(documents) {
     const target = document.querySelector('[data-documents-body]');
     if (!target) return;
 
@@ -167,7 +167,11 @@ function renderDocuments(documents, applicationId) {
                 <td>${escapeHtml(doc.document_name)}</td>
                 <td>${escapeHtml(doc.document_type)}</td>
                 <td>${escapeHtml(doc.file_size || '-')}</td>
-                <td>${escapeHtml(new Date(doc.created_at).toLocaleDateString('id-ID'))}</td>
+                <td>${escapeHtml(new Date(doc.created_at).toLocaleDateString('id-ID', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        }))}</td>
                 <td class="table-actions">
                     <button class="button button-small button-muted" type="button" data-download-document="${doc.id}" data-file-name="${escapeHtml(doc.file_name || doc.document_name || 'document')}">
                         Download
@@ -176,7 +180,9 @@ function renderDocuments(documents, applicationId) {
             </tr>
         `).join('')
         : '<tr><td colspan="5">Tidak ada dokumen.</td></tr>';
+}
 
+function bindDocumentDownload(applicationId) {
     document.addEventListener('click', async (event) => {
         const button = event.target.closest('[data-download-document]');
         if (!button) return;
@@ -190,7 +196,12 @@ function renderDocuments(documents, applicationId) {
                 button.dataset.fileName || 'document'
             );
         } catch (error) {
-            pageMessage(validationMessage(error));
+            await Swal.fire({
+                icon: 'error',
+                title: 'Gagal Mengunduh Dokumen',
+                text: 'Dokumen tidak ditemukan atau sudah tidak tersedia.',
+                confirmButtonText: 'Tutup',
+            });
         } finally {
             button.disabled = false;
         }
@@ -247,49 +258,44 @@ function bindStaffActions() {
         });
     }
 
-    const returnModal = document.querySelector('[data-modal="return-submission"]');
-    const returnForm = document.querySelector('[data-return-form]');
-    const submitReturnBtn = document.querySelector('[data-submit-return]');
-
-    document.addEventListener('click', (event) => {
-        const openBtn = event.target.closest('[data-return-application]');
-        if (openBtn && returnModal) {
-            returnModal.hidden = false;
-        }
-    });
-
-    if (submitReturnBtn && returnForm) {
-        submitReturnBtn.addEventListener('click', async () => {
-            const notes = returnForm.elements.review_notes.value.trim();
-            if (!notes) {
-                setMessage(returnForm, 'Catatan review wajib diisi.', 'error');
-                return;
-            }
-
-            const confirm = await Swal.fire({
-                title: 'Kembalikan Aplikasi?',
-                text: 'Aplikasi akan dikembalikan ke pemohon untuk direvisi. Lanjutkan?',
+    const returnBtn = document.querySelector('[data-return-application]');
+    if (returnBtn) {
+        returnBtn.addEventListener('click', async () => {
+            const { value: notes } = await Swal.fire({
+                title: 'Kembalikan Aplikasi',
+                width: 480,
+                html: `
+                    <textarea id="swal-review-notes" class="swal2-textarea"
+                        placeholder="Catatan review wajib diisi"
+                        style="height: 110px; width: 100%; max-width: 100%; margin: 0; box-sizing: border-box; font-family: inherit; font-size: 14px;"></textarea>
+                `,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Kembalikan',
                 cancelButtonText: 'Batal',
                 confirmButtonColor: '#f59e0b',
                 cancelButtonColor: '#64748b',
+                focusConfirm: false,
+                didOpen: () => {
+                    document.getElementById('swal-review-notes').focus();
+                },
+                preConfirm: () => {
+                    const notesValue = document.getElementById('swal-review-notes').value.trim();
+                    if (!notesValue) {
+                        Swal.showValidationMessage('Catatan review wajib diisi.');
+                        return false;
+                    }
+                    return notesValue;
+                }
             });
 
-            if (!confirm.isConfirmed) return;
-
-            submitReturnBtn.disabled = true;
-            setMessage(returnForm, 'Mengembalikan...', 'info');
+            if (!notes) return;
 
             try {
                 await apiRequest(`/staff/submissions/${applicationId}/return`, {
                     method: 'PATCH',
                     body: JSON.stringify({ review_notes: notes })
                 });
-
-                returnModal.hidden = true;
-                returnForm.reset();
 
                 await Swal.fire({
                     title: 'Aplikasi Dikembalikan',
@@ -299,59 +305,142 @@ function bindStaffActions() {
                     confirmButtonColor: '#2563eb',
                 });
 
-                loadSubmissionDetail();
+                window.location.href = '/submissions';
             } catch (error) {
-                setMessage(returnForm, 'Gagal mengembalikan aplikasi. Pastikan status aplikasi masih "Sedang Direview".', 'error');
-            } finally {
-                submitReturnBtn.disabled = false;
+                Swal.fire({
+                    title: 'Gagal Mengembalikan Aplikasi',
+                    text: 'Pastikan status aplikasi masih "Sedang Direview".',
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
             }
         });
     }
 
-    const assignModal = document.querySelector('[data-modal="assign-assessor"]');
-    const assignForm = document.querySelector('[data-assign-form]');
-    const submitAssignBtn = document.querySelector('[data-submit-assign]');
+    const assignBtn = document.querySelector('[data-assign-assessor]');
+    if (assignBtn) {
+        assignBtn.addEventListener('click', async () => {
+            let selectedAssessorId = null;
+            let allAssessors = [];
 
-    document.addEventListener('click', async (event) => {
-        const openBtn = event.target.closest('[data-assign-assessor]');
-        if (openBtn && assignModal) {
-            assignModal.hidden = false;
-            await loadAssessorOptions();
-        }
-    });
+            const renderAssessorList = (items) => {
+                const listEl = document.getElementById('swal-assessor-list');
+                if (!listEl) return;
 
-    if (submitAssignBtn && assignForm) {
-        submitAssignBtn.addEventListener('click', async () => {
-            const assessorId = assignForm.elements.assessor_id.value;
-            if (!assessorId) {
-                setMessage(assignForm, 'Pilih assessor terlebih dahulu.', 'error');
-                return;
-            }
+                if (!items.length) {
+                    listEl.innerHTML = '<div class="swal-assessor-empty">Tidak ada assessor ditemukan.</div>';
+                    return;
+                }
 
-            const confirm = await Swal.fire({
-                title: 'Tugaskan Assessor?',
-                text: 'Assessor yang dipilih akan ditugaskan untuk menilai aplikasi ini. Lanjutkan?',
+                listEl.innerHTML = items.map((a) => {
+                    const name = a.name || '-';
+                    const nip = a.assessor?.nip || '';
+                    const isSelected = String(a.id) === String(selectedAssessorId);
+                    return `
+                        <div class="swal-assessor-item${isSelected ? ' is-selected' : ''}" data-assessor-item="${a.id}">
+                            <div class="swal-assessor-item-name">${escapeHtml(name)}</div>
+                            ${nip ? `<div class="swal-assessor-item-nip">NIP: ${escapeHtml(nip)}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            const { value: assessorId } = await Swal.fire({
+                title: 'Tugaskan Assessor',
+                width: 480,
+                html: `
+                    <style>
+                        .swal-assessor-search {
+                            width: 100%; box-sizing: border-box; margin: 0 0 10px 0;
+                            font-family: inherit; font-size: 14px;
+                        }
+                        .swal-assessor-list-wrapper {
+                            max-height: 260px; overflow-y: auto; text-align: left;
+                            border: 1px solid #e2e8f0; border-radius: 8px;
+                        }
+                        .swal-assessor-item {
+                            padding: 10px 14px; cursor: pointer;
+                            border-bottom: 1px solid #f1f5f9;
+                            border-left: 3px solid transparent;
+                            transition: background-color .15s, border-left-color .15s;
+                        }
+                        .swal-assessor-item:last-child { border-bottom: none; }
+                        .swal-assessor-item:hover { background-color: #f8fafc; }
+                        .swal-assessor-item.is-selected {
+                            background-color: #ecfdf5;
+                            border-left-color: #10b981;
+                        }
+                        .swal-assessor-item-name {
+                            font-size: 14px; font-weight: 500; color: #1e293b;
+                        }
+                        .swal-assessor-item-nip {
+                            font-size: 12px; color: #64748b; margin-top: 2px;
+                        }
+                        .swal-assessor-empty {
+                            padding: 18px; text-align: center; color: #94a3b8; font-size: 14px;
+                        }
+                    </style>
+                    <input id="swal-assessor-search" type="text" class="swal2-input swal-assessor-search"
+                        placeholder="Cari nama assessor...">
+                    <div id="swal-assessor-list" class="swal-assessor-list-wrapper">
+                        <div class="swal-assessor-empty">Memuat assessor...</div>
+                    </div>
+                `,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Tugaskan',
                 cancelButtonText: 'Batal',
                 confirmButtonColor: '#10b981',
                 cancelButtonColor: '#64748b',
+                focusConfirm: false,
+                didOpen: async () => {
+                    const listEl = document.getElementById('swal-assessor-list');
+                    const searchEl = document.getElementById('swal-assessor-search');
+
+                    try {
+                        const response = await apiRequest('/staff/assessors');
+                        allAssessors = collection(response);
+                        renderAssessorList(allAssessors);
+                    } catch (error) {
+                        listEl.innerHTML = '<div class="swal-assessor-empty">Gagal memuat assessor.</div>';
+                    }
+
+                    listEl.addEventListener('click', (event) => {
+                        const item = event.target.closest('[data-assessor-item]');
+                        if (!item) return;
+
+                        selectedAssessorId = item.dataset.assessorItem;
+                        listEl.querySelectorAll('[data-assessor-item]').forEach((el) => {
+                            el.classList.toggle('is-selected', el.dataset.assessorItem === selectedAssessorId);
+                        });
+                    });
+
+                    searchEl.addEventListener('input', () => {
+                        const term = searchEl.value.trim().toLowerCase();
+                        const filtered = allAssessors.filter((a) =>
+                            (a.name || '').toLowerCase().includes(term) ||
+                            (a.assessor?.nip || '').toLowerCase().includes(term)
+                        );
+                        renderAssessorList(filtered);
+                    });
+                },
+                preConfirm: () => {
+                    if (!selectedAssessorId) {
+                        Swal.showValidationMessage('Pilih assessor terlebih dahulu.');
+                        return false;
+                    }
+                    return selectedAssessorId;
+                }
             });
 
-            if (!confirm.isConfirmed) return;
-
-            submitAssignBtn.disabled = true;
-            setMessage(assignForm, 'Menugaskan...', 'info');
+            if (!assessorId) return;
 
             try {
                 await apiRequest(`/staff/submissions/${applicationId}/assign-assessor`, {
                     method: 'PATCH',
                     body: JSON.stringify({ assessor_id: Number(assessorId) })
                 });
-
-                assignModal.hidden = true;
-                assignForm.reset();
 
                 await Swal.fire({
                     title: 'Assessor Ditugaskan',
@@ -361,38 +450,21 @@ function bindStaffActions() {
                     confirmButtonColor: '#2563eb',
                 });
 
-                loadSubmissionDetail();
+                window.location.href = '/submissions';
             } catch (error) {
                 const errMsg = error?.response?.status === 422
                     ? 'User yang dipilih bukan assessor yang valid. Pilih assessor lain.'
                     : 'Gagal menugaskan assessor. Pastikan status aplikasi masih "Sedang Direview".';
 
-                setMessage(assignForm, errMsg, 'error');
-            } finally {
-                submitAssignBtn.disabled = false;
+                Swal.fire({
+                    title: 'Gagal Menugaskan Assessor',
+                    text: errMsg,
+                    icon: 'error',
+                    confirmButtonText: 'Oke',
+                    confirmButtonColor: '#2563eb',
+                });
             }
         });
-    }
-}
-
-async function loadAssessorOptions() {
-    const select = document.querySelector('[data-assessor-select]');
-    if (!select) return;
-
-    try {
-        const response = await apiRequest('/staff/assessors');
-        const assessors = collection(response);
-
-        select.innerHTML = assessors.length
-            ? '<option value="">-- Pilih Assessor --</option>' +
-            assessors.map((a) => {
-                const name = a.name || '-';
-                const nip = a.assessor?.nip || '';
-                return `<option value="${a.id}">${escapeHtml(name)}${nip ? ' (' + escapeHtml(nip) + ')' : ''}</option>`;
-            }).join('')
-            : '<option value="">Tidak ada assessor tersedia</option>';
-    } catch (error) {
-        select.innerHTML = '<option value="">Gagal memuat assessor</option>';
     }
 }
 
@@ -406,5 +478,6 @@ export function bootStaffPages() {
     if (page === 'submission-detail') {
         loadSubmissionDetail();
         bindStaffActions();
+        bindDocumentDownload(currentResourceId());
     }
 }

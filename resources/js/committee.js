@@ -238,54 +238,117 @@ function bindCommitteeActions() {
     const applicationId = currentResourceId();
     if (!applicationId) return;
 
-    const approveModal = document.querySelector('[data-modal="approve-application"]');
-    const approveForm = document.querySelector('[data-approve-form]');
-    const submitApproveBtn = document.querySelector('[data-submit-approve]');
+    const approveBtn = document.querySelector('[data-approve-application]');
 
-    document.addEventListener('click', (event) => {
-        const openBtn = event.target.closest('[data-approve-application]');
-        if (openBtn && approveModal) {
-            approveModal.hidden = false;
-        }
-    });
+    if (approveBtn) {
+        approveBtn.addEventListener('click', async () => {
+            let notesValue = '';
 
-    if (submitApproveBtn && approveForm) {
-        submitApproveBtn.addEventListener('click', async () => {
-            const notes = approveForm.elements.notes.value.trim();
-
-            const confirmed = await Swal.fire({
-                icon: 'question',
+            const { isConfirmed, value } = await Swal.fire({
                 title: 'Tandai Pengajuan Selesai?',
-                text: 'Pengajuan ini akan ditandai sebagai selesai dan siap untuk pencetakan SK Rektor serta Ringkasan Assessment.',
+                width: 460,
+                padding: '1.25rem 1.5rem 1.5rem',
+                customClass: { popup: 'swal-approve-popup' },
+                html: `
+                    <style>
+                        .swal-approve-popup { font-size: 14px !important; }
+                        .swal-approve-popup .swal2-title {
+                            font-size: 17px !important;
+                            padding-bottom: 0 !important;
+                            margin-bottom: 0 !important;
+                        }
+                        .swal-approve-popup .swal2-html-container {
+                            margin: 0.5rem 0 0 !important;
+                            padding: 0 !important;
+                            overflow: visible !important;
+                            text-align: left !important;
+                        }
+                        .sa-badge {
+                            display: inline-block;
+                            background: #f0fdf4;
+                            color: #166534;
+                            font-size: 11px;
+                            font-weight: 600;
+                            padding: 2px 10px;
+                            border-radius: 4px;
+                            margin-bottom: 12px;
+                        }
+                        .sa-desc {
+                            font-size: 13px;
+                            color: #475569;
+                            margin-bottom: 12px;
+                            line-height: 1.5;
+                        }
+                        .sa-field { margin-bottom: 0; }
+                        .sa-label {
+                            display: block;
+                            font-size: 12px;
+                            font-weight: 500;
+                            color: #64748b;
+                            margin-bottom: 3px;
+                        }
+                        .sa-textarea {
+                            width: 100%;
+                            box-sizing: border-box;
+                            margin: 0 !important;
+                            font-family: inherit;
+                            font-size: 13px !important;
+                            padding: 6px 10px !important;
+                            border: 1px solid #e2e8f0 !important;
+                            border-radius: 6px !important;
+                            background: #fff !important;
+                            color: #1e293b !important;
+                            height: auto !important;
+                            resize: none;
+                        }
+                        .sa-textarea:focus {
+                            outline: none !important;
+                            border-color: #10b981 !important;
+                            box-shadow: 0 0 0 2px #f0fdf4 !important;
+                        }
+                    </style>
+
+                    <div class="sa-badge">✓ Persetujuan Akhir</div>
+                    <p class="sa-desc">Pengajuan ini akan ditandai sebagai selesai dan siap untuk pencetakan SK Rektor serta Ringkasan Assessment.</p>
+
+                    <div class="sa-field">
+                        <label class="sa-label">Catatan <span style="font-weight:400;">(opsional)</span></label>
+                        <textarea id="swal-approve-notes" class="sa-textarea" rows="3" placeholder="Tambahkan catatan persetujuan..."></textarea>
+                    </div>
+                `,
+                icon: undefined,
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Tandai Selesai',
                 cancelButtonText: 'Batal',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#64748b',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const notes = document.getElementById('swal-approve-notes').value.trim();
+                    return { notes };
+                }
             });
 
-            if (!confirmed.isConfirmed) return;
+            if (!isConfirmed || !value) return;
 
-            submitApproveBtn.disabled = true;
-            setMessage(approveForm, 'Memproses...', 'info');
+            approveBtn.disabled = true;
 
             try {
                 await apiRequest(`/committee/applications/${applicationId}/approve`, {
                     method: 'PATCH',
-                    body: JSON.stringify({ notes: notes || undefined })
+                    body: JSON.stringify({ notes: value.notes || undefined })
                 });
-
-                approveModal.hidden = true;
-                approveForm.reset();
 
                 await Swal.fire({
                     icon: 'success',
                     title: 'Pengajuan Selesai',
                     text: 'Pengajuan RPL telah ditandai selesai. SK Rektor dan Ringkasan Assessment kini dapat dicetak.',
                     confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#10b981',
                 });
 
                 loadApprovalDetail();
             } catch (error) {
-                setMessage(approveForm, '', '');
                 Swal.fire({
                     icon: 'error',
                     title: 'Terjadi Kesalahan',
@@ -293,7 +356,7 @@ function bindCommitteeActions() {
                     confirmButtonText: 'Tutup',
                 });
             } finally {
-                submitApproveBtn.disabled = false;
+                approveBtn.disabled = false;
             }
         });
     }
