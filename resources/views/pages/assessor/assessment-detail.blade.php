@@ -672,7 +672,8 @@
         margin-top: 0;
         display: flex;
         gap: 8px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap; /* Ubah dari wrap menjadi nowrap */
+        white-space: nowrap; /* Tambahkan ini agar teks di dalam button tidak patah/turun */
     }
 
     .status-badge {
@@ -1187,13 +1188,13 @@
                             <p>Gunakan search bar untuk mencari data pada tabel aktif.</p>
                         </div>
 
-                        <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap;">
                             <div class="mapping-actions" data-mapping-actions style="margin-top:0;">
                                 <button class="button button-small button-muted" type="button" data-add-a1-mapping hidden>
-                                    Mapping Matakuliah
+                                    Mapping Sumber A1
                                 </button>
                                 <button class="button button-small button-muted" type="button" data-add-a2-mapping hidden>
-                                    Mapping Matakuliah
+                                    Mapping Sumber A2
                                 </button>
                             </div>
 
@@ -1275,7 +1276,7 @@
 
                                     <tbody data-assessment-mappings-body>
                                         <tr>
-                                            <td colspan="6">Memuat data...</td>
+                                            <td colspan="6">Belum ada data yang dimapping</td>
                                         </tr>
                                     </tbody>
                                 </table>
