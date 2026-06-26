@@ -116,6 +116,8 @@ class AssessorAssessmentService
         /*
         |--------------------------------------------------------------------------
         | Prevent Duplicate Source
+        | A1: strict 1-to-1, source tidak boleh muncul lebih dari sekali
+        | A2: boleh ke banyak course, tapi kombinasi experience+course harus unik
         |--------------------------------------------------------------------------
         */
 
@@ -134,27 +136,28 @@ class AssessorAssessmentService
             $sourceAlreadyMapped = AssessmentCourseMapping::query()
                 ->where('assessment_id', $assessment->id)
                 ->where('application_a2_learning_experience_id', $data['application_a2_learning_experience_id'])
+                ->where('course_id', $data['course_id'] ?? null)
                 ->exists();
 
             if ($sourceAlreadyMapped) {
-                abort(422, 'Selected learning experience has already been mapped.');
+                abort(422, 'Selected learning experience has already been mapped to this course.');
             }
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Prevent Duplicate Course Target
+        | Prevent Duplicate Course Target (cross-source: A1 and A2)
         |--------------------------------------------------------------------------
         */
 
         if (! empty($data['course_id'])) {
             $courseAlreadyMapped = AssessmentCourseMapping::query()
-                    ->where('assessment_id', $assessment->id)
-                    ->where('course_id', $data['course_id'])
-                    ->exists();
+                ->where('assessment_id', $assessment->id)
+                ->where('course_id', $data['course_id'])
+                ->exists();
 
             if ($courseAlreadyMapped) {
-                abort(422, 'Target course has already been mapped.');
+                abort(422, 'Target course has already been mapped by another source.');
             }
         }
 
@@ -168,7 +171,7 @@ class AssessorAssessmentService
         ]);
     }
 
-    public function updateCourseMapping(int $mappingId, Assessor $assessor, array $data) : AssessmentCourseMapping 
+    public function updateCourseMapping(int $mappingId, Assessor $assessor, array $data): AssessmentCourseMapping 
     {
         $mapping = AssessmentCourseMapping::query()
             ->whereHas('assessment', function ($query) use ($assessor) {
@@ -179,7 +182,7 @@ class AssessorAssessmentService
 
         /*
         |--------------------------------------------------------------------------
-        | Prevent Duplicate Target Course
+        | Prevent Duplicate Target Course (cross-source, exclude self)
         |--------------------------------------------------------------------------
         */
 
@@ -187,12 +190,12 @@ class AssessorAssessmentService
             $courseAlreadyMapped =
                 AssessmentCourseMapping::query()
                     ->where('assessment_id', $mapping->assessment_id)
-                    ->where('course_id',$data['course_id'])
+                    ->where('course_id', $data['course_id'])
                     ->where('id', '!=', $mapping->id)
                     ->exists();
 
             if ($courseAlreadyMapped) {
-                abort(422, 'Target course has already been mapped.');
+                abort(422, 'Target course has already been mapped by another source.');
             }
         }
 
