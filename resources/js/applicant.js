@@ -728,15 +728,15 @@ function bindApplicantProfileForm() {
         }
 
         try {
-            const response = await apiRequest('/applicant/profile', {
+            await apiRequest('/applicant/profile', {
                 method: 'PUT',
                 body: JSON.stringify(payload),
             });
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Berhasil',
-                text: response.message || 'Profil berhasil disimpan.',
+                title: 'Profil Diperbarui',
+                text: 'Data profil Anda berhasil disimpan.',
                 confirmButtonText: 'Oke',
             });
 
