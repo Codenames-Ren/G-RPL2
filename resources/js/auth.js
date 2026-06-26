@@ -122,7 +122,6 @@ export function bindAuthForms() {
                         body: JSON.stringify(payload),
                     });
 
-                    // Skenario: email belum diverifikasi
                     if (!response.success && response.message === 'Email not verified') {
                         await Swal.fire({
                             icon: 'warning',
@@ -133,7 +132,6 @@ export function bindAuthForms() {
                         return;
                     }
 
-                    // Skenario: akun nonaktif
                     if (!response.success && response.message === 'Account inactive') {
                         await Swal.fire({
                             icon: 'error',
@@ -144,7 +142,6 @@ export function bindAuthForms() {
                         return;
                     }
 
-                    // Skenario: kredensial salah atau respons tidak valid
                     if (!response.success || !response.token) {
                         await Swal.fire({
                             icon: 'error',
@@ -196,7 +193,6 @@ export function bindAuthForms() {
                     return;
                 }
 
-                // Skenario: registrasi gagal dari sisi server
                 await Swal.fire({
                     icon: 'error',
                     title: 'Registrasi Gagal',
@@ -205,8 +201,7 @@ export function bindAuthForms() {
                 });
 
             } catch (error) {
-                // Skenario: kredensial salah (401/422 dari server)
-                if (mode === 'login' && (error.status === 401 || error.status === 422)) {
+                if (mode === 'login' && error.status === 422) {
                     await Swal.fire({
                         icon: 'error',
                         title: 'Login Gagal',
@@ -216,7 +211,29 @@ export function bindAuthForms() {
                     return;
                 }
 
-                // Skenario: error jaringan / server tidak merespons
+                if (mode === 'register' && error.status === 422) {
+                    const errors = error?.payload?.errors || {};
+                    const nikTaken = errors.nik?.some(m => m.includes('already registered'));
+                    const emailTaken = errors.email?.some(m => m.includes('already registered'));
+
+                    let text = 'Periksa kembali data yang kamu isi dan pastikan semua field sudah benar.';
+                    if (nikTaken && emailTaken) {
+                        text = 'NIK dan email yang kamu masukkan sudah terdaftar. Silakan gunakan data lain atau login jika sudah memiliki akun.';
+                    } else if (nikTaken) {
+                        text = 'NIK yang kamu masukkan sudah terdaftar. Silakan gunakan NIK lain atau login jika sudah memiliki akun.';
+                    } else if (emailTaken) {
+                        text = 'Email yang kamu masukkan sudah terdaftar. Silakan gunakan email lain atau login jika sudah memiliki akun.';
+                    }
+
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Data Sudah Terdaftar',
+                        text,
+                        confirmButtonText: 'Oke',
+                    });
+                    return;
+                }
+
                 await Swal.fire({
                     icon: 'error',
                     title: 'Terjadi Kesalahan',
