@@ -46,9 +46,8 @@
 
     .assessor-topbar {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
+        flex-direction: column;
+        gap: 14px;
         margin-bottom: 24px;
         padding: 18px;
         border: 1px solid var(--assessor-border);
@@ -56,6 +55,42 @@
         background: rgba(255, 255, 255, .84);
         backdrop-filter: blur(18px);
         box-shadow: 0 18px 50px rgba(15, 23, 42, .075);
+    }
+
+    .assessor-topbar-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .assessor-menu-button {
+        display: none;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        color: var(--assessor-dark);
+        background: #f8fafc;
+        border: 1px solid rgba(148, 163, 184, .3);
+        cursor: pointer;
+        transition: background .2s ease, border-color .2s ease;
+    }
+
+    .assessor-menu-button:hover {
+        background: #eef2ff;
+        border-color: rgba(37, 99, 235, .28);
+    }
+
+    .assessor-menu-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .assessor-menu-icon-hidden {
+        display: none;
     }
 
     .assessor-brand {
@@ -601,15 +636,25 @@
     }
 
     @media (max-width: 900px) {
-        .assessor-topbar,
+        .assessor-menu-button {
+            display: inline-flex;
+        }
+
+        .assessor-top-actions {
+            display: none;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+
+        .assessor-top-actions.is-open {
+            display: flex;
+        }
+
         .assessor-card-header,
         .table-header {
             align-items: stretch;
             flex-direction: column;
-        }
-
-        .assessor-top-actions {
-            justify-content: flex-start;
         }
 
         .connection-pill {
@@ -660,7 +705,7 @@
             font-size: 12px;
         }
 
-        .assessor-top-actions {
+        .assessor-top-actions.is-open {
             display: grid;
             grid-template-columns: 1fr;
             width: 100%;
@@ -727,17 +772,35 @@
     <div class="assessor-container">
 
         <header class="assessor-topbar">
-            <div class="assessor-brand">
-                <div class="assessor-logo">RPL</div>
+            <div class="assessor-topbar-head">
+                <div class="assessor-brand">
+                    <div class="assessor-logo">RPL</div>
 
-                <div class="assessor-brand-text">
-                    <small>Assessor Panel</small>
-                    <h1>Assessments</h1>
-                    <p>Antrean penilaian pengajuan RPL applicant.</p>
+                    <div class="assessor-brand-text">
+                        <small>Assessor Panel</small>
+                        <h1>Assessments</h1>
+                        <p>Antrean penilaian pengajuan RPL applicant.</p>
+                    </div>
                 </div>
+
+                <button
+                    type="button"
+                    id="assessor-menu-button"
+                    class="assessor-menu-button"
+                    aria-label="Buka menu"
+                    aria-expanded="false"
+                    aria-controls="assessor-top-actions"
+                >
+                    <svg id="assessor-menu-open" class="assessor-menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                    <svg id="assessor-menu-close" class="assessor-menu-icon assessor-menu-icon-hidden" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                </button>
             </div>
 
-            <div class="assessor-top-actions">
+            <div class="assessor-top-actions" id="assessor-top-actions">
                 <span class="connection-pill" data-api-status>Connecting</span>
 
                 <button type="button" class="assessor-logout-btn" data-logout>
@@ -841,6 +904,40 @@
         const searchInput = document.querySelector('[data-assessment-search]');
         const searchCount = document.querySelector('[data-assessment-search-count]');
         const assessmentBody = document.querySelector('[data-assessments-body]');
+
+        const menuButton = document.getElementById('assessor-menu-button');
+        const collapse = document.getElementById('assessor-top-actions');
+        const menuOpenIcon = document.getElementById('assessor-menu-open');
+        const menuCloseIcon = document.getElementById('assessor-menu-close');
+
+        if (menuButton && collapse) {
+            const setMenuState = function (isOpen) {
+                collapse.classList.toggle('is-open', isOpen);
+                menuOpenIcon?.classList.toggle('assessor-menu-icon-hidden', isOpen);
+                menuCloseIcon?.classList.toggle('assessor-menu-icon-hidden', !isOpen);
+                menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            };
+
+            menuButton.addEventListener('click', function () {
+                setMenuState(!collapse.classList.contains('is-open'));
+            });
+
+            // Auto-tutup menu tiap klik link/tombol di dalam actions
+            collapse.querySelectorAll('a, button').forEach(function (el) {
+                el.addEventListener('click', function () {
+                    if (window.matchMedia('(max-width: 900px)').matches) {
+                        setMenuState(false);
+                    }
+                });
+            });
+
+            // Reset state kalau resize dari mobile balik ke desktop
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 900) {
+                    setMenuState(false);
+                }
+            });
+        }
 
         function normalizeText(value) {
             return String(value || '').trim().toLowerCase();
