@@ -2,7 +2,7 @@ import { apiRequest, downloadRequest } from './api.js';
 import {
     escapeHtml, collection, currentResourceId, setMessage, validationMessage,
     pageMessage, getApplicationTypeLabel, getApplicationStatusLabel,
-    allowedApplicationSections, syncApplicationSections, formPayload, activateTab
+    allowedApplicationSections, syncApplicationSections, formPayload, activateTab, formatFileSize
 } from './utils.js';
 import Swal from 'sweetalert2';
 
@@ -14,7 +14,6 @@ const profileLabels = {
     marital_status: {
         single: 'Belum Kawin',
         married: 'Kawin',
-        divorced: 'Cerai',
     },
 };
 
@@ -228,9 +227,6 @@ async function loadApplications() {
                                     Detail
                                 </a>
 
-                                <a class="applications-action-btn applications-edit-btn application-action-btn application-edit-btn" href="/applications/${app.id}/edit">
-                                    Edit
-                                </a>
                             </div>
                         </td>
                     </tr>
@@ -335,7 +331,7 @@ async function loadDocuments(applicationId) {
                 <tr>
                     <td>${escapeHtml(doc.document_name || '-')}</td>
                     <td>${escapeHtml(doc.document_type || '-')}</td>
-                    <td>${escapeHtml(doc.file_size || '-')}</td>
+                    <td>${escapeHtml(formatFileSize(doc.file_size))}</td>
                     <td>${escapeHtml(safeDate(doc.created_at))}</td>
                     <td>
                         <div class="applications-actions application-actions">
