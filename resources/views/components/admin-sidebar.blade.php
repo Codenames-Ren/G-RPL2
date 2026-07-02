@@ -5,17 +5,37 @@
     <div class="admin-sidebar-glow admin-sidebar-glow-2"></div>
 
     <div class="admin-sidebar-top">
-        <a href="/dashboard" class="admin-sidebar-brand" aria-label="G-RPL Admin Dashboard">
-            <span class="admin-sidebar-logo">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo G-RPL">
-            </span>
+        <div class="admin-sidebar-topbar">
+            <a href="/dashboard" class="admin-sidebar-brand" aria-label="G-RPL Admin Dashboard">
+                <span class="admin-sidebar-logo">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo G-RPL">
+                </span>
 
-            <span class="admin-sidebar-brand-text">
-                <strong>G-RPL</strong>
-                <small>Admin Control</small>
-            </span>
-        </a>
+                <span class="admin-sidebar-brand-text">
+                    <strong>G-RPL</strong>
+                    <small>Admin Control</small>
+                </span>
+            </a>
 
+            <button
+                type="button"
+                id="admin-sidebar-menu-button"
+                class="admin-sidebar-menu-button"
+                aria-label="Buka menu"
+                aria-expanded="false"
+                aria-controls="admin-sidebar-collapse"
+            >
+                <svg id="admin-sidebar-menu-open" class="admin-sidebar-menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+                <svg id="admin-sidebar-menu-close" class="admin-sidebar-menu-icon admin-sidebar-menu-icon-hidden" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="admin-sidebar-collapse" id="admin-sidebar-collapse">
         <div class="admin-sidebar-user">
             <div class="admin-sidebar-user-head">
                 <div>
@@ -30,69 +50,69 @@
                 <span class="admin-sidebar-role" data-user-role>System Admin</span>
             </div>
         </div>
-    </div>
 
-    <nav class="admin-sidebar-menu" aria-label="Admin Navigation">
-        <a href="/dashboard" class="admin-sidebar-link" data-admin-sidebar-link>
-            <span class="admin-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 13h7V4H4v9Zm0 7h7v-5H4v5Zm9 0h7v-9h-7v9Zm0-16v5h7V4h-7Z"/>
-                </svg>
-            </span>
-            <span class="admin-sidebar-link-text">Dashboard</span>
-        </a>
+        <nav class="admin-sidebar-menu" aria-label="Admin Navigation">
+            <a href="/dashboard" class="admin-sidebar-link" data-admin-sidebar-link>
+                <span class="admin-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 13h7V4H4v9Zm0 7h7v-5H4v5Zm9 0h7v-9h-7v9Zm0-16v5h7V4h-7Z"/>
+                    </svg>
+                </span>
+                <span class="admin-sidebar-link-text">Dashboard</span>
+            </a>
 
-        <a href="/admin/users" class="admin-sidebar-link" data-admin-sidebar-link>
-            <span class="admin-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3ZM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5Z"/>
-                </svg>
-            </span>
-            <span class="admin-sidebar-link-text">Users</span>
-        </a>
+            <a href="/admin/users" class="admin-sidebar-link" data-admin-sidebar-link>
+                <span class="admin-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3ZM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3Zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13Zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5Z"/>
+                    </svg>
+                </span>
+                <span class="admin-sidebar-link-text">Users</span>
+            </a>
 
-        <a href="/admin/master-data" class="admin-sidebar-link" data-admin-sidebar-link>
-            <span class="admin-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V5Zm4 2v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"/>
-                </svg>
-            </span>
-            <span class="admin-sidebar-link-text">Master Data</span>
-        </a>
+            <a href="/admin/master-data" class="admin-sidebar-link" data-admin-sidebar-link>
+                <span class="admin-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V5Zm4 2v2h8V7H8Zm0 4v2h8v-2H8Zm0 4v2h5v-2H8Z"/>
+                    </svg>
+                </span>
+                <span class="admin-sidebar-link-text">Master Data</span>
+            </a>
 
-        <a href="/admin/study-programs" class="admin-sidebar-link" data-admin-sidebar-link>
-            <span class="admin-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm0 14L5 13.18V16c0 2 4.66 4 7 4s7-2 7-4v-2.82L12 17Z"/>
-                </svg>
-            </span>
-            <span class="admin-sidebar-link-text">Study Programs</span>
-        </a>
+            <a href="/admin/study-programs" class="admin-sidebar-link" data-admin-sidebar-link>
+                <span class="admin-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3Zm0 14L5 13.18V16c0 2 4.66 4 7 4s7-2 7-4v-2.82L12 17Z"/>
+                    </svg>
+                </span>
+                <span class="admin-sidebar-link-text">Program Studi</span>
+            </a>
 
-        <a href="/admin/courses" class="admin-sidebar-link" data-admin-sidebar-link>
-            <span class="admin-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M18 2H7c-1.66 0-3 1.34-3 3v14c0 1.66 1.34 3 3 3h11c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2Zm0 16H7c-.55 0-1 .45-1 1s.45 1 1 1h11v-2Zm0-2H7c-.35 0-.69.06-1 .17V5c0-.55.45-1 1-1h11v12Z"/>
-                </svg>
-            </span>
-            <span class="admin-sidebar-link-text">Courses</span>
-        </a>
-    </nav>
+            <a href="/admin/courses" class="admin-sidebar-link" data-admin-sidebar-link>
+                <span class="admin-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 2H7c-1.66 0-3 1.34-3 3v14c0 1.66 1.34 3 3 3h11c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2Zm0 16H7c-.55 0-1 .45-1 1s.45 1 1 1h11v-2Zm0-2H7c-.35 0-.69.06-1 .17V5c0-.55.45-1 1-1h11v12Z"/>
+                    </svg>
+                </span>
+                <span class="admin-sidebar-link-text">Matakuliah</span>
+            </a>
+        </nav>
 
-    <div class="admin-sidebar-bottom">
-        <div class="admin-sidebar-help">
-            <span>Admin Area</span>
-            <strong>Manage G-RPL data safely.</strong>
+        <div class="admin-sidebar-bottom">
+            <div class="admin-sidebar-help">
+                <span>Admin Area</span>
+                <strong>Manage G-RPL data safely.</strong>
+            </div>
+
+            <button type="button" class="admin-sidebar-logout" data-logout>
+                <span class="admin-sidebar-logout-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M10.09 15.59 11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59ZM19 3H5c-1.1 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/>
+                    </svg>
+                </span>
+                <span>Logout</span>
+            </button>
         </div>
-
-        <button type="button" class="admin-sidebar-logout" data-logout>
-            <span class="admin-sidebar-logout-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M10.09 15.59 11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59ZM19 3H5c-1.1 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/>
-                </svg>
-            </span>
-            <span>Logout</span>
-        </button>
     </div>
 </aside>
 
@@ -108,7 +128,6 @@
         min-height: calc(100vh - 56px);
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         isolation: isolate;
         overflow: hidden;
         padding: 20px;
@@ -175,6 +194,42 @@
         gap: 22px;
     }
 
+    .admin-sidebar-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .admin-sidebar-menu-button {
+        display: none;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .admin-sidebar-menu-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .admin-sidebar-menu-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .admin-sidebar-menu-icon-hidden {
+        display: none;
+    }
+
     .admin-sidebar-brand {
         display: flex;
         align-items: center;
@@ -236,9 +291,18 @@
         white-space: nowrap;
     }
 
+    .admin-sidebar-collapse {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex: 1;
+        min-height: 0;
+    }
+
     .admin-sidebar-user {
         position: relative;
         overflow: hidden;
+        margin-top: 22px;
         padding: 16px;
         border-radius: 22px;
         background:
@@ -431,7 +495,8 @@
     }
 
     .admin-sidebar-link:focus-visible,
-    .admin-sidebar-logout:focus-visible {
+    .admin-sidebar-logout:focus-visible,
+    .admin-sidebar-menu-button:focus-visible {
         box-shadow: 0 0 0 4px rgba(249, 168, 37, 0.18);
         border-color: rgba(249, 168, 37, 0.45);
     }
@@ -549,6 +614,19 @@
             min-height: auto;
         }
 
+        .admin-sidebar-menu-button {
+            display: inline-flex;
+        }
+
+        .admin-sidebar-collapse {
+            display: none;
+            flex: initial;
+        }
+
+        .admin-sidebar-collapse.is-open {
+            display: flex;
+        }
+
         .admin-sidebar-menu {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
@@ -567,10 +645,6 @@
         .admin-sidebar {
             padding: 16px;
             border-radius: 24px;
-        }
-
-        .admin-sidebar-top {
-            gap: 18px;
         }
 
         .admin-sidebar-brand {
@@ -646,6 +720,42 @@
                 'active',
                 currentPath === href || currentPath.startsWith(href + '/')
             );
+        });
+
+        const menuButton = document.getElementById('admin-sidebar-menu-button');
+        const collapse = document.getElementById('admin-sidebar-collapse');
+        const menuOpenIcon = document.getElementById('admin-sidebar-menu-open');
+        const menuCloseIcon = document.getElementById('admin-sidebar-menu-close');
+
+        if (!menuButton || !collapse) {
+            return;
+        }
+
+        function setMenuState(isOpen) {
+            collapse.classList.toggle('is-open', isOpen);
+            menuOpenIcon?.classList.toggle('admin-sidebar-menu-icon-hidden', isOpen);
+            menuCloseIcon?.classList.toggle('admin-sidebar-menu-icon-hidden', !isOpen);
+            menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+
+        menuButton.addEventListener('click', function () {
+            setMenuState(!collapse.classList.contains('is-open'));
+        });
+
+        // Auto-tutup menu tiap klik link (biar gak nyangkut kebuka pas pindah halaman)
+        links.forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.matchMedia('(max-width: 900px)').matches) {
+                    setMenuState(false);
+                }
+            });
+        });
+
+        // Reset state kalau resize dari mobile balik ke desktop
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 900) {
+                setMenuState(false);
+            }
         });
     });
 </script>
