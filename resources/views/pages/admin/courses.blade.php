@@ -26,7 +26,7 @@
 
                         <a href="/admin/courses/create" class="courses-create-btn">
                             <span class="courses-create-icon">+</span>
-                            <span>Create Course</span>
+                            <span>Tambah Matakuliah</span>
                         </a>
                     </div>
                 </div>
@@ -129,21 +129,21 @@
                         <p>Daftar seluruh mata kuliah yang tersedia di sistem G-RPL.</p>
                     </div>
 
-                    <span class="courses-table-badge">Course List</span>
+                    <span class="courses-table-badge">List Matakuliah</span>
                 </div>
 
                 <div class="table-wrap courses-table-wrap">
                     <table class="data-table courses-table">
                         <thead>
                             <tr>
-                                <th>Code</th>
-                                <th>Name</th>
-                                <th>Program</th>
+                                <th>Kode MK</th>
+                                <th>Nama MK</th>
+                                <th>Program Studi</th>
                                 <th>Semester</th>
                                 <th>SKS</th>
-                                <th>Type</th>
+                                <th>Tipe</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
 
