@@ -26,7 +26,7 @@
 
                         <a href="/admin/study-programs" class="study-edit-back-btn">
                             <span class="study-edit-back-icon">←</span>
-                            <span>Back to Programs</span>
+                            <span>Kembali</span>
                         </a>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
 
                         <div>
                             <p>Form Type</p>
-                            <strong>Edit Program</strong>
+                            <strong>Perbarui Prodi</strong>
                         </div>
                     </div>
 
@@ -54,7 +54,7 @@
 
                         <div>
                             <p>Data Scope</p>
-                            <strong>RPL Configuration</strong>
+                            <strong>Konfigurasi RPL</strong>
                         </div>
                     </div>
 
@@ -67,7 +67,7 @@
 
                         <div>
                             <p>Status</p>
-                            <strong>Ready to Update</strong>
+                            <strong>Siap Update</strong>
                         </div>
                     </div>
                 </div>
@@ -80,12 +80,12 @@
                         <p>Ubah data program studi berikut sesuai kebutuhan sistem G-RPL.</p>
                     </div>
 
-                    <span class="study-edit-panel-badge">Update Program</span>
+                    <span class="study-edit-panel-badge">Update Prodi</span>
                 </div>
 
                 <form class="form-grid study-edit-form" data-study-program-form="edit">
                     <label class="study-edit-field">
-                        <span>Code</span>
+                        <span>Kode Prodi</span>
 
                         <div class="study-edit-input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -103,7 +103,7 @@
                     </label>
 
                     <label class="study-edit-field">
-                        <span>Name</span>
+                        <span>Nama</span>
 
                         <div class="study-edit-input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -139,7 +139,7 @@
                     </label>
 
                     <label class="study-edit-field">
-                        <span>Max Convertible SKS</span>
+                        <span>Maksimal Konversi SKS</span>
 
                         <div class="study-edit-input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -164,7 +164,7 @@
                     </div>
 
                     <label class="study-edit-field">
-                        <span>Supports A1</span>
+                        <span>Mendukung Tipe A1</span>
 
                         <div class="study-edit-select-wrap">
                             <select name="supports_a1" required>
@@ -175,7 +175,7 @@
                     </label>
 
                     <label class="study-edit-field">
-                        <span>Supports A2</span>
+                        <span>Mendukung Tipe A2</span>
 
                         <div class="study-edit-select-wrap">
                             <select name="supports_a2" required>
@@ -186,7 +186,7 @@
                     </label>
 
                     <label class="study-edit-field">
-                        <span>Hybrid Allowed</span>
+                        <span>Mendukung Tipe Hybrid (Gabungan)</span>
 
                         <div class="study-edit-select-wrap">
                             <select name="is_hybrid_allowed" required>
@@ -211,11 +211,11 @@
 
                     <div class="study-edit-submit-row study-edit-full">
                         <a href="/admin/study-programs" class="study-edit-cancel-btn">
-                            Cancel
+                            Batal
                         </a>
 
                         <button class="study-edit-submit-btn" type="submit" data-submit-button>
-                            <span>Update Study Program</span>
+                            <span>Perbarui Program Studi</span>
                         </button>
                     </div>
                 </form>
