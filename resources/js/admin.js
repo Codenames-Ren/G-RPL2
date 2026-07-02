@@ -216,8 +216,10 @@ async function loadStudyPrograms() {
 }
 
 async function fillStudyProgramOptions(selectedIds = []) {
-    const selects = document.querySelectorAll('[data-study-program-select], [data-study-program-filter]');
-    if (!selects.length) {
+    const checkboxContainers = document.querySelectorAll('[data-study-program-select]');
+    const filterSelects = document.querySelectorAll('[data-study-program-filter]');
+
+    if (!checkboxContainers.length && !filterSelects.length) {
         return;
     }
 
@@ -225,16 +227,25 @@ async function fillStudyProgramOptions(selectedIds = []) {
     const programs = collection(response);
     const selected = selectedIds.map(String);
 
-    selects.forEach((select) => {
-        const firstOption = select.dataset.studyProgramFilter !== undefined
-            ? '<option value="">Semua program studi</option>'
-            : '';
-
-        select.innerHTML = `${firstOption}${programs.map((program) => `
-            <option value="${program.id}" ${selected.includes(String(program.id)) ? 'selected' : ''}>
+    // Filter dropdown di halaman list tetap pakai <select> biasa
+    filterSelects.forEach((select) => {
+        select.innerHTML = `<option value="">Semua program studi</option>${programs.map((program) => `
+            <option value="${program.id}">
                 ${escapeHtml(program.code)} - ${escapeHtml(program.name)}
             </option>
         `).join('')}`;
+    });
+
+    // Study programs di form tambah/edit course sekarang berupa checkbox
+    checkboxContainers.forEach((container) => {
+        container.innerHTML = programs.length
+            ? programs.map((program) => `
+                <label class="checkbox-option">
+                    <input type="checkbox" name="study_program_ids[]" value="${program.id}" ${selected.includes(String(program.id)) ? 'checked' : ''}>
+                    <span>${escapeHtml(program.code)} - ${escapeHtml(program.name)}</span>
+                </label>
+            `).join('')
+            : '<p class="form-hint">Belum ada program studi.</p>';
     });
 }
 
@@ -414,7 +425,19 @@ function bindCourseForms() {
             event.preventDefault();
             const mode = form.dataset.courseForm;
             const button = form.querySelector('[data-submit-button]');
+
+            const checkedPrograms = Array.from(
+                form.querySelectorAll('input[name="study_program_ids[]"]:checked')
+            ).map((input) => Number(input.value));
+
+            const checkboxGroup = form.querySelector('[data-study-program-select]');
+            if (checkboxGroup?.dataset.required !== undefined && checkedPrograms.length === 0) {
+                setMessage(form, 'Pilih minimal satu program studi.', 'error');
+                return;
+            }
+
             const payload = formPayload(form);
+            payload.study_program_ids = checkedPrograms;
 
             button.disabled = true;
             setMessage(form, 'Menyimpan...', 'info');
