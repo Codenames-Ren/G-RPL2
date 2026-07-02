@@ -87,6 +87,29 @@ export function toBoolean(value) {
     return value === true || value === '1' || value === 1;
 }
 
+export function formatFileSize(bytes) {
+    if (bytes === null || bytes === undefined || bytes === '') {
+        return '-';
+    }
+
+    const size = Number(bytes);
+
+    if (!Number.isFinite(size) || size < 0) {
+        return '-';
+    }
+
+    if (size === 0) {
+        return '0 B';
+    }
+
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const exponent = Math.min(Math.floor(Math.log(size) / Math.log(1024)), units.length - 1);
+    const value = size / (1024 ** exponent);
+    const formatted = exponent === 0 ? value.toString() : value.toFixed(value < 10 ? 2 : 1);
+
+    return `${formatted} ${units[exponent]}`;
+}
+
 export function collection(payload) {
     if (Array.isArray(payload?.data)) {
         return payload.data;
