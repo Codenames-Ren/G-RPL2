@@ -5,21 +5,41 @@
     <div class="applicant-sidebar-glow applicant-sidebar-glow-2"></div>
 
     <div class="applicant-sidebar-top">
-        <a href="/applications" class="applicant-sidebar-brand" aria-label="G-RPL Applicant Applications">
-            <span class="applicant-sidebar-logo">
-                @if (file_exists(public_path('images/logo.png')))
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo G-RPL">
-                @else
-                    <strong>G</strong>
-                @endif
-            </span>
+        <div class="applicant-sidebar-topbar">
+            <a href="/applications" class="applicant-sidebar-brand" aria-label="G-RPL Applicant Applications">
+                <span class="applicant-sidebar-logo">
+                    @if (file_exists(public_path('images/logo.png')))
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo G-RPL">
+                    @else
+                        <strong>G</strong>
+                    @endif
+                </span>
 
-            <span class="applicant-sidebar-brand-text">
-                <strong>G-RPL</strong>
-                <small>Applicant Panel</small>
-            </span>
-        </a>
+                <span class="applicant-sidebar-brand-text">
+                    <strong>G-RPL</strong>
+                    <small>Applicant Panel</small>
+                </span>
+            </a>
 
+            <button
+                type="button"
+                id="applicant-sidebar-menu-button"
+                class="applicant-sidebar-menu-button"
+                aria-label="Buka menu"
+                aria-expanded="false"
+                aria-controls="applicant-sidebar-collapse"
+            >
+                <svg id="applicant-sidebar-menu-open" class="applicant-sidebar-menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+                <svg id="applicant-sidebar-menu-close" class="applicant-sidebar-menu-icon applicant-sidebar-menu-icon-hidden" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="applicant-sidebar-collapse" id="applicant-sidebar-collapse">
         <div class="applicant-sidebar-user">
             <div class="applicant-sidebar-user-head">
                 <div>
@@ -34,51 +54,51 @@
                 <span class="applicant-sidebar-role" data-user-role data-sidebar-user-role>Applicant</span>
             </div>
         </div>
-    </div>
 
-    <nav class="applicant-sidebar-menu" aria-label="Applicant Navigation">
-        <a href="/profile" class="applicant-sidebar-link" data-applicant-sidebar-link="profile">
-            <span class="applicant-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z"/>
-                </svg>
-            </span>
-            <span class="applicant-sidebar-link-text">Profile</span>
-        </a>    
+        <nav class="applicant-sidebar-menu" aria-label="Applicant Navigation">
+            <a href="/profile" class="applicant-sidebar-link" data-applicant-sidebar-link="profile">
+                <span class="applicant-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 12c2.76 0 5-2.24 5-5S14.76 2 12 2 7 4.24 7 7s2.24 5 5 5Zm0 2c-3.33 0-10 1.67-10 5v3h20v-3c0-3.33-6.67-5-10-5Z"/>
+                    </svg>
+                </span>
+                <span class="applicant-sidebar-link-text">Profile</span>
+            </a>    
 
-        <a href="/applications" class="applicant-sidebar-link" data-applicant-sidebar-link="applications">
-            <span class="applicant-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 4c0-1.1.9-2 2-2h9l5 5v13c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V4Zm10 0v4h4l-4-4ZM8 12v2h8v-2H8Zm0 4v2h8v-2H8Z"/>
-                </svg>
-            </span>
-            <span class="applicant-sidebar-link-text">Applications</span>
-        </a>
+            <a href="/applications" class="applicant-sidebar-link" data-applicant-sidebar-link="applications">
+                <span class="applicant-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4 4c0-1.1.9-2 2-2h9l5 5v13c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V4Zm10 0v4h4l-4-4ZM8 12v2h8v-2H8Zm0 4v2h8v-2H8Z"/>
+                    </svg>
+                </span>
+                <span class="applicant-sidebar-link-text">Applications</span>
+            </a>
 
-        <a href="/applications/create" class="applicant-sidebar-link" data-applicant-sidebar-link="create">
-            <span class="applicant-sidebar-link-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Zm-1 10h-5v5h-2v-5H6v-2h5V6h2v5h5v2Z"/>
-                </svg>
-            </span>
-            <span class="applicant-sidebar-link-text">Create Application</span>
-        </a>
-    </nav>
+            <a href="/applications/create" class="applicant-sidebar-link" data-applicant-sidebar-link="create">
+                <span class="applicant-sidebar-link-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Zm-1 10h-5v5h-2v-5H6v-2h5V6h2v5h5v2Z"/>
+                    </svg>
+                </span>
+                <span class="applicant-sidebar-link-text">Create Application</span>
+            </a>
+        </nav>
 
-    <div class="applicant-sidebar-bottom">
-        <div class="applicant-sidebar-help">
-            <span>Applicant Area</span>
-            <strong>Complete your profile and manage RPL applications</strong>
+        <div class="applicant-sidebar-bottom">
+            <div class="applicant-sidebar-help">
+                <span>Applicant Area</span>
+                <strong>Complete your profile and manage RPL applications</strong>
+            </div>
+
+            <button type="button" class="applicant-sidebar-logout" data-logout>
+                <span class="applicant-sidebar-logout-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M10.09 15.59 11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59ZM19 3H5c-1.1 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/>
+                    </svg>
+                </span>
+                <span>Logout</span>
+            </button>
         </div>
-
-        <button type="button" class="applicant-sidebar-logout" data-logout>
-            <span class="applicant-sidebar-logout-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M10.09 15.59 11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59ZM19 3H5c-1.1 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2Z"/>
-                </svg>
-            </span>
-            <span>Logout</span>
-        </button>
     </div>
 </aside>
 
@@ -94,7 +114,6 @@
         min-height: calc(100vh - 56px);
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
         isolation: isolate;
         overflow: hidden;
         padding: 20px;
@@ -159,6 +178,42 @@
     .applicant-sidebar-top {
         display: grid;
         gap: 22px;
+    }
+
+    .applicant-sidebar-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .applicant-sidebar-menu-button {
+        display: none;
+        width: 42px;
+        height: 42px;
+        flex: 0 0 42px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .applicant-sidebar-menu-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .applicant-sidebar-menu-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .applicant-sidebar-menu-icon-hidden {
+        display: none;
     }
 
     .applicant-sidebar-brand {
@@ -229,9 +284,18 @@
         white-space: nowrap;
     }
 
+    .applicant-sidebar-collapse {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex: 1;
+        min-height: 0;
+    }
+
     .applicant-sidebar-user {
         position: relative;
         overflow: hidden;
+        margin-top: 22px;
         padding: 16px;
         border-radius: 22px;
         background:
@@ -428,7 +492,8 @@
     }
 
     .applicant-sidebar-link:focus-visible,
-    .applicant-sidebar-logout:focus-visible {
+    .applicant-sidebar-logout:focus-visible,
+    .applicant-sidebar-menu-button:focus-visible {
         box-shadow: 0 0 0 4px rgba(249, 168, 37, 0.18);
         border-color: rgba(249, 168, 37, 0.45);
     }
@@ -544,6 +609,19 @@
             position: relative;
             top: 0;
             min-height: auto;
+        }
+
+        .applicant-sidebar-menu-button {
+            display: inline-flex;
+        }
+
+        .applicant-sidebar-collapse {
+            display: none;
+            flex: initial;
+        }
+
+        .applicant-sidebar-collapse.is-open {
+            display: flex;
         }
 
         .applicant-sidebar-menu {
@@ -674,6 +752,42 @@
         document.querySelectorAll('[data-sidebar-user-role], [data-user-role]').forEach(function (element) {
             if (element) {
                 element.textContent = storedUserRole.charAt(0).toUpperCase() + storedUserRole.slice(1);
+            }
+        });
+
+        const menuButton = document.getElementById('applicant-sidebar-menu-button');
+        const collapse = document.getElementById('applicant-sidebar-collapse');
+        const menuOpenIcon = document.getElementById('applicant-sidebar-menu-open');
+        const menuCloseIcon = document.getElementById('applicant-sidebar-menu-close');
+
+        if (!menuButton || !collapse) {
+            return;
+        }
+
+        function setMenuState(isOpen) {
+            collapse.classList.toggle('is-open', isOpen);
+            menuOpenIcon?.classList.toggle('applicant-sidebar-menu-icon-hidden', isOpen);
+            menuCloseIcon?.classList.toggle('applicant-sidebar-menu-icon-hidden', !isOpen);
+            menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+
+        menuButton.addEventListener('click', function () {
+            setMenuState(!collapse.classList.contains('is-open'));
+        });
+
+        // Auto-tutup menu tiap klik link (biar gak nyangkut kebuka pas pindah halaman)
+        links.forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.matchMedia('(max-width: 900px)').matches) {
+                    setMenuState(false);
+                }
+            });
+        });
+
+        // Reset state kalau resize dari mobile balik ke desktop
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 900) {
+                setMenuState(false);
             }
         });
     });
