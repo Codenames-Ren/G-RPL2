@@ -28,7 +28,7 @@
 
                         <a href="/admin/study-programs/create" class="study-create-btn">
                             <span class="study-create-icon">+</span>
-                            <span>Create Program</span>
+                            <span>Tambah Prodi</span>
                         </a>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                         </span>
 
                         <div>
-                            <p>Total Program</p>
+                            <p>Total Prodi</p>
                             <strong data-study-total>—</strong>
                         </div>
                     </div>
@@ -133,19 +133,19 @@
                         <p>Daftar seluruh program studi yang tersedia di sistem G-RPL.</p>
                     </div>
 
-                    <span class="study-table-badge">Program List</span>
+                    <span class="study-table-badge">List Prodi</span>
                 </div>
 
                 <div class="table-wrap study-table-wrap">
                     <table class="data-table study-table">
                         <thead>
                             <tr>
-                                <th>Code</th>
-                                <th>Name</th>
+                                <th>Kode Prodi</th>
+                                <th>Nama</th>
                                 <th>SKS</th>
                                 <th>RPL</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
 
