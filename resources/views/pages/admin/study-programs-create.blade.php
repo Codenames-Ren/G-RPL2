@@ -26,7 +26,7 @@
 
                         <a href="/admin/study-programs" class="study-create-back-btn">
                             <span class="study-create-back-icon">←</span>
-                            <span>Back to Programs</span>
+                            <span>Kembali</span>
                         </a>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
 
                         <div>
                             <p>Form Type</p>
-                            <strong>Study Program</strong>
+                            <strong>Program Studi</strong>
                         </div>
                     </div>
 
@@ -54,7 +54,7 @@
 
                         <div>
                             <p>Data Scope</p>
-                            <strong>RPL Configuration</strong>
+                            <strong>Konfigurasi RPL</strong>
                         </div>
                     </div>
 
@@ -67,7 +67,7 @@
 
                         <div>
                             <p>Status</p>
-                            <strong>Ready to Create</strong>
+                            <strong>Siap Dibuat</strong>
                         </div>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
 
                 <form class="form-grid study-create-form" data-study-program-form="create">
                     <label class="study-create-field">
-                        <span>Code</span>
+                        <span>Kode Prodi</span>
 
                         <div class="study-create-input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -103,7 +103,7 @@
                     </label>
 
                     <label class="study-create-field">
-                        <span>Name</span>
+                        <span>Nama</span>
 
                         <div class="study-create-input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -139,7 +139,7 @@
                     </label>
 
                     <label class="study-create-field">
-                        <span>Max Convertible SKS</span>
+                        <span>Maksimal Konversi SKS</span>
 
                         <div class="study-create-input-wrap">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -164,7 +164,7 @@
                     </div>
 
                     <label class="study-create-field">
-                        <span>Supports A1</span>
+                        <span>Mendukung Tipe A1</span>
 
                         <div class="study-create-select-wrap">
                             <select name="supports_a1" required>
@@ -175,7 +175,7 @@
                     </label>
 
                     <label class="study-create-field">
-                        <span>Supports A2</span>
+                        <span>Mendukung Tipe A2</span>
 
                         <div class="study-create-select-wrap">
                             <select name="supports_a2" required>
@@ -186,7 +186,7 @@
                     </label>
 
                     <label class="study-create-field">
-                        <span>Hybrid Allowed</span>
+                        <span>Mendukung Tipe Hybrid (Gabungan)</span>
 
                         <div class="study-create-select-wrap">
                             <select name="is_hybrid_allowed" required>
@@ -211,11 +211,11 @@
 
                     <div class="study-create-submit-row study-create-full">
                         <a href="/admin/study-programs" class="study-create-cancel-btn">
-                            Cancel
+                            Batal
                         </a>
 
                         <button class="study-create-submit-btn" type="submit" data-submit-button>
-                            <span>Create Study Program</span>
+                            <span>Buat Program Studi</span>
                         </button>
                     </div>
                 </form>
