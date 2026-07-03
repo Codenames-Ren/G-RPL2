@@ -1145,6 +1145,7 @@
                                         <th>Tipe</th>
                                         <th>Mata Kuliah Tujuan</th>
                                         <th>SKS</th>
+                                        <th>Nilai</th>
                                         <th>Diakui</th>
                                         <th>Keterangan</th>
                                     </tr>
