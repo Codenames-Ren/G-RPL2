@@ -174,4 +174,27 @@ class CommitteeController extends Controller
     {
         return $this->committeeService->downloadDocument($application, $document);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cetak PDF Rekapitulasi Disetujui (Baru)
+    |--------------------------------------------------------------------------
+    */
+
+    public function printApprovedRecap(Request $request)
+    {
+        $period = $request->query('period');
+        $search = $request->query('search');
+
+        $pdf = $this->committeeService->generateApprovedRecapPdf($period, $search);
+
+        $filename = 'Rekap-Pendaftaran-Disetujui';
+        if ($period) {
+            $filename .= '-' . $period;
+        }
+        $filename .= '.pdf';
+
+        // Pakai stream supaya kebuka di tab baru (kayak fungsi preview)
+        return $pdf->stream($filename);
+    }
 }
