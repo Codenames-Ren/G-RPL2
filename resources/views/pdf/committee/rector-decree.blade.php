@@ -299,9 +299,10 @@
     <thead>
         <tr>
             <th style="width:5%">No</th>
-            <th style="width:17%">Kode MK</th>
-            <th style="width:58%">Mata Kuliah</th>
-            <th style="width:20%">SKS</th>
+            <th style="width:15%">Kode MK</th>
+            <th style="width:48%">Mata Kuliah</th>
+            <th style="width:15%">SKS</th>
+            <th style="width:17%">Nilai</th>
         </tr>
     </thead>
     <tbody>
@@ -313,6 +314,7 @@
                 <td class="c">{{ $mapping->course->code }}</td>
                 <td>{{ $mapping->course->name }}</td>
                 <td class="c">{{ $mapping->course->sks }}</td>
+                <td class="c">{{ $mapping->grade?->value ?? '-' }}</td>
             </tr>
             @endif
         @endforeach
@@ -322,6 +324,7 @@
             <td colspan="2" class="c">Total</td>
             <td>{{ $mappings->where('is_recognized', true)->count() }} Mata Kuliah Diakui</td>
             <td class="c">{{ $mappings->where('is_recognized', true)->sum(fn($m) => $m->course->sks ?? 0) }} SKS</td>
+            <td></td>
         </tr>
     </tfoot>
 </table>

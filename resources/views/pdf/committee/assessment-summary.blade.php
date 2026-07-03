@@ -283,11 +283,12 @@
     <thead>
         <tr>
             <th style="width:4%">No</th>
-            <th style="width:14%">Jenis Sumber</th>
-            <th style="width:14%">Kode MK</th>
-            <th style="width:42%">Nama Mata Kuliah / Pengalaman</th>
-            <th style="width:10%">SKS</th>
-            <th style="width:16%">Status</th>
+            <th style="width:12%">Jenis Sumber</th>
+            <th style="width:12%">Kode MK</th>
+            <th style="width:36%">Nama Mata Kuliah / Pengalaman</th>
+            <th style="width:8%">SKS</th>
+            <th style="width:8%">Nilai</th>
+            <th style="width:20%">Status</th>
         </tr>
     </thead>
     <tbody>
@@ -300,6 +301,7 @@
                 <td class="c">{{ $mapping->course->code ?? '-' }}</td>
                 <td>{{ $mapping->course->name ?? ($mapping->applicationA2LearningExperience->title ?? '-') }}</td>
                 <td class="c">{{ $mapping->course->sks ?? 0 }}</td>
+                <td class="c">{{ $mapping->grade?->value ?? '-' }}</td>
                 <td class="c">Diakui</td>
             </tr>
             @php $totalSKS += $mapping->course->sks ?? 0; @endphp
@@ -311,6 +313,7 @@
             <td colspan="3" class="c">Total</td>
             <td>{{ $mappings->where('is_recognized', true)->count() }} Mata Kuliah Diakui</td>
             <td class="c">{{ $totalSKS }} SKS</td>
+            <td></td>
             <td></td>
         </tr>
     </tfoot>
