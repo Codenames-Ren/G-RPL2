@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\CourseGrade; 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AssessmentCourseMapping extends Model
@@ -14,15 +14,11 @@ class AssessmentCourseMapping extends Model
     protected $fillable = [
 
         'assessment_id',
-
         'application_a1_course_id',
-
         'application_a2_learning_experience_id',
-
         'course_id',
-
         'is_recognized',
-
+        'grade',
         'notes',
     ];
 
@@ -30,8 +26,8 @@ class AssessmentCourseMapping extends Model
     {
         return [
 
-            'is_recognized'
-                => 'boolean',
+            'is_recognized' => 'boolean',
+            'grade' => CourseGrade::class,
         ];
     }
 
