@@ -61,11 +61,13 @@ async function loadApprovedApprovals() {
                 const applicantName = app.applicant?.user?.name || '-';
                 const studyProgram = app.study_program?.name || '-';
                 const totalSks = app.assessment?.total_converted_sks ?? '-';
+                const rawUpdatedAt = app.updated_at || '';
                 const updatedAt = app.updated_at
                     ? new Date(app.updated_at).toLocaleDateString('id-ID')
                     : '-';
+
                 return `
-                    <tr>
+                    <tr data-approved-date="${escapeHtml(rawUpdatedAt)}">
                         <td>${escapeHtml(app.application_number || '-')}</td>
                         <td>${escapeHtml(applicantName)}</td>
                         <td>${escapeHtml(studyProgram)}</td>
@@ -137,10 +139,8 @@ async function loadApprovalDetail() {
             }).then(() => {
                 window.location.replace('/approvals');
             });
-
             return;
         }
-
         pageMessage(validationMessage(error));
     }
 }
@@ -157,6 +157,7 @@ function renderCommitteeMappings(mappings) {
             const sourceType = m.application_a1_course ? 'A1' : (m.application_a2_learning_experience ? 'A2' : '-');
             const courseName = m.course?.name || '-';
             const sks = m.course?.sks || '-';
+            const grade = m.grade || '-';
             const recognized = m.is_recognited ?? m.is_recognized;
             return `
                 <tr>
@@ -164,12 +165,13 @@ function renderCommitteeMappings(mappings) {
                     <td>${escapeHtml(sourceType)}</td>
                     <td>${escapeHtml(courseName)}</td>
                     <td>${escapeHtml(sks)}</td>
+                    <td>${escapeHtml(grade)}</td>
                     <td><span class="status-badge" data-status="${recognized ? 'active' : 'draft'}">${recognized ? 'Ya' : 'Tidak'}</span></td>
                     <td>${escapeHtml(m.notes || '-')}</td>
                 </tr>
             `;
         }).join('')
-        : '<tr><td colspan="6">Tidak ada course mapping.</td></tr>';
+        : '<tr><td colspan="7">Tidak ada course mapping.</td></tr>';
 }
 
 function renderCommitteeDocuments(documents, applicationId) {
@@ -242,8 +244,6 @@ function bindCommitteeActions() {
 
     if (approveBtn) {
         approveBtn.addEventListener('click', async () => {
-            let notesValue = '';
-
             const { isConfirmed, value } = await Swal.fire({
                 title: 'Tandai Pengajuan Selesai?',
                 width: 460,
@@ -252,71 +252,22 @@ function bindCommitteeActions() {
                 html: `
                     <style>
                         .swal-approve-popup { font-size: 14px !important; }
-                        .swal-approve-popup .swal2-title {
-                            font-size: 17px !important;
-                            padding-bottom: 0 !important;
-                            margin-bottom: 0 !important;
-                        }
-                        .swal-approve-popup .swal2-html-container {
-                            margin: 0.5rem 0 0 !important;
-                            padding: 0 !important;
-                            overflow: visible !important;
-                            text-align: left !important;
-                        }
-                        .sa-badge {
-                            display: inline-block;
-                            background: #f0fdf4;
-                            color: #166534;
-                            font-size: 11px;
-                            font-weight: 600;
-                            padding: 2px 10px;
-                            border-radius: 4px;
-                            margin-bottom: 12px;
-                        }
-                        .sa-desc {
-                            font-size: 13px;
-                            color: #475569;
-                            margin-bottom: 12px;
-                            line-height: 1.5;
-                        }
+                        .swal-approve-popup .swal2-title { font-size: 17px !important; padding-bottom: 0 !important; margin-bottom: 0 !important; }
+                        .swal-approve-popup .swal2-html-container { margin: 0.5rem 0 0 !important; padding: 0 !important; overflow: visible !important; text-align: left !important; }
+                        .sa-badge { display: inline-block; background: #f0fdf4; color: #166534; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 4px; margin-bottom: 12px; }
+                        .sa-desc { font-size: 13px; color: #475569; margin-bottom: 12px; line-height: 1.5; }
                         .sa-field { margin-bottom: 0; }
-                        .sa-label {
-                            display: block;
-                            font-size: 12px;
-                            font-weight: 500;
-                            color: #64748b;
-                            margin-bottom: 3px;
-                        }
-                        .sa-textarea {
-                            width: 100%;
-                            box-sizing: border-box;
-                            margin: 0 !important;
-                            font-family: inherit;
-                            font-size: 13px !important;
-                            padding: 6px 10px !important;
-                            border: 1px solid #e2e8f0 !important;
-                            border-radius: 6px !important;
-                            background: #fff !important;
-                            color: #1e293b !important;
-                            height: auto !important;
-                            resize: none;
-                        }
-                        .sa-textarea:focus {
-                            outline: none !important;
-                            border-color: #10b981 !important;
-                            box-shadow: 0 0 0 2px #f0fdf4 !important;
-                        }
+                        .sa-label { display: block; font-size: 12px; font-weight: 500; color: #64748b; margin-bottom: 3px; }
+                        .sa-textarea { width: 100%; box-sizing: border-box; margin: 0 !important; font-family: inherit; font-size: 13px !important; padding: 6px 10px !important; border: 1px solid #e2e8f0 !important; border-radius: 6px !important; background: #fff !important; color: #1e293b !important; height: auto !important; resize: none; }
+                        .sa-textarea:focus { outline: none !important; border-color: #10b981 !important; box-shadow: 0 0 0 2px #f0fdf4 !important; }
                     </style>
-
                     <div class="sa-badge">✓ Persetujuan Akhir</div>
                     <p class="sa-desc">Pengajuan ini akan ditandai sebagai selesai dan siap untuk pencetakan SK Rektor serta Ringkasan Assessment.</p>
-
                     <div class="sa-field">
                         <label class="sa-label">Catatan <span style="font-weight:400;">(opsional)</span></label>
                         <textarea id="swal-approve-notes" class="sa-textarea" rows="3" placeholder="Tambahkan catatan persetujuan..."></textarea>
                     </div>
                 `,
-                icon: undefined,
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Tandai Selesai',
                 cancelButtonText: 'Batal',
@@ -324,8 +275,7 @@ function bindCommitteeActions() {
                 cancelButtonColor: '#64748b',
                 focusConfirm: false,
                 preConfirm: () => {
-                    const notes = document.getElementById('swal-approve-notes').value.trim();
-                    return { notes };
+                    return { notes: document.getElementById('swal-approve-notes').value.trim() };
                 }
             });
 
@@ -342,7 +292,7 @@ function bindCommitteeActions() {
                 await Swal.fire({
                     icon: 'success',
                     title: 'Pengajuan Selesai',
-                    text: 'Pengajuan RPL telah ditandai selesai. SK Rektor dan Ringkasan Assessment kini dapat dicetak.',
+                    text: 'Pengajuan RPL telah ditandai selesai.',
                     confirmButtonText: 'Tutup',
                     confirmButtonColor: '#10b981',
                 });
@@ -352,7 +302,7 @@ function bindCommitteeActions() {
                 Swal.fire({
                     icon: 'error',
                     title: 'Terjadi Kesalahan',
-                    text: 'Pengajuan gagal ditandai selesai. Pastikan status pengajuan masih valid dan coba lagi.',
+                    text: 'Pengajuan gagal ditandai selesai. Coba lagi.',
                     confirmButtonText: 'Tutup',
                 });
             } finally {
@@ -380,12 +330,7 @@ function bindCommitteeActions() {
         try {
             await previewPdf(`/committee/applications/${applicationId}/rector-decree/preview`);
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Terjadi Kesalahan',
-                text: 'Pratinjau SK Rektor tidak dapat dibuka. Coba beberapa saat lagi.',
-                confirmButtonText: 'Tutup',
-            });
+            Swal.fire({ icon: 'error', title: 'Kesalahan', text: 'Pratinjau gagal.' });
         } finally {
             previewBtn.disabled = false;
         }
@@ -494,6 +439,208 @@ function bindCommitteeActions() {
     });
 }
 
+// LOGIKA FILTER TAHUN & BULAN
+let availablePeriods = {};
+
+function getDataRows() {
+    const approvedBody = document.querySelector('[data-approved-body]');
+    if (!approvedBody) return [];
+    return Array.from(approvedBody.querySelectorAll('tr'))
+        .filter(row => !row.hasAttribute('data-search-empty-row'))
+        .filter(row => !row.textContent.toLowerCase().includes('memuat'));
+}
+
+function filterApprovedTable() {
+    const searchInput = document.querySelector('[data-approved-search]');
+    const yearFilter = document.querySelector('[data-year-filter]');
+    const monthFilter = document.querySelector('[data-month-filter]');
+    const totalApproved = document.querySelector('[data-total-approved]');
+    const searchCount = document.querySelector('[data-approved-search-count]');
+    const approvedBody = document.querySelector('[data-approved-body]');
+
+    if (!approvedBody) return;
+
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+    const selectedYear = yearFilter ? yearFilter.value : '';
+    const selectedMonth = monthFilter && !monthFilter.disabled ? monthFilter.value : '';
+
+    const dataRows = getDataRows();
+
+    if (!dataRows.length) {
+        if (totalApproved) totalApproved.textContent = '0';
+        return;
+    }
+
+    let visibleCount = 0;
+
+    dataRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const matchQuery = !query || text.includes(query);
+
+        let matchPeriod = true;
+        if (selectedYear) {
+            const dateStr = row.getAttribute('data-approved-date');
+            if (dateStr) {
+                const d = new Date(dateStr);
+                if (!isNaN(d.getTime())) {
+                    const rowYear = String(d.getFullYear());
+                    const rowMonth = String(d.getMonth() + 1).padStart(2, '0');
+
+                    if (rowYear !== selectedYear) {
+                        matchPeriod = false;
+                    } else if (selectedMonth && rowMonth !== selectedMonth) {
+                        matchPeriod = false;
+                    }
+                } else {
+                    matchPeriod = false;
+                }
+            } else {
+                matchPeriod = false;
+            }
+        }
+
+        const match = matchQuery && matchPeriod;
+        row.hidden = !match;
+
+        if (match) {
+            visibleCount++;
+        }
+    });
+
+    if (totalApproved) totalApproved.textContent = visibleCount;
+
+    let emptyRow = approvedBody.querySelector('[data-search-empty-row]');
+    if (visibleCount === 0) {
+        if (!emptyRow) {
+            emptyRow = document.createElement('tr');
+            emptyRow.setAttribute('data-search-empty-row', 'true');
+            emptyRow.innerHTML = '<td colspan="7" style="text-align:center; padding:30px;">Data tidak ditemukan sesuai pencarian/filter.</td>';
+            approvedBody.appendChild(emptyRow);
+        }
+    } else {
+        if (emptyRow) emptyRow.remove();
+    }
+
+    if (searchCount) {
+        searchCount.textContent = (query || selectedYear)
+            ? visibleCount + ' / ' + dataRows.length + ' Data'
+            : dataRows.length + ' Data';
+    }
+}
+
+function bindApprovedPrintAction() {
+    const printPdfBtn = document.querySelector('[data-print-pdf]');
+    const yearFilter = document.querySelector('[data-year-filter]');
+    const monthFilter = document.querySelector('[data-month-filter]');
+    const searchInput = document.querySelector('[data-approved-search]');
+
+    if (!printPdfBtn) return;
+
+    printPdfBtn.addEventListener('click', () => {
+        const selectedYear = yearFilter ? yearFilter.value : '';
+        const selectedMonth = monthFilter && !monthFilter.disabled ? monthFilter.value : '';
+        const query = searchInput ? searchInput.value : '';
+
+        let periodParam = '';
+        let periodLabel = 'Semua Periode';
+
+        if (selectedYear) {
+            if (selectedMonth) {
+                periodParam = `${selectedYear}-${selectedMonth}`;
+                periodLabel = `${monthFilter.options[monthFilter.selectedIndex].text} ${selectedYear}`;
+            } else {
+                periodParam = selectedYear;
+                periodLabel = `Tahun ${selectedYear}`;
+            }
+        }
+
+        Swal.fire({
+            title: 'Cetak Rekap PDF',
+            text: `Apakah Anda ingin mencetak rekap pendaftaran untuk ${periodLabel}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Cetak',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#10b981',
+            showLoaderOnConfirm: true,
+            preConfirm: async () => {
+                try {
+                    await previewPdf(`/committee/applications/approved/print-pdf?period=${periodParam}&search=${query}`);
+                } catch (error) {
+                    Swal.showValidationMessage('Gagal memuat PDF. Coba beberapa saat lagi.');
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+    });
+}
+
+function initFilters() {
+    const dataRows = getDataRows();
+    if (dataRows.length === 0) return;
+
+    availablePeriods = {};
+
+    dataRows.forEach(row => {
+        const dateStr = row.getAttribute('data-approved-date');
+        if (dateStr) {
+            const d = new Date(dateStr);
+            if (!isNaN(d.getTime())) {
+                const year = String(d.getFullYear());
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+
+                if (!availablePeriods[year]) {
+                    availablePeriods[year] = new Set();
+                }
+                availablePeriods[year].add(month);
+            }
+        }
+    });
+
+    const yearFilter = document.querySelector('[data-year-filter]');
+    const monthFilter = document.querySelector('[data-month-filter]');
+
+    if (yearFilter && Object.keys(availablePeriods).length > 0) {
+        yearFilter.innerHTML = '<option value="">Semua Tahun</option>';
+        Object.keys(availablePeriods).sort((a, b) => b.localeCompare(a)).forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            yearFilter.appendChild(opt);
+        });
+
+        yearFilter.addEventListener('change', () => {
+            const y = yearFilter.value;
+            if (!y) {
+                monthFilter.innerHTML = '<option value="">Semua Bulan</option>';
+                monthFilter.disabled = true;
+            } else {
+                monthFilter.innerHTML = '<option value="">Semua Bulan</option>';
+                const months = Array.from(availablePeriods[y]).sort();
+                const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+                months.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m;
+                    opt.textContent = monthNames[parseInt(m) - 1];
+                    monthFilter.appendChild(opt);
+                });
+                monthFilter.disabled = false;
+            }
+            filterApprovedTable();
+        });
+    }
+
+    if (monthFilter) {
+        monthFilter.addEventListener('change', filterApprovedTable);
+    }
+
+    const searchInput = document.querySelector('[data-approved-search]');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterApprovedTable);
+    }
+}
+
 export function bootCommitteePages() {
     const page = document.body.dataset.page;
 
@@ -503,10 +650,30 @@ export function bootCommitteePages() {
 
     if (page === 'approvals-approved') {
         loadApprovedApprovals();
+
+        let tries = 0;
+        const interval = setInterval(() => {
+            if (getDataRows().length > 0) {
+                initFilters();
+                filterApprovedTable();
+                clearInterval(interval);
+            }
+            tries++;
+            if (tries > 15) clearInterval(interval);
+        }, 400);
+
+        bindApprovedPrintAction();
     }
 
     if (page === 'approval-detail') {
         loadApprovalDetail();
-        bindCommitteeActions();
+        // Fungsi bindCommitteeActions aslinya dipanggil di sini. Aku letakkan ulang sesuai kode awal kamu.
+        const approveBtn = document.querySelector('[data-approve-application]');
+        if (approveBtn) {
+            bindCommitteeActions();
+        } else {
+            // Kalau ga ada tombol approve (status approved), binding download/preview tetep jalan
+            bindCommitteeActions();
+        }
     }
 }
