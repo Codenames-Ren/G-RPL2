@@ -246,6 +246,7 @@ async function loadAssessmentMappings(assessmentId) {
                 const sourceType = m.application_a1_course ? 'A1' : (m.application_a2_learning_experience ? 'A2' : '-');
                 const courseName = m.course?.name || '-';
                 const sks = m.course?.sks || '-';
+                const grade = m.grade || '-';
                 const recognized = m.is_recognited ?? m.is_recognized;
                 return `
                     <tr>
@@ -253,14 +254,15 @@ async function loadAssessmentMappings(assessmentId) {
                         <td>${escapeHtml(sourceType)}</td>
                         <td>${escapeHtml(courseName)}</td>
                         <td>${escapeHtml(sks)}</td>
+                        <td>${escapeHtml(grade)}</td>
                         <td><span class="status-badge" data-status="${recognized ? 'active' : 'draft'}">${recognized ? 'Ya' : 'Tidak'}</span></td>
                         <td>${escapeHtml(m.notes || '-')}</td>
                     </tr>
                 `;
             }).join('')
-            : '<tr><td colspan="6">Belum ada mapping.</td></tr>';
+            : '<tr><td colspan="7">Belum ada mapping.</td></tr>';
     } catch (error) {
-        target.innerHTML = '<tr><td colspan="6">Gagal memuat mapping.</td></tr>';
+        target.innerHTML = '<tr><td colspan="7">Gagal memuat mapping.</td></tr>';
     }
 }
 
@@ -486,9 +488,20 @@ function bindAssessorActions() {
                         ${escapeHtml(c.name)}
                         <span class="sm-checkbox-meta">Sem ${escapeHtml(String(c.semester))} · ${escapeHtml(String(c.sks))} SKS</span>
                     </span>
+                    <select class="sm-course-grade" data-course-id="${c.id}" disabled onclick="event.stopPropagation()">${gradeOptionsHtml}</select>
                 </label>
             `).join('')
                 : '<p class="sm-empty-courses">Tidak ada course tersedia</p>';
+
+            // Toggle select grade setiap kali checkbox di-centang/hapus centang
+            container.querySelectorAll('.sm-course-checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const gradeSelect = cb.closest('.sm-checkbox-item').querySelector('.sm-course-grade');
+                    if (!gradeSelect) return;
+                    gradeSelect.disabled = !cb.checked;
+                    if (!cb.checked) gradeSelect.value = '';
+                });
+            });
 
             // Re-bind tag update setelah list di-render ulang
             syncMultiSelectTags();
@@ -559,15 +572,25 @@ function bindAssessorActions() {
 
         // HTML field A1: dropdown biasa (tidak berubah)
         // HTML field A2: trigger + panel dropdown multi-select
+        const gradeOptionsHtml = `
+                    <option value="">— Pilih Grade —</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>`;
+
         const courseFieldHtml = isA1
             ? `<div class="sm-field" id="swal-mapping-course-wrapper" style="display:none;">
                 <label class="sm-label">Mata Kuliah Tujuan</label>
                 <select id="swal-mapping-course" class="sm-select">
                     <option value="">— Pilih Mata Kuliah Tujuan —</option>
                 </select>
+                <label class="sm-label" style="margin-top:8px;">Grade</label>
+                <select id="swal-mapping-grade" class="sm-select">${gradeOptionsHtml}</select>
               </div>`
             : `<div class="sm-field" id="swal-mapping-course-wrapper" style="display:none;">
-                <label class="sm-label">Mata Kuliah Tujuan <span style="font-weight:400;color:#94a3b8;">(pilih satu atau lebih)</span></label>
+                <label class="sm-label">Mata Kuliah Tujuan <span style="font-weight:400;color:#94a3b8;">(pilih satu atau lebih, grade per mata kuliah)</span></label>
                 <div id="sm-ms-trigger" class="sm-ms-trigger" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
                     <div class="sm-ms-tags" id="sm-ms-tags">
                         <span class="sm-ms-placeholder">— Pilih Mata Kuliah Tujuan —</span>
@@ -758,10 +781,10 @@ function bindAssessorActions() {
                 .sm-checkbox-item {
                     display: flex;
                     align-items: flex-start;
+                    flex-wrap: wrap;
                     gap: 8px;
                     padding: 5px 8px;
                     border-radius: 4px;
-                    cursor: pointer;
                     transition: background 0.1s;
                 }
                 .sm-checkbox-item:hover { background: ${accentBg}; }
@@ -778,6 +801,8 @@ function bindAssessorActions() {
                     color: #1e293b;
                     line-height: 1.4;
                     cursor: pointer;
+                    flex: 1 1 auto;
+                    min-width: 0;
                 }
                 .sm-checkbox-code {
                     font-weight: 600;
@@ -788,6 +813,28 @@ function bindAssessorActions() {
                     font-size: 11px;
                     color: #94a3b8;
                     margin-top: 1px;
+                }
+                .sm-course-grade {
+                    margin-left: auto;
+                    font-size: 11px !important;
+                    padding: 2px 6px !important;
+                    border: 1px solid #e2e8f0 !important;
+                    border-radius: 4px !important;
+                    background: #fff !important;
+                    color: #1e293b !important;
+                    font-family: inherit;
+                    flex-shrink: 0;
+                    cursor: pointer;
+                }
+                .sm-course-grade:disabled {
+                    background: #f1f5f9 !important;
+                    color: #cbd5e1 !important;
+                    border-color: #e2e8f0 !important;
+                    cursor: not-allowed;
+                }
+                .sm-course-grade:focus {
+                    outline: none !important;
+                    border-color: ${accentColor} !important;
                 }
                 .sm-empty-courses {
                     font-size: 12px;
@@ -884,9 +931,15 @@ function bindAssessorActions() {
                     if (!isRecognized) {
                         if (isA1) {
                             const courseSelect = document.getElementById('swal-mapping-course');
+                            const gradeSelect = document.getElementById('swal-mapping-grade');
                             if (courseSelect) courseSelect.value = '';
+                            if (gradeSelect) gradeSelect.value = '';
                         } else {
                             document.querySelectorAll('.sm-course-checkbox').forEach(cb => cb.checked = false);
+                            document.querySelectorAll('.sm-course-grade').forEach(sel => {
+                                sel.disabled = true;
+                                sel.value = '';
+                            });
                             syncMultiSelectTags();
                             // Tutup panel kalau lagi buka
                             document.getElementById('sm-ms-panel')?.classList.remove('open');
@@ -980,22 +1033,40 @@ function bindAssessorActions() {
                 if (recognized) {
                     if (isA1) {
                         const courseId = document.getElementById('swal-mapping-course').value;
+                        const grade = document.getElementById('swal-mapping-grade').value;
+
                         if (!courseId) {
                             Swal.showValidationMessage('Pilih mata kuliah tujuan untuk mapping yang diakui.');
                             return false;
                         }
-                        return { sourceId, courseIds: [courseId], recognized, notes };
+                        if (!grade) {
+                            Swal.showValidationMessage('Pilih grade untuk mata kuliah tujuan.');
+                            return false;
+                        }
+
+                        return { sourceId, mappings: [{ courseId, grade }], recognized, notes };
                     } else {
                         const checked = [...document.querySelectorAll('.sm-course-checkbox:checked')];
                         if (!checked.length) {
                             Swal.showValidationMessage('Pilih minimal satu mata kuliah tujuan untuk mapping yang diakui.');
                             return false;
                         }
-                        return { sourceId, courseIds: checked.map(cb => cb.value), recognized, notes };
+
+                        const mappings = checked.map(cb => {
+                            const gradeSelect = cb.closest('.sm-checkbox-item').querySelector('.sm-course-grade');
+                            return { courseId: cb.value, grade: gradeSelect?.value || '' };
+                        });
+
+                        if (mappings.some(m => !m.grade)) {
+                            Swal.showValidationMessage('Pilih grade untuk setiap mata kuliah tujuan yang dicentang.');
+                            return false;
+                        }
+
+                        return { sourceId, mappings, recognized, notes };
                     }
                 }
 
-                return { sourceId, courseIds: [], recognized, notes };
+                return { sourceId, mappings: [], recognized, notes };
             }
         }).then(async (result) => {
             if (!result.isConfirmed || !result.value) return;
@@ -1011,10 +1082,10 @@ function bindAssessorActions() {
                 return;
             }
 
-            const { sourceId, courseIds, recognized, notes } = result.value;
+            const { sourceId, mappings, recognized, notes } = result.value;
 
             try {
-                if (!recognized || courseIds.length === 0) {
+                if (!recognized || mappings.length === 0) {
                     const payload = { is_recognized: false, notes };
                     if (isA1) {
                         payload.application_a1_course_id = Number(sourceId);
@@ -1026,8 +1097,13 @@ function bindAssessorActions() {
                         body: JSON.stringify(payload)
                     });
                 } else {
-                    for (const courseId of courseIds) {
-                        const payload = { is_recognized: true, course_id: Number(courseId), notes };
+                    for (const { courseId, grade } of mappings) {
+                        const payload = {
+                            is_recognized: true,
+                            course_id: Number(courseId),
+                            grade,
+                            notes
+                        };
                         if (isA1) {
                             payload.application_a1_course_id = Number(sourceId);
                         } else {
@@ -1042,8 +1118,8 @@ function bindAssessorActions() {
 
                 await Swal.fire({
                     title: 'Mapping Tersimpan',
-                    text: recognized && courseIds.length > 1
-                        ? `${courseIds.length} mata kuliah berhasil di-mapping.`
+                    text: recognized && mappings.length > 1
+                        ? `${mappings.length} mata kuliah berhasil di-mapping.`
                         : 'Mapping mata kuliah berhasil ditambahkan.',
                     icon: 'success',
                     confirmButtonText: 'Oke',
