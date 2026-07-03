@@ -217,6 +217,7 @@ Route::middleware([
 ])->prefix('committee')->group(function () {
 
     Route::prefix('applications')->group(function () {
+        Route::get('/approved/print-pdf', [CommitteeController::class, 'printApprovedRecap']);
         Route::get('/approved', [CommitteeController::class, 'approved']);
         Route::get('/approved/{application}', [CommitteeController::class, 'showApproved']);
         Route::get('/', [CommitteeController::class, 'index']);
