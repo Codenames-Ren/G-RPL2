@@ -167,6 +167,7 @@ class AssessorAssessmentService
             'application_a2_learning_experience_id' => $data['application_a2_learning_experience_id'] ?? null,
             'course_id'                             => $data['course_id'] ?? null,
             'is_recognized'                         => $data['is_recognized'],
+            'grade'                                 => $data['grade'] ?? null,
             'notes'                                 => $data['notes'] ?? null,
         ]);
     }
@@ -202,6 +203,7 @@ class AssessorAssessmentService
         $mapping->update([
             'course_id'     => $data['course_id'] ?? null,
             'is_recognized' => $data['is_recognized'],
+            'grade'         => $data['grade'] ?? null,
             'notes'         => $data['notes'] ?? null,
         ]);
 
