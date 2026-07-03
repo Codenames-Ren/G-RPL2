@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Assessor\CourseMapping;
 
+use App\Enums\CourseGrade;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreAssessmentCourseMappingRequest extends FormRequest
 {
@@ -45,6 +47,14 @@ class StoreAssessmentCourseMappingRequest extends FormRequest
                 'boolean',
             ],
 
+            'grade' => [
+
+                'nullable',
+                new Enum(CourseGrade::class),
+                'required_if:is_recognized,true',
+                'prohibited_if:is_recognized,false',
+            ],
+
             'notes' => [
 
                 'nullable',
@@ -66,6 +76,12 @@ class StoreAssessmentCourseMappingRequest extends FormRequest
 
             'course_id.required_if'
                 => 'Target course is required when mapping is recognized.',
+
+            'grade.required_if'
+                => 'Grade is required when mapping is recognized.',
+
+            'grade.prohibited_if'
+                => 'Grade must not be filled when mapping is not recognized.',
         ];
     }
 }
