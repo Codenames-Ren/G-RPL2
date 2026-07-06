@@ -449,6 +449,9 @@ function bindAssessorActions() {
             : 'Mapping Mata Kuliah — A2';
 
         let allCourses = [];
+        // Menyimpan pilihan checkbox A2 secara persisten (courseId -> {code, name, semester, sks, grade})
+        // supaya centang tidak hilang saat filter prodi/semester diganti dan checkbox lama di-render ulang.
+        const selectedCourses = new Map();
 
         const renderSourceOptions = () => {
             const sourceSelect = document.getElementById('swal-mapping-source');
@@ -480,26 +483,61 @@ function bindAssessorActions() {
             if (!container) return;
             const filtered = courses.filter(c => !assessmentState.usedTargetCourseIds.has(String(c.id)));
             container.innerHTML = filtered.length
-                ? filtered.map(c => `
+                ? filtered.map(c => {
+                    const persisted = selectedCourses.get(String(c.id));
+                    const isChecked = Boolean(persisted);
+                    const gradeValue = persisted?.grade || '';
+                    return `
                 <label class="sm-checkbox-item">
-                    <input type="checkbox" class="sm-course-checkbox" value="${c.id}">
+                    <input type="checkbox" class="sm-course-checkbox" value="${c.id}" ${isChecked ? 'checked' : ''}>
                     <span class="sm-checkbox-label">
                         <span class="sm-checkbox-code">${escapeHtml(c.code || '')}</span>
                         ${escapeHtml(c.name)}
                         <span class="sm-checkbox-meta">Sem ${escapeHtml(String(c.semester))} · ${escapeHtml(String(c.sks))} SKS</span>
                     </span>
-                    <select class="sm-course-grade" data-course-id="${c.id}" disabled onclick="event.stopPropagation()">${gradeOptionsHtml}</select>
+                    <select class="sm-course-grade" data-course-id="${c.id}" ${isChecked ? '' : 'disabled'} onclick="event.stopPropagation()">${gradeOptionsHtml}</select>
                 </label>
-            `).join('')
+            `;
+                }).join('')
                 : '<p class="sm-empty-courses">Tidak ada course tersedia</p>';
 
-            // Toggle select grade setiap kali checkbox di-centang/hapus centang
+            // Restore nilai grade yang sudah dipilih sebelumnya (select tidak bisa dikasih "selected" via string interpolation dengan aman)
+            container.querySelectorAll('.sm-course-checkbox').forEach(cb => {
+                const persisted = selectedCourses.get(cb.value);
+                if (persisted) {
+                    const gradeSelect = cb.closest('.sm-checkbox-item').querySelector('.sm-course-grade');
+                    if (gradeSelect) gradeSelect.value = persisted.grade || '';
+                }
+            });
+
+            // Toggle select grade + update Map persisten setiap kali checkbox di-centang/hapus centang
             container.querySelectorAll('.sm-course-checkbox').forEach(cb => {
                 cb.addEventListener('change', () => {
                     const gradeSelect = cb.closest('.sm-checkbox-item').querySelector('.sm-course-grade');
                     if (!gradeSelect) return;
                     gradeSelect.disabled = !cb.checked;
-                    if (!cb.checked) gradeSelect.value = '';
+                    if (!cb.checked) {
+                        gradeSelect.value = '';
+                        selectedCourses.delete(cb.value);
+                    } else {
+                        const course = allCourses.find(c => String(c.id) === cb.value);
+                        selectedCourses.set(cb.value, {
+                            id: cb.value,
+                            code: course?.code || '',
+                            name: course?.name || '',
+                            semester: course?.semester,
+                            sks: course?.sks,
+                            grade: gradeSelect.value || ''
+                        });
+                    }
+                });
+            });
+
+            // Update grade tersimpan setiap kali grade diganti
+            container.querySelectorAll('.sm-course-grade').forEach(sel => {
+                sel.addEventListener('change', () => {
+                    const entry = selectedCourses.get(sel.dataset.courseId);
+                    if (entry) entry.grade = sel.value;
                 });
             });
 
@@ -510,28 +548,22 @@ function bindAssessorActions() {
         };
 
         // Sync tags pada trigger A2 multi-select
+        // Dibangun dari Map selectedCourses (bukan dari DOM checkbox yang tercentang saja),
+        // supaya tag tetap muncul walau course-nya sedang tersembunyi oleh filter aktif.
         const syncMultiSelectTags = () => {
             const msTags = document.getElementById('sm-ms-tags');
             if (!msTags) return;
-            const checked = [...document.querySelectorAll('.sm-course-checkbox:checked')];
+            const selected = [...selectedCourses.values()];
             msTags.innerHTML = '';
-            if (!checked.length) {
+            if (!selected.length) {
                 msTags.innerHTML = '<span class="sm-ms-placeholder">— Pilih Mata Kuliah Tujuan —</span>';
                 return;
             }
-            checked.forEach(cb => {
-                const itemLabel = cb.closest('.sm-checkbox-item')?.querySelector('.sm-checkbox-label');
-                const code = itemLabel?.querySelector('.sm-checkbox-code')?.textContent?.trim() || '';
-                const name = itemLabel
-                    ? [...itemLabel.childNodes]
-                        .filter(n => n.nodeType === 3 && n.textContent.trim())
-                        .map(n => n.textContent.trim())
-                        .join('') || ''
-                    : cb.value;
+            selected.forEach(({ id, code, name }) => {
                 const tag = document.createElement('span');
                 tag.className = 'sm-ms-tag';
-                tag.dataset.val = cb.value;
-                tag.innerHTML = `${escapeHtml(code)} ${escapeHtml(name)}<span class="sm-ms-tag-x" data-val="${cb.value}" aria-label="Hapus">×</span>`;
+                tag.dataset.val = id;
+                tag.innerHTML = `${escapeHtml(code)} ${escapeHtml(name)}<span class="sm-ms-tag-x" data-val="${id}" aria-label="Hapus">×</span>`;
                 msTags.appendChild(tag);
             });
         };
@@ -935,6 +967,7 @@ function bindAssessorActions() {
                             if (courseSelect) courseSelect.value = '';
                             if (gradeSelect) gradeSelect.value = '';
                         } else {
+                            selectedCourses.clear();
                             document.querySelectorAll('.sm-course-checkbox').forEach(cb => cb.checked = false);
                             document.querySelectorAll('.sm-course-grade').forEach(sel => {
                                 sel.disabled = true;
@@ -987,8 +1020,15 @@ function bindAssessorActions() {
                         // Klik X pada tag → hapus item, jangan toggle panel
                         if (e.target.classList.contains('sm-ms-tag-x')) {
                             const val = e.target.dataset.val;
+                            selectedCourses.delete(val);
+                            // Kalau checkbox-nya sedang terlihat di filter aktif, uncheck juga
                             const cb = document.querySelector(`.sm-course-checkbox[value="${val}"]`);
-                            if (cb) { cb.checked = false; syncMultiSelectTags(); }
+                            if (cb) {
+                                cb.checked = false;
+                                const gradeSelect = cb.closest('.sm-checkbox-item')?.querySelector('.sm-course-grade');
+                                if (gradeSelect) { gradeSelect.disabled = true; gradeSelect.value = ''; }
+                            }
+                            syncMultiSelectTags();
                             return;
                         }
                         msOpen ? closePanel() : openPanel();
@@ -1046,16 +1086,15 @@ function bindAssessorActions() {
 
                         return { sourceId, mappings: [{ courseId, grade }], recognized, notes };
                     } else {
-                        const checked = [...document.querySelectorAll('.sm-course-checkbox:checked')];
-                        if (!checked.length) {
+                        // Ambil dari Map persisten, bukan cuma checkbox yang lagi kelihatan di filter aktif,
+                        // supaya centang dari semester/prodi lain (yang sudah difilter keluar) tetap ikut ke-submit.
+                        const selected = [...selectedCourses.values()];
+                        if (!selected.length) {
                             Swal.showValidationMessage('Pilih minimal satu mata kuliah tujuan untuk mapping yang diakui.');
                             return false;
                         }
 
-                        const mappings = checked.map(cb => {
-                            const gradeSelect = cb.closest('.sm-checkbox-item').querySelector('.sm-course-grade');
-                            return { courseId: cb.value, grade: gradeSelect?.value || '' };
-                        });
+                        const mappings = selected.map(s => ({ courseId: s.id, grade: s.grade || '' }));
 
                         if (mappings.some(m => !m.grade)) {
                             Swal.showValidationMessage('Pilih grade untuk setiap mata kuliah tujuan yang dicentang.');
