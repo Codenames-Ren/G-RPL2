@@ -15,10 +15,7 @@ class StoreAssessmentRequest extends FormRequest
     {
         return [
 
-            'notes' => [
-                'nullable',
-                'string',
-            ],
+            'notes' => [ 'nullable', 'string', ],
         ];
     }
 }

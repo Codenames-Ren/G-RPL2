@@ -15,21 +15,13 @@ class Application extends Model
     protected $fillable = [
 
         'application_number',
-
         'applicant_id',
-
         'assigned_assessor_id',
-
         'study_program_id',
-
         'rpl_type',
-
         'status',
-
         'review_notes',
-
         'revision_count',
-
         'submitted_at',
     ];
 
