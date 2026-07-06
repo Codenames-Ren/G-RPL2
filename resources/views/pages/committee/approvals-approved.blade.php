@@ -247,7 +247,7 @@
                             <table class="data-table" id="approvedTable">
                                 <thead>
                                     <tr>
-                                        <th>Nomor Aplikasi</th>
+                                        <th>Nomor Pengajuan</th>
                                         <th>Pemohon</th>
                                         <th>Program Studi</th>
                                         <th>Total SKS</th>
