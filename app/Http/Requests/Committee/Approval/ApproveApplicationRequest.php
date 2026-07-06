@@ -13,6 +13,10 @@ class ApproveApplicationRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+
+            'notes' => ['nullable', 'string', 'max:1000'],
+
+        ];
     }
 }
