@@ -61,6 +61,7 @@ async function loadApprovedApprovals() {
                 const applicantName = app.applicant?.user?.name || '-';
                 const studyProgram = app.study_program?.name || '-';
                 const totalSks = app.assessment?.total_converted_sks ?? '-';
+                const reviewNotes = app.review_notes || '-';
                 const rawUpdatedAt = app.updated_at || '';
                 const updatedAt = app.updated_at
                     ? new Date(app.updated_at).toLocaleDateString('id-ID')
@@ -72,6 +73,7 @@ async function loadApprovedApprovals() {
                         <td>${escapeHtml(applicantName)}</td>
                         <td>${escapeHtml(studyProgram)}</td>
                         <td>${escapeHtml(String(totalSks))}</td>
+                        <td>${escapeHtml(reviewNotes)}</td>
                         <td>${updatedAt}</td>
                         <td class="table-actions">
                             <a class="button button-small button-muted" href="/approvals/${app.id}">Detail</a>
@@ -79,9 +81,9 @@ async function loadApprovedApprovals() {
                     </tr>
                 `;
             }).join('')
-            : '<tr><td colspan="6">Belum ada pengajuan yang selesai.</td></tr>';
+            : '<tr><td colspan="7">Belum ada pengajuan yang selesai.</td></tr>';
     } catch (error) {
-        target.innerHTML = '<tr><td colspan="6">Gagal memuat data.</td></tr>';
+        target.innerHTML = '<tr><td colspan="7">Gagal memuat data.</td></tr>';
         Swal.fire({
             icon: 'error',
             title: 'Terjadi Kesalahan',
