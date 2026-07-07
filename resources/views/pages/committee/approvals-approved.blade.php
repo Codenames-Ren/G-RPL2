@@ -69,17 +69,28 @@
     .table-header-info { flex: 1 1 300px; min-width: 0; }
     .table-header h3 { margin: 0; color: var(--committee-dark); font-size: 18px; font-weight: 950; letter-spacing: -.03em; }
     .table-header p { margin: 5px 0 0; color: var(--committee-slate); font-size: 13px; line-height: 1.55; }
-    .committee-table-tools { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; flex: 0 0 auto; }
-    .committee-select { min-height: 38px; width: auto; max-width: 200px; padding: 0 32px 0 14px; border-radius: 999px; border: 1px solid rgba(148, 163, 184, .34); background: #fff url('data:image/svg+xml;utf8,<svg fill="none" stroke="%2364748b" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>') no-repeat right 14px center / 14px; appearance: none; color: #0f172a; font-size: 13px; font-weight: 800; outline: none; box-shadow: 0 12px 26px rgba(15, 23, 42, .055), inset 0 1px 0 rgba(255, 255, 255, .95); cursor: pointer; transition: border-color .2s ease, box-shadow .2s ease; }
+    .committee-table-tools { display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: nowrap; flex: 1 1 auto; min-width: 0; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    .committee-table-tools::-webkit-scrollbar { display: none; }
+    .committee-select { min-height: 38px; width: 140px; flex: 0 0 140px; padding: 0 30px 0 12px; border-radius: 999px; border: 1px solid rgba(148, 163, 184, .34); background: #fff url('data:image/svg+xml;utf8,<svg fill="none" stroke="%2364748b" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>') no-repeat right 12px center / 12px; appearance: none; color: #0f172a; font-size: 13px; font-weight: 800; outline: none; box-shadow: 0 12px 26px rgba(15, 23, 42, .055), inset 0 1px 0 rgba(255, 255, 255, .95); cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; transition: border-color .2s ease, box-shadow .2s ease; }
     .committee-select:focus { border-color: rgba(16, 185, 129, .45); box-shadow: 0 0 0 5px rgba(16, 185, 129, .10), 0 12px 26px rgba(15, 23, 42, .06), inset 0 1px 0 rgba(255, 255, 255, .95); }
     .committee-select:disabled { background-color: #f1f5f9; cursor: not-allowed; color: #94a3b8; }
-    .committee-search-wrap { position: relative; min-width: 240px; }
+    .committee-month-sep { color: var(--committee-slate); font-size: 12px; font-weight: 800; white-space: nowrap; flex: 0 0 auto; }
+    .committee-container { width: 100%; min-width: 0; overflow-x: hidden; }
+    .committee-search-wrap { position: relative; flex: 0 0 200px; width: 200px; }
     .committee-search-wrap::before { content: ""; position: absolute; left: 14px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); border: 2px solid #64748b; border-radius: 999px; opacity: .72; pointer-events: none; }
     .committee-search-wrap::after { content: ""; position: absolute; left: 27px; top: 57%; width: 7px; height: 2px; transform: rotate(45deg); border-radius: 999px; background: #64748b; opacity: .72; pointer-events: none; }
     .committee-search-input { width: 100%; min-height: 38px; padding: 0 14px 0 40px; border-radius: 999px; border: 1px solid rgba(148, 163, 184, .34); background: #fff; color: #0f172a; box-shadow: 0 12px 26px rgba(15, 23, 42, .055), inset 0 1px 0 rgba(255, 255, 255, .95); font-size: 13px; font-weight: 800; outline: none; transition: border-color .2s ease, box-shadow .2s ease; }
     .committee-search-input::placeholder { color: #94a3b8; font-weight: 750; }
     .committee-search-input:focus { border-color: rgba(16, 185, 129, .45); box-shadow: 0 0 0 5px rgba(16, 185, 129, .10), 0 12px 26px rgba(15, 23, 42, .06), inset 0 1px 0 rgba(255, 255, 255, .95); }
-    .committee-search-count { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; border-radius: 999px; color: #047857; background: #d1fae5; border: 1px solid rgba(16, 185, 129, .24); font-size: 12px; font-weight: 950; white-space: nowrap; }
+    .committee-search-count { min-height: 38px; min-width: 92px; flex: 0 0 auto; display: none; align-items: center; justify-content: center; padding: 0 12px; border-radius: 999px; color: #047857; background: #d1fae5; border: 1px solid rgba(16, 185, 129, .24); font-size: 12px; font-weight: 950; white-space: nowrap; }
+    .committee-print-btn { flex: 0 0 auto; }
+    @media (max-width: 1180px) {
+        .table-header { flex-wrap: wrap; }
+        .committee-table-tools { flex: 1 1 100%; justify-content: flex-start; }
+    }
+    @media (max-width: 640px) {
+        .committee-search-count { display: inline-flex; }
+    }
     .table-wrap { width: 100%; overflow-x: auto; }
     .data-table { width: 100%; min-width: 980px; border-collapse: collapse; }
     .data-table thead { background: linear-gradient(180deg, #f8fafc, #f1f5f9); }
@@ -213,11 +224,17 @@
                             </div>
 
                             <div class="committee-table-tools">
-                                <select class="committee-select" data-year-filter style="max-width: 130px;">
+                                <select class="committee-select" data-year-filter>
                                     <option value="">Semua Tahun</option>
                                 </select>
 
-                                <select class="committee-select" data-month-filter style="max-width: 150px;" disabled>
+                                <select class="committee-select" data-month-from-filter disabled>
+                                    <option value="">Semua Bulan</option>
+                                </select>
+
+                                <span class="committee-month-sep">s/d</span>
+
+                                <select class="committee-select" data-month-to-filter disabled>
                                     <option value="">Semua Bulan</option>
                                 </select>
 
@@ -232,9 +249,9 @@
                                     >
                                 </label>
                                 
-                                <button class="button button-muted" type="button" data-print-pdf style="min-height: 38px; padding: 0 16px; font-size: 13px;">
-                                    <svg style="width:16px; height:16px; margin-right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                                    Cetak Rekap
+                                <button class="button button-muted committee-print-btn" type="button" data-print-pdf title="Cetak Rekap" style="min-height: 38px; padding: 0 14px; font-size: 13px;">
+                                    <svg style="width:16px; height:16px; margin-right:5px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                    Cetak
                                 </button>
 
                                 <span class="committee-search-count" data-approved-search-count>
