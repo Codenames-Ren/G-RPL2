@@ -183,14 +183,27 @@ class CommitteeController extends Controller
 
     public function printApprovedRecap(Request $request)
     {
-        $period = $request->query('period');
+        $year = $request->query('year');
+        $monthFrom = $request->query('month_from');
+        $monthTo = $request->query('month_to');
         $search = $request->query('search');
 
-        $pdf = $this->committeeService->generateApprovedRecapPdf($period, $search);
+        $pdf = $this->committeeService->generateApprovedRecapPdf(
+            $year,
+            $monthFrom,
+            $monthTo,
+            $search
+        );
 
         $filename = 'Rekap-Pendaftaran-Disetujui';
-        if ($period) {
-            $filename .= '-' . $period;
+        if ($year) {
+            $filename .= '-' . $year;
+            if ($monthFrom) {
+                $filename .= '-' . $monthFrom;
+                if ($monthTo && $monthTo !== $monthFrom) {
+                    $filename .= 'sd' . $monthTo;
+                }
+            }
         }
         $filename .= '.pdf';
 
