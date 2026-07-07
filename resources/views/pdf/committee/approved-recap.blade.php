@@ -158,14 +158,24 @@
     <div class="t1">REKAPITULASI PENDAFTARAN MAHASISWA RPL</div>
     <div class="t2">
         Periode: 
-        @if($period)
+        @if($year)
             @php
-                $parts = explode('-', $period);
-                if (count($parts) === 2) {
-                    echo \Carbon\Carbon::createFromFormat('Y-m', $period)->translatedFormat('F Y');
-                } else {
-                    echo 'Tahun ' . $period;
+                $label = 'Tahun ' . $year;
+
+                if ($monthFrom || $monthTo) {
+                    $fromMonth = (int) ($monthFrom ?: $monthTo);
+                    $toMonth = (int) ($monthTo ?: $monthFrom);
+                    $endYear = $toMonth < $fromMonth ? ((int) $year) + 1 : (int) $year;
+
+                    $fromLabel = \Carbon\Carbon::create((int) $year, $fromMonth, 1)->translatedFormat('F Y');
+                    $toLabel = \Carbon\Carbon::create($endYear, $toMonth, 1)->translatedFormat('F Y');
+
+                    $label = $fromMonth === $toMonth && $endYear === (int) $year
+                        ? $fromLabel
+                        : $fromLabel . ' – ' . $toLabel;
                 }
+
+                echo $label;
             @endphp
         @else
             Semua Periode
