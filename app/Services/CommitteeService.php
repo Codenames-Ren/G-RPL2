@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -327,8 +328,12 @@ class CommitteeService
         );
     }
 
-    public function generateApprovedRecapPdf(string $period = null, string $search = null)
-    {
+    public function generateApprovedRecapPdf(
+        string $year = null,
+        string $monthFrom = null,
+        string $monthTo = null,
+        string $search = null
+    ) {
         $query = Application::query()
             ->where('status', ApplicationStatus::APPROVED)
             ->with([
@@ -337,14 +342,14 @@ class CommitteeService
                 'assessment.courseMappings.course',
             ]);
 
-        // Filter: Bisa hanya Tahun, bisa Tahun-Bulan
-        if ($period) {
-            $parts = explode('-', $period);
-            $query->whereYear('updated_at', $parts[0]);
-            
-            // Jika ada bulan yang dipassing (format YYYY-MM)
-            if (isset($parts[1]) && $parts[1] !== '') {
-                $query->whereMonth('updated_at', $parts[1]);
+        // Filter: Bisa hanya Tahun, bisa Tahun + range Bulan (termasuk yang wrap ke tahun berikutnya, misal Des-Feb)
+        if ($year) {
+            [$startDate, $endDate] = $this->resolvePeriodRange($year, $monthFrom, $monthTo);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('updated_at', [$startDate, $endDate]);
+            } else {
+                $query->whereYear('updated_at', $year);
             }
         }
 
@@ -376,8 +381,40 @@ class CommitteeService
 
         return Pdf::loadView('pdf.committee.approved-recap', [
             'applications' => $applications,
-            'period' => $period,
+            'year' => $year,
+            'monthFrom' => $monthFrom,
+            'monthTo' => $monthTo,
             'search' => $search
         ])->setPaper('A4', 'landscape');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resolve Period Range (support bulan yang wrap ke tahun berikutnya)
+    |--------------------------------------------------------------------------
+    */
+
+    private function resolvePeriodRange(string $year, ?string $monthFrom, ?string $monthTo): array
+    {
+        // Kalau ga ada bulan yang dipilih sama sekali, filter berdasarkan tahun aja
+        if (!$monthFrom && !$monthTo) {
+            return [null, null];
+        }
+
+        $fromMonth = (int) ($monthFrom ?: 1);
+        $toMonth = (int) ($monthTo ?: $monthFrom);
+
+        $startYear = (int) $year;
+        $endYear = $startYear;
+
+        // Contoh: Desember (12) -> Februari (2) berarti bulan akhir masuk ke tahun berikutnya
+        if ($toMonth < $fromMonth) {
+            $endYear++;
+        }
+
+        $startDate = Carbon::create($startYear, $fromMonth, 1)->startOfMonth();
+        $endDate = Carbon::create($endYear, $toMonth, 1)->endOfMonth();
+
+        return [$startDate, $endDate];
     }
 }
