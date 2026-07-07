@@ -452,10 +452,29 @@ function getDataRows() {
         .filter(row => !row.textContent.toLowerCase().includes('memuat'));
 }
 
+// Bangun range tanggal [start, end] dari tahun + bulan awal/akhir.
+// Mendukung range yang wrap ke tahun berikutnya, misal Des (12) -> Feb (2).
+function buildPeriodRange(selectedYear, monthFrom, monthTo) {
+    if (!selectedYear || (!monthFrom && !monthTo)) {
+        return null;
+    }
+
+    const fromMonth = parseInt(monthFrom || monthTo, 10);
+    const toMonth = parseInt(monthTo || monthFrom, 10);
+    const startYear = parseInt(selectedYear, 10);
+    const endYear = toMonth < fromMonth ? startYear + 1 : startYear;
+
+    const startDate = new Date(startYear, fromMonth - 1, 1, 0, 0, 0);
+    const endDate = new Date(endYear, toMonth, 0, 23, 59, 59); // hari terakhir di bulan `toMonth`
+
+    return { startDate, endDate };
+}
+
 function filterApprovedTable() {
     const searchInput = document.querySelector('[data-approved-search]');
     const yearFilter = document.querySelector('[data-year-filter]');
-    const monthFilter = document.querySelector('[data-month-filter]');
+    const monthFromFilter = document.querySelector('[data-month-from-filter]');
+    const monthToFilter = document.querySelector('[data-month-to-filter]');
     const totalApproved = document.querySelector('[data-total-approved]');
     const searchCount = document.querySelector('[data-approved-search-count]');
     const approvedBody = document.querySelector('[data-approved-body]');
@@ -464,7 +483,10 @@ function filterApprovedTable() {
 
     const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
     const selectedYear = yearFilter ? yearFilter.value : '';
-    const selectedMonth = monthFilter && !monthFilter.disabled ? monthFilter.value : '';
+    const selectedMonthFrom = monthFromFilter && !monthFromFilter.disabled ? monthFromFilter.value : '';
+    const selectedMonthTo = monthToFilter && !monthToFilter.disabled ? monthToFilter.value : '';
+
+    const range = buildPeriodRange(selectedYear, selectedMonthFrom, selectedMonthTo);
 
     const dataRows = getDataRows();
 
@@ -482,22 +504,16 @@ function filterApprovedTable() {
         let matchPeriod = true;
         if (selectedYear) {
             const dateStr = row.getAttribute('data-approved-date');
-            if (dateStr) {
-                const d = new Date(dateStr);
-                if (!isNaN(d.getTime())) {
-                    const rowYear = String(d.getFullYear());
-                    const rowMonth = String(d.getMonth() + 1).padStart(2, '0');
+            const d = dateStr ? new Date(dateStr) : null;
 
-                    if (rowYear !== selectedYear) {
-                        matchPeriod = false;
-                    } else if (selectedMonth && rowMonth !== selectedMonth) {
-                        matchPeriod = false;
-                    }
-                } else {
-                    matchPeriod = false;
-                }
-            } else {
+            if (!d || isNaN(d.getTime())) {
                 matchPeriod = false;
+            } else if (range) {
+                // Range bulan aktif (bisa wrap ke tahun berikutnya)
+                matchPeriod = d >= range.startDate && d <= range.endDate;
+            } else {
+                // Cuma filter tahun, tanpa bulan
+                matchPeriod = String(d.getFullYear()) === selectedYear;
             }
         }
 
@@ -530,31 +546,47 @@ function filterApprovedTable() {
     }
 }
 
+const MONTH_NAMES_ID = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
 function bindApprovedPrintAction() {
     const printPdfBtn = document.querySelector('[data-print-pdf]');
     const yearFilter = document.querySelector('[data-year-filter]');
-    const monthFilter = document.querySelector('[data-month-filter]');
+    const monthFromFilter = document.querySelector('[data-month-from-filter]');
+    const monthToFilter = document.querySelector('[data-month-to-filter]');
     const searchInput = document.querySelector('[data-approved-search]');
 
     if (!printPdfBtn) return;
 
     printPdfBtn.addEventListener('click', () => {
         const selectedYear = yearFilter ? yearFilter.value : '';
-        const selectedMonth = monthFilter && !monthFilter.disabled ? monthFilter.value : '';
+        const selectedMonthFrom = monthFromFilter && !monthFromFilter.disabled ? monthFromFilter.value : '';
+        const selectedMonthTo = monthToFilter && !monthToFilter.disabled ? monthToFilter.value : '';
         const query = searchInput ? searchInput.value : '';
 
-        let periodParam = '';
+        const params = new URLSearchParams();
         let periodLabel = 'Semua Periode';
 
         if (selectedYear) {
-            if (selectedMonth) {
-                periodParam = `${selectedYear}-${selectedMonth}`;
-                periodLabel = `${monthFilter.options[monthFilter.selectedIndex].text} ${selectedYear}`;
+            params.set('year', selectedYear);
+
+            if (selectedMonthFrom || selectedMonthTo) {
+                const fromMonth = selectedMonthFrom || selectedMonthTo;
+                const toMonth = selectedMonthTo || selectedMonthFrom;
+                params.set('month_from', fromMonth);
+                params.set('month_to', toMonth);
+
+                const fromLabel = MONTH_NAMES_ID[parseInt(fromMonth, 10) - 1];
+                const toLabel = MONTH_NAMES_ID[parseInt(toMonth, 10) - 1];
+
+                periodLabel = fromMonth === toMonth
+                    ? `${fromLabel} ${selectedYear}`
+                    : `${fromLabel}\u2013${toLabel} ${selectedYear}`;
             } else {
-                periodParam = selectedYear;
                 periodLabel = `Tahun ${selectedYear}`;
             }
         }
+
+        if (query) params.set('search', query);
 
         Swal.fire({
             title: 'Cetak Rekap PDF',
@@ -567,7 +599,7 @@ function bindApprovedPrintAction() {
             showLoaderOnConfirm: true,
             preConfirm: async () => {
                 try {
-                    await previewPdf(`/committee/applications/approved/print-pdf?period=${periodParam}&search=${query}`);
+                    await previewPdf(`/committee/applications/approved/print-pdf?${params.toString()}`);
                 } catch (error) {
                     Swal.showValidationMessage('Gagal memuat PDF. Coba beberapa saat lagi.');
                 }
@@ -600,7 +632,21 @@ function initFilters() {
     });
 
     const yearFilter = document.querySelector('[data-year-filter]');
-    const monthFilter = document.querySelector('[data-month-filter]');
+    const monthFromFilter = document.querySelector('[data-month-from-filter]');
+    const monthToFilter = document.querySelector('[data-month-to-filter]');
+
+    const populateMonthSelect = (selectEl, year) => {
+        if (!selectEl) return;
+        selectEl.innerHTML = '<option value="">Semua Bulan</option>';
+
+        // Selalu tampilkan 1-12 biar bisa pilih range walau bulan tengahnya ga ada datanya
+        for (let m = 1; m <= 12; m++) {
+            const opt = document.createElement('option');
+            opt.value = String(m).padStart(2, '0');
+            opt.textContent = MONTH_NAMES_ID[m - 1];
+            selectEl.appendChild(opt);
+        }
+    };
 
     if (yearFilter && Object.keys(availablePeriods).length > 0) {
         yearFilter.innerHTML = '<option value="">Semua Tahun</option>';
@@ -614,27 +660,29 @@ function initFilters() {
         yearFilter.addEventListener('change', () => {
             const y = yearFilter.value;
             if (!y) {
-                monthFilter.innerHTML = '<option value="">Semua Bulan</option>';
-                monthFilter.disabled = true;
+                if (monthFromFilter) {
+                    monthFromFilter.innerHTML = '<option value="">Semua Bulan</option>';
+                    monthFromFilter.disabled = true;
+                }
+                if (monthToFilter) {
+                    monthToFilter.innerHTML = '<option value="">Semua Bulan</option>';
+                    monthToFilter.disabled = true;
+                }
             } else {
-                monthFilter.innerHTML = '<option value="">Semua Bulan</option>';
-                const months = Array.from(availablePeriods[y]).sort();
-                const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-
-                months.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m;
-                    opt.textContent = monthNames[parseInt(m) - 1];
-                    monthFilter.appendChild(opt);
-                });
-                monthFilter.disabled = false;
+                populateMonthSelect(monthFromFilter, y);
+                populateMonthSelect(monthToFilter, y);
+                if (monthFromFilter) monthFromFilter.disabled = false;
+                if (monthToFilter) monthToFilter.disabled = false;
             }
             filterApprovedTable();
         });
     }
 
-    if (monthFilter) {
-        monthFilter.addEventListener('change', filterApprovedTable);
+    if (monthFromFilter) {
+        monthFromFilter.addEventListener('change', filterApprovedTable);
+    }
+    if (monthToFilter) {
+        monthToFilter.addEventListener('change', filterApprovedTable);
     }
 
     const searchInput = document.querySelector('[data-approved-search]');
