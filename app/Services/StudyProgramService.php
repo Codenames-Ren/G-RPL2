@@ -12,7 +12,8 @@ class StudyProgramService
 
     public function getAll()
     {
-        return StudyProgram::latest()
+        return StudyProgram::with('faculty')
+            ->latest()
             ->get();
     }
 
@@ -29,11 +30,14 @@ class StudyProgramService
                 'active'
             )
 
+            ->with('faculty')
+
             ->latest()
 
             ->get([
                 'id',
                 'code',
+                'faculty_id',
                 'name',
                 'supports_a1',
                 'supports_a2',
@@ -49,7 +53,7 @@ class StudyProgramService
         StudyProgram $studyProgram
     )
     {
-        return $studyProgram;
+        return $studyProgram->load('faculty');
     }
 
     /*
@@ -61,6 +65,8 @@ class StudyProgramService
         $studyProgram = StudyProgram::create([
 
             'code' => $request->code,
+
+            'faculty_id' => $request->faculty_id,
 
             'name' => $request->name,
 
@@ -82,7 +88,7 @@ class StudyProgramService
 
             'message' => 'Study program created successfully',
 
-            'data' => $studyProgram,
+            'data' => $studyProgram->load('faculty'),
         ];
     }
 
@@ -98,6 +104,8 @@ class StudyProgramService
         $studyProgram->update([
 
             'code' => $request->code,
+
+            'faculty_id' => $request->faculty_id,
 
             'name' => $request->name,
 
@@ -119,7 +127,7 @@ class StudyProgramService
 
             'message' => 'Study program updated successfully',
 
-            'data' => $studyProgram->fresh(),
+            'data' => $studyProgram->fresh()->load('faculty'),
         ];
     }
 }
