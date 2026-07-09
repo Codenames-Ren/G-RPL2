@@ -338,8 +338,10 @@ class CommitteeService
             ->where('status', ApplicationStatus::APPROVED)
             ->with([
                 'applicant.user',
-                'studyProgram',
+                'studyProgram.faculty',
                 'assessment.courseMappings.course',
+                'assessment.courseMappings.applicationA1Course',
+                'assessment.courseMappings.applicationA2LearningExperience',
             ]);
 
         // Filter: Bisa hanya Tahun, bisa Tahun + range Bulan (termasuk yang wrap ke tahun berikutnya, misal Des-Feb)
@@ -368,15 +370,30 @@ class CommitteeService
 
         $applications = $query->latest('updated_at')->get();
 
-        // Hitung manual total SKS
+        // Pecah SKS jadi Transfer (A1) & Perolehan (A2)
         $applications->each(function ($app) {
+            $transferSks = 0;
+            $perolehanSks = 0;
+
             if ($app->assessment) {
-                $app->total_sks = $app->assessment->courseMappings
-                    ->where('is_recognized', true)
-                    ->sum(fn($m) => $m->course->sks ?? 0);
-            } else {
-                $app->total_sks = 0;
+                foreach ($app->assessment->courseMappings as $mapping) {
+                    if (!$mapping->is_recognized) {
+                        continue;
+                    }
+
+                    $sks = $mapping->course->sks ?? 0;
+
+                    if ($mapping->applicationA1Course) {
+                        $transferSks += $sks;
+                    } elseif ($mapping->applicationA2LearningExperience) {
+                        $perolehanSks += $sks;
+                    }
+                }
             }
+
+            $app->transfer_sks = $transferSks;
+            $app->perolehan_sks = $perolehanSks;
+            $app->total_sks = $transferSks + $perolehanSks;
         });
 
         return Pdf::loadView('pdf.committee.approved-recap', [
@@ -385,7 +402,7 @@ class CommitteeService
             'monthFrom' => $monthFrom,
             'monthTo' => $monthTo,
             'search' => $search
-        ])->setPaper('A4', 'landscape');
+        ])->setPaper('A4', 'portrait');
     }
 
     /*
@@ -416,5 +433,90 @@ class CommitteeService
         $endDate = Carbon::create($endYear, $toMonth, 1)->endOfMonth();
 
         return [$startDate, $endDate];
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate Approved Recap Detail PDF (per Mata Kuliah)
+    |--------------------------------------------------------------------------
+    */
+
+    public function generateApprovedRecapDetailPdf(
+        string $year = null,
+        string $monthFrom = null,
+        string $monthTo = null,
+        string $search = null
+    ) {
+        $query = Application::query()
+            ->where('status', ApplicationStatus::APPROVED)
+            ->with([
+                'applicant.user',
+                'studyProgram',
+                'assessment.courseMappings.course',
+                'assessment.courseMappings.applicationA1Course',
+                'assessment.courseMappings.applicationA2LearningExperience',
+            ]);
+
+        if ($year) {
+            [$startDate, $endDate] = $this->resolvePeriodRange($year, $monthFrom, $monthTo);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('updated_at', [$startDate, $endDate]);
+            } else {
+                $query->whereYear('updated_at', $year);
+            }
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('application_number', 'like', "%{$search}%")
+                ->orWhereHas('applicant.user', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('studyProgram', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        $applications = $query->latest('updated_at')->get();
+
+        // Flatten: satu baris per mata kuliah hasil mapping yang recognized
+        $rows = collect();
+
+        foreach ($applications as $app) {
+            if (!$app->assessment) {
+                continue;
+            }
+
+            foreach ($app->assessment->courseMappings as $mapping) {
+                // Cuma matkul yang udah di-assessment & diakui (recognized) yang tampil
+                if (!$mapping->is_recognized || !$mapping->course) {
+                    continue;
+                }
+
+                $rows->push([
+                    'student_name'  => $app->applicant->user->name ?? '-',
+                    'course_code'   => $mapping->course->code ?? '-',
+                    'course_name'   => $mapping->course->name ?? '-',
+                    'sks'           => $mapping->course->sks ?? 0,
+                    'grade'         => $mapping->grade ?? '-',
+                    'is_transfer'   => (bool) $mapping->application_a1_course_id,
+                    'is_perolehan'  => (bool) $mapping->application_a2_learning_experience_id,
+                ]);
+            }
+        }
+
+        $rows = $rows
+            ->sortBy(fn ($row) => $row['student_name'] . $row['course_code'])
+            ->values();
+
+        return Pdf::loadView('pdf.committee.recap-detail', [
+            'rows'      => $rows,
+            'year'      => $year,
+            'monthFrom' => $monthFrom,
+            'monthTo'   => $monthTo,
+            'search'    => $search,
+        ])->setPaper('A4', 'portrait');
     }
 }
