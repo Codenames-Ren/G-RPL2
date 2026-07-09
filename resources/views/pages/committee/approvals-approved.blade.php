@@ -254,6 +254,11 @@
                                     Cetak
                                 </button>
 
+                                <button class="button button-muted committee-print-btn" type="button" data-print-detail-pdf title="Cetak Rekap Detail per Mata Kuliah" style="min-height: 38px; padding: 0 14px; font-size: 13px;">
+                                    <svg style="width:16px; height:16px; margin-right:5px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h6M9 17l-4 4m4-4l-4-4m14-7H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"></path></svg>
+                                    Cetak Detail
+                                </button>
+
                                 <span class="committee-search-count" data-approved-search-count>
                                     0 Data
                                 </span>
