@@ -609,6 +609,67 @@ function bindApprovedPrintAction() {
     });
 }
 
+function bindApprovedPrintDetailAction() {
+    const printDetailBtn = document.querySelector('[data-print-detail-pdf]');
+    const yearFilter = document.querySelector('[data-year-filter]');
+    const monthFromFilter = document.querySelector('[data-month-from-filter]');
+    const monthToFilter = document.querySelector('[data-month-to-filter]');
+    const searchInput = document.querySelector('[data-approved-search]');
+
+    if (!printDetailBtn) return;
+
+    printDetailBtn.addEventListener('click', () => {
+        const selectedYear = yearFilter ? yearFilter.value : '';
+        const selectedMonthFrom = monthFromFilter && !monthFromFilter.disabled ? monthFromFilter.value : '';
+        const selectedMonthTo = monthToFilter && !monthToFilter.disabled ? monthToFilter.value : '';
+        const query = searchInput ? searchInput.value : '';
+
+        const params = new URLSearchParams();
+        let periodLabel = 'Semua Periode';
+
+        if (selectedYear) {
+            params.set('year', selectedYear);
+
+            if (selectedMonthFrom || selectedMonthTo) {
+                const fromMonth = selectedMonthFrom || selectedMonthTo;
+                const toMonth = selectedMonthTo || selectedMonthFrom;
+                params.set('month_from', fromMonth);
+                params.set('month_to', toMonth);
+
+                const fromLabel = MONTH_NAMES_ID[parseInt(fromMonth, 10) - 1];
+                const toLabel = MONTH_NAMES_ID[parseInt(toMonth, 10) - 1];
+
+                periodLabel = fromMonth === toMonth
+                    ? `${fromLabel} ${selectedYear}`
+                    : `${fromLabel}\u2013${toLabel} ${selectedYear}`;
+            } else {
+                periodLabel = `Tahun ${selectedYear}`;
+            }
+        }
+
+        if (query) params.set('search', query);
+
+        Swal.fire({
+            title: 'Cetak Rekap Detail PDF',
+            text: `Apakah Anda ingin mencetak rekap detail per mata kuliah untuk ${periodLabel}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Cetak',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#10b981',
+            showLoaderOnConfirm: true,
+            preConfirm: async () => {
+                try {
+                    await previewPdf(`/committee/applications/approved/print-detail-pdf?${params.toString()}`);
+                } catch (error) {
+                    Swal.showValidationMessage('Gagal memuat PDF. Coba beberapa saat lagi.');
+                }
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+    });
+}
+
 function initFilters() {
     const dataRows = getDataRows();
     if (dataRows.length === 0) return;
@@ -713,6 +774,7 @@ export function bootCommitteePages() {
         }, 400);
 
         bindApprovedPrintAction();
+        bindApprovedPrintDetailAction();
     }
 
     if (page === 'approval-detail') {
