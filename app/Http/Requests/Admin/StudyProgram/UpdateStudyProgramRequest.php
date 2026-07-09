@@ -34,6 +34,12 @@ class UpdateStudyProgramRequest extends FormRequest
                 'unique:study_programs,code,' . $this->studyProgram->id,
             ],
 
+            'faculty_id' => [
+                'required',
+                'integer',
+                'exists:faculties,id',
+            ],
+
             'name' => [
                 'required',
                 'string',
