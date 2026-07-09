@@ -34,6 +34,12 @@ class StoreStudyProgramRequest extends FormRequest
                 'unique:study_programs,code',
             ],
 
+            'faculty_id' => [
+                'required',
+                'integer',
+                'exists:faculties,id',
+            ],
+
             'name' => [
                 'required',
                 'string',
