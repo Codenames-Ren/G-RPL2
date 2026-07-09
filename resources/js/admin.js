@@ -249,14 +249,41 @@ async function fillStudyProgramOptions(selectedIds = []) {
     });
 }
 
+async function fillFacultyOptions(selectedId = null) {
+    const selects = document.querySelectorAll('[data-faculty-select]');
+    if (!selects.length) {
+        return;
+    }
+
+    const response = await apiRequest('/admin/faculties');
+    const faculties = collection(response);
+
+    selects.forEach((select) => {
+        const currentValue = selectedId ?? select.value;
+
+        select.innerHTML = `<option value="">Pilih Fakultas</option>${faculties.map((faculty) => `
+            <option value="${faculty.id}">
+                ${escapeHtml(faculty.code)} - ${escapeHtml(faculty.name)}
+            </option>
+        `).join('')}`;
+
+        if (currentValue) {
+            select.value = currentValue;
+        }
+    });
+}
+
 async function loadStudyProgramForm(form) {
     if (form.dataset.studyProgramForm !== 'edit') {
+        await fillFacultyOptions();
         return;
     }
 
     try {
         const response = await apiRequest(`/admin/study-programs/${currentResourceId()}`);
         const program = response.data;
+
+        await fillFacultyOptions(program.faculty_id);
 
         Object.entries(program).forEach(([key, value]) => {
             if (form.elements[key]) {
@@ -519,6 +546,65 @@ function bindCourseActions() {
     });
 }
 
+function bindInlineFacultyCreate() {
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-add-faculty]');
+        if (!button) return;
+
+        const { value: formValues } = await Swal.fire({
+            title: 'Tambah Fakultas Baru',
+            html:
+                '<input id="swal-faculty-code" class="swal2-input" placeholder="Kode Fakultas" maxlength="20">' +
+                '<input id="swal-faculty-name" class="swal2-input" placeholder="Nama Fakultas" maxlength="255">',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                const code = document.getElementById('swal-faculty-code').value.trim();
+                const name = document.getElementById('swal-faculty-name').value.trim();
+
+                if (!code || !name) {
+                    Swal.showValidationMessage('Kode dan nama fakultas wajib diisi.');
+                    return false;
+                }
+
+                return { code, name };
+            },
+        });
+
+        if (!formValues) return;
+
+        button.disabled = true;
+
+        try {
+            const response = await apiRequest('/admin/faculties', {
+                method: 'POST',
+                body: JSON.stringify(formValues),
+            });
+
+            const faculty = response.data;
+
+            await fillFacultyOptions(faculty.id);
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Berhasil',
+                text: 'Fakultas baru berhasil ditambahkan dan dipilih.',
+                confirmButtonText: 'Oke',
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: validationMessage(error),
+            });
+        } finally {
+            button.disabled = false;
+        }
+    });
+}
+
 function bindAdminFilters() {
     document.querySelectorAll('[data-admin-filter]').forEach((form) => {
         form.addEventListener('submit', (event) => {
@@ -542,6 +628,7 @@ export function bootAdminPages() {
     bindUserForms();
     bindUserActions();
     bindStudyProgramForms();
+    bindInlineFacultyCreate();
     bindCourseForms();
     bindCourseActions();
 
