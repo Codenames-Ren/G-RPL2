@@ -121,6 +121,25 @@
                     </label>
 
                     <label class="study-create-field">
+                        <span>Fakultas</span>
+
+                        <div class="study-create-select-wrap study-create-faculty-row">
+                            <select name="faculty_id" data-faculty-select required>
+                                <option value="">Pilih Fakultas</option>
+                            </select>
+
+                            <button
+                                type="button"
+                                class="study-create-add-faculty-btn"
+                                data-add-faculty
+                                title="Tambah Fakultas Baru"
+                            >
+                                +
+                            </button>
+                        </div>
+                    </label>
+
+                    <label class="study-create-field">
                         <span>Total SKS</span>
 
                         <div class="study-create-input-wrap">
@@ -614,6 +633,44 @@
         .study-create-select-wrap {
             position: relative;
             min-width: 0;
+        }
+
+        .study-create-faculty-row {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .study-create-faculty-row select {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .study-create-add-faculty-btn {
+            flex: 0 0 auto;
+            width: 48px;
+            min-height: 48px;
+            border-radius: 16px;
+            border: 1px solid rgba(21, 101, 192, 0.22);
+            background: linear-gradient(135deg, #1565C0 0%, #0f4fa3 100%);
+            color: #ffffff;
+            font-size: 1.3rem;
+            font-weight: 800;
+            line-height: 1;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(21, 101, 192, 0.18);
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .study-create-add-faculty-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .study-create-add-faculty-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+            transform: none;
         }
 
         .study-create-input-wrap svg {
