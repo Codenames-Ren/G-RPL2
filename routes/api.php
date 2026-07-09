@@ -16,6 +16,7 @@ use App\Http\Controllers\Applicant\ApplicantProfileController;
 use App\Http\Controllers\Staff\SubmissionController;
 use App\Http\Controllers\Assessor\AssessmentController;
 use App\Http\Controllers\Committee\CommitteeController;
+use App\Http\Controllers\Admin\FacultyController;
 
 // -------------------------
 // Universal Route for all role
@@ -82,6 +83,12 @@ Route::prefix('auth')->group(function () {
 // -------------------------
 
 Route::middleware(['auth:sanctum', 'role:system_admin'])->prefix('admin')->group(function () {
+    Route::prefix('faculties')->group(function () {
+        Route::get('/', [FacultyController::class, 'index']);
+        Route::get('/{faculty}', [FacultyController::class, 'show']);
+        Route::post('/', [FacultyController::class, 'store']);
+        Route::put('/{faculty}', [FacultyController::class, 'update']);
+    });
 
     Route::prefix('study-programs')->group(function () {
         Route::get('/', [StudyProgramController::class, 'index']);
@@ -218,6 +225,7 @@ Route::middleware([
 
     Route::prefix('applications')->group(function () {
         Route::get('/approved/print-pdf', [CommitteeController::class, 'printApprovedRecap']);
+        Route::get('/approved/print-detail-pdf', [CommitteeController::class, 'printApprovedRecapDetail']);
         Route::get('/approved', [CommitteeController::class, 'approved']);
         Route::get('/approved/{application}', [CommitteeController::class, 'showApproved']);
         Route::get('/', [CommitteeController::class, 'index']);
