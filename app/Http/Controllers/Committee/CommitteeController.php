@@ -210,4 +210,39 @@ class CommitteeController extends Controller
         // Pakai stream supaya kebuka di tab baru (kayak fungsi preview)
         return $pdf->stream($filename);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cetak PDF Rekap Detail (per Mata Kuliah)
+    |--------------------------------------------------------------------------
+    */
+
+    public function printApprovedRecapDetail(Request $request)
+    {
+        $year = $request->query('year');
+        $monthFrom = $request->query('month_from');
+        $monthTo = $request->query('month_to');
+        $search = $request->query('search');
+
+        $pdf = $this->committeeService->generateApprovedRecapDetailPdf(
+            $year,
+            $monthFrom,
+            $monthTo,
+            $search
+        );
+
+        $filename = 'Rekap-Detail-Disetujui';
+        if ($year) {
+            $filename .= '-' . $year;
+            if ($monthFrom) {
+                $filename .= '-' . $monthFrom;
+                if ($monthTo && $monthTo !== $monthFrom) {
+                    $filename .= 'sd' . $monthTo;
+                }
+            }
+        }
+        $filename .= '.pdf';
+
+        return $pdf->stream($filename);
+    }
 }
